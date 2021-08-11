@@ -111,7 +111,7 @@ dist_check_SCRIPTS = pathlen aki invalid-sig email \
 	pkcs12 certtool-crl-decoding pkcs12-encode pkcs12-corner-cases inhibit-anypolicy \
 	smime cert-time alt-chain pkcs7-list-sign pkcs7-eddsa certtool-ecdsa \
 	key-id pkcs8 pkcs8-decode ecdsa illegal-rsa pkcs8-invalid key-invalid \
-	pkcs8-eddsa certtool-subca certtool-verify-profiles x509-duplicate-ext
+	pkcs8-eddsa certtool-subca certtool-verify-profiles x509-duplicate-ext x25519-and-x448
 
 dist_check_SCRIPTS += key-id ecdsa pkcs8-invalid key-invalid pkcs8-decode pkcs8 pkcs8-eddsa \
 	certtool-utf8 crq

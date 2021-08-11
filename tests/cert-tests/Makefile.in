@@ -271,12 +271,12 @@ am__dist_check_SCRIPTS_DIST = pathlen aki invalid-sig email pkcs7 \
 	pkcs7-eddsa certtool-ecdsa key-id pkcs8 pkcs8-decode ecdsa \
 	illegal-rsa pkcs8-invalid key-invalid pkcs8-eddsa \
 	certtool-subca certtool-verify-profiles x509-duplicate-ext \
-	certtool-utf8 crq cert-non-digits-time reject-invalid-time \
-	tolerate-invalid-time provable-dh-default template-test \
-	pem-decoding othername-test krb5-test sha3-test md5-test \
-	tlsfeature-test template-exts-test pkcs1-pad pkcs12-utf8 \
-	rsa-pss-pad dsa certtool dane gost pkcs12-gost pkcs8-gost \
-	certtool-rsa-pss certtool-eddsa
+	x25519-and-x448 certtool-utf8 crq cert-non-digits-time \
+	reject-invalid-time tolerate-invalid-time provable-dh-default \
+	template-test pem-decoding othername-test krb5-test sha3-test \
+	md5-test tlsfeature-test template-exts-test pkcs1-pad \
+	pkcs12-utf8 rsa-pss-pad dsa certtool dane gost pkcs12-gost \
+	pkcs8-gost certtool-rsa-pss certtool-eddsa
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -1872,11 +1872,11 @@ dist_check_SCRIPTS = pathlen aki invalid-sig email pkcs7 \
 	pkcs7-eddsa certtool-ecdsa key-id pkcs8 pkcs8-decode ecdsa \
 	illegal-rsa pkcs8-invalid key-invalid pkcs8-eddsa \
 	certtool-subca certtool-verify-profiles x509-duplicate-ext \
-	key-id ecdsa pkcs8-invalid key-invalid pkcs8-decode pkcs8 \
-	pkcs8-eddsa certtool-utf8 crq $(am__append_1) $(am__append_2) \
-	$(am__append_3) $(am__append_4) $(am__append_5) \
-	$(am__append_6) $(am__append_7) certtool-rsa-pss \
-	certtool-eddsa
+	x25519-and-x448 key-id ecdsa pkcs8-invalid key-invalid \
+	pkcs8-decode pkcs8 pkcs8-eddsa certtool-utf8 crq \
+	$(am__append_1) $(am__append_2) $(am__append_3) \
+	$(am__append_4) $(am__append_5) $(am__append_6) \
+	$(am__append_7) certtool-rsa-pss certtool-eddsa
 TESTS = $(dist_check_SCRIPTS)
 
 # Set detect_leaks=0 to ASAN. It seems it is detecting many leaks in tools
@@ -2394,6 +2394,13 @@ certtool-verify-profiles.log: certtool-verify-profiles
 x509-duplicate-ext.log: x509-duplicate-ext
 	@p='x509-duplicate-ext'; \
 	b='x509-duplicate-ext'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
+x25519-and-x448.log: x25519-and-x448
+	@p='x25519-and-x448'; \
+	b='x25519-and-x448'; \
 	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
 	--log-file $$b.log --trs-file $$b.trs \
 	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
