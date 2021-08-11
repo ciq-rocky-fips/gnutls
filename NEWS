@@ -20,6 +20,9 @@ See the end for copying conditions.
    allocation of the buffer is large enough without having to call
    realloc (#1151).  [GNUTLS-SA-2021-03-10, CVSS: low]
 
+** certtool: Certtool can now generate, manipulate, and evaluate x25519 and
+   x448 public keys, private keys, and certificates.
+
 ** API and ABI modifications:
 No changes since last version.
 
