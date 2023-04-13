@@ -26,6 +26,9 @@
 #include <string.h>
 #include <stdio.h>
 
+/* syslog logging for FIPS. */
+#include "fipslog.h"
+
 struct self_test_st {
 	const uint8_t entropy[DRBG_AES_SEED_SIZE];
 	const uint8_t pstring[32];
@@ -144,7 +147,10 @@ int drbg_aes_self_test(void)
 			goto fail;
 
 		if (memcmp(result, tv[i].res, sizeof(result)) != 0) {
+			FIPSLOG_FAILED("DRBG-AES", "entropy", "%s", "result does not match test vector");
 			goto fail;
+		} else {
+			FIPSLOG_SUCCESS("DRBG-AES", "entropy", "%s", "result matches test vector");
 		}
 
 		/* test the error handling of drbg_aes_random() */
@@ -152,6 +158,7 @@ int drbg_aes_self_test(void)
 		test_ctx.reseed_counter = DRBG_AES_RESEED_TIME+1;
 		if (drbg_aes_random(&test_ctx, 16, result) != 0) {
 			gnutls_assert();
+			FIPSLOG_FAILED("DRBG-AES", "reseed-detect", "%s", "random allowed after reseed_counter exceeded");
 			goto fail;
 		}
 		test_ctx.reseed_counter = saved;
@@ -159,6 +166,7 @@ int drbg_aes_self_test(void)
 		ret = drbg_aes_random(&test_ctx, MAX_DRBG_AES_GENERATE_SIZE+1, tmp);
 		if (ret == 0) {
 			gnutls_assert();
+			FIPSLOG_FAILED("DRBG-AES", "random", "%s", "random allowed with size too large");
 			goto fail;
 		}
 
@@ -166,6 +174,7 @@ int drbg_aes_self_test(void)
 		ret = drbg_aes_generate(&test_ctx, MAX_DRBG_AES_GENERATE_SIZE+1, tmp, 0, NULL);
 		if (ret != 0) {
 			gnutls_assert();
+			FIPSLOG_FAILED("DRBG-AES", "generate", "%s", "generate allowed with size too large");
 			goto fail;
 		}
 
@@ -173,14 +182,18 @@ int drbg_aes_self_test(void)
 		ret =
 		    drbg_aes_reseed(&test_ctx, DRBG_AES_SEED_SIZE*2,
 				    (uint8_t*)tv, 0, NULL);
-		if (ret != 0)
+		if (ret != 0) {
+			FIPSLOG_FAILED("DRBG-AES", NULL, "%s", "reseed allowed with entropy size too large");
 			goto fail;
+		}
 
 		ret =
 		    drbg_aes_reseed(&test_ctx, DRBG_AES_SEED_SIZE,
 				    tv[i].entropy, DRBG_AES_SEED_SIZE*2, (uint8_t*)tv);
-		if (ret != 0)
+		if (ret != 0) {
+			FIPSLOG_FAILED("DRBG-AES", NULL, "%s", "reseed allowed with additional size too large");
 			goto fail;
+		}
 
 		/* check whether reseed detection works */
 		if (i==0) {
@@ -201,6 +214,7 @@ int drbg_aes_self_test(void)
 			/* that should fail */
 			if (drbg_aes_random(&test_ctx, 1, result) != 0) {
 				gnutls_assert();
+				FIPSLOG_FAILED("DRBG-AES", "reseed-count", "%s", "reseed count detection");
 				goto fail;
 			}
 			test_ctx.reseed_counter = saved;
@@ -211,6 +225,7 @@ int drbg_aes_self_test(void)
 		zeroize_key(&test_ctx, sizeof(test_ctx));
 		if (memcmp(&test_ctx, &test_ctx2, sizeof(test_ctx)) == 0) {
 			gnutls_assert();
+			FIPSLOG_FAILED("DRBG-AES", NULL, "%s", "key was already zero");
 			goto fail;
 		}
 
