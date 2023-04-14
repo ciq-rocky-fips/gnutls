@@ -32,6 +32,8 @@
 #include <nettle/sha2.h>
 #include <nettle/sha3.h>
 
+#include "fipslog.h"
+
 #define STR(tag, tag_size, val) \
 	.tag = (uint8_t*)val, \
 	.tag_size = (sizeof(val)-1)
@@ -703,7 +705,10 @@ static int test_cipher(gnutls_cipher_algorithm_t cipher,
 			_gnutls_debug_log("%s test vector %d failed!\n",
 					  gnutls_cipher_get_name(cipher),
 					  i);
+			FIPSLOG_FAILED(gnutls_cipher_get_name(cipher), "cipher", "encrypt test vector %d", i);
 			return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+		} else {
+			FIPSLOG_SUCCESS(gnutls_cipher_get_name(cipher), "cipher", "encrypt test vector %d", i);
 		}
 
 		/* check in-place encryption */
@@ -719,7 +724,10 @@ static int test_cipher(gnutls_cipher_algorithm_t cipher,
 
 			if (memcmp(tmp, vectors[i].ciphertext, vectors[i].plaintext_size) != 0) {
 				_gnutls_debug_log("%s vector %d in-place encryption failed!\n", gnutls_cipher_get_name(cipher), i);
+				FIPSLOG_FAILED(gnutls_cipher_get_name(cipher), "cipher", "vector %d in-place encryption", i);
 				return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+			} else {
+				FIPSLOG_SUCCESS(gnutls_cipher_get_name(cipher), "cipher", "vector %d in-place encryption", i);
 			}
 		}
 
@@ -733,7 +741,10 @@ static int test_cipher(gnutls_cipher_algorithm_t cipher,
 				_gnutls_debug_log("%s vector %d internal IV check failed!\n",
 						  gnutls_cipher_get_name(cipher),
 						  i);
+				FIPSLOG_FAILED(gnutls_cipher_get_name(cipher), "cipher", "vector %d internal IV check", i);
 				return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+			} else {
+				FIPSLOG_SUCCESS(gnutls_cipher_get_name(cipher), "cipher", "vector %d internal IV check", i);
 			}
 		}
 
@@ -770,7 +781,10 @@ static int test_cipher(gnutls_cipher_algorithm_t cipher,
 			_gnutls_debug_log("%s test vector %d failed!\n",
 					  gnutls_cipher_get_name(cipher),
 					  i);
+			FIPSLOG_FAILED(gnutls_cipher_get_name(cipher), "cipher", "decrypt test vector %d", i);
 			return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+		} else {
+			FIPSLOG_SUCCESS(gnutls_cipher_get_name(cipher), "cipher", "decrypt test vector %d", i);
 		}
 
 		/* check in-place decryption */
@@ -786,7 +800,10 @@ static int test_cipher(gnutls_cipher_algorithm_t cipher,
 
 			if (memcmp(tmp, vectors[i].plaintext, vectors[i].plaintext_size) != 0) {
 				_gnutls_debug_log("%s vector %d in-place decryption failed!\n", gnutls_cipher_get_name(cipher), i);
+				FIPSLOG_FAILED(gnutls_cipher_get_name(cipher), "cipher", "vector %d in-place decryption", i);
 				return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+			} else {
+				FIPSLOG_SUCCESS(gnutls_cipher_get_name(cipher), "cipher", "vector %d in-place decryption", i);
 			}
 		}
 
@@ -849,7 +866,14 @@ static int test_cipher_all_block_sizes(gnutls_cipher_algorithm_t cipher,
 				_gnutls_debug_log("%s encryption of test vector %d failed with block size %d/%d!\n",
 						  gnutls_cipher_get_name(cipher),
 						  i, (int)block, (int)vectors[i].plaintext_size);
+				FIPSLOG_FAILED(gnutls_cipher_get_name(cipher), "cipher",
+					"encryption of test vector %d with block size %d/%d",
+					i, (int)block, (int)vectors[i].plaintext_size);
 				return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+			} else {
+				FIPSLOG_SUCCESS(gnutls_cipher_get_name(cipher), "cipher",
+					"encryption of test vector %d with block size %d/%d",
+					i, (int)block, (int)vectors[i].plaintext_size);
 			}
 
 			gnutls_cipher_deinit(hd);
@@ -887,7 +911,14 @@ static int test_cipher_all_block_sizes(gnutls_cipher_algorithm_t cipher,
 				_gnutls_debug_log("%s decryption of test vector %d failed with block size %d!\n",
 						  gnutls_cipher_get_name(cipher),
 						  i, (int)block);
+				FIPSLOG_FAILED(gnutls_cipher_get_name(cipher), "cipher",
+					   "decryption of test vector %d with block size %d",
+					   i, (int)block);
 				return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+			} else {
+				FIPSLOG_SUCCESS(gnutls_cipher_get_name(cipher), "cipher",
+					   "decryption of test vector %d with block size %d",
+					   i, (int)block);
 			}
 
 			gnutls_cipher_deinit(hd);
@@ -971,7 +1002,12 @@ static int test_cipher_aead_compat(gnutls_cipher_algorithm_t cipher,
 			_gnutls_debug_log
 			    ("compat: %s test vector %d failed (tag)!\n",
 			     gnutls_cipher_get_name(cipher), i);
+			FIPSLOG_FAILED(gnutls_cipher_get_name(cipher), "cipher",
+				"compat - encrypt test vector %d", i);
 			return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+		} else {
+			FIPSLOG_SUCCESS(gnutls_cipher_get_name(cipher), "cipher",
+				"compat - encrypt test vector %d", i);
 		}
 
 		if (vectors[i].plaintext_size > 0) {
@@ -979,12 +1015,17 @@ static int test_cipher_aead_compat(gnutls_cipher_algorithm_t cipher,
 			    (tmp, vectors[i].ciphertext,
 			     vectors[i].plaintext_size) != 0) {
 				_gnutls_debug_log
-				    ("compat: %s test vector %d failed!\n",
+				    ("compat - %s test vector %d failed!\n",
 				     gnutls_cipher_get_name(cipher), i);
 
+				FIPSLOG_FAILED(gnutls_cipher_get_name(cipher), "cipher",
+					"compat - encrypt test vector %d", i);
 				return
 				    gnutls_assert_val
 				    (GNUTLS_E_SELF_TEST_ERROR);
+			} else {
+				FIPSLOG_SUCCESS(gnutls_cipher_get_name(cipher), "cipher",
+					"compat - encrypt test vector %d", i);
 			}
 		}
 
@@ -1001,7 +1042,12 @@ static int test_cipher_aead_compat(gnutls_cipher_algorithm_t cipher,
 
 			if (memcmp(tmp, tmp2, vectors[i].plaintext_size) != 0) {
 				_gnutls_debug_log("compat: %s vector %d in-place encryption failed!\n", gnutls_cipher_get_name(cipher), i);
+				FIPSLOG_FAILED(gnutls_cipher_get_name(cipher), "cipher",
+					"compat - vector %d in-place encryption", i);
 				return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+			} else {
+				FIPSLOG_SUCCESS(gnutls_cipher_get_name(cipher), "cipher",
+					"compat - vector %d in-place encryption", i);
 			}
 
 			/* check decryption with separate buffers */
@@ -1024,7 +1070,12 @@ static int test_cipher_aead_compat(gnutls_cipher_algorithm_t cipher,
 			if (memcmp(tmp2, vectors[i].plaintext, vectors[i].plaintext_size) != 0) {
 				_gnutls_debug_log("compat: %s test vector %d failed (decryption)!\n",
 					gnutls_cipher_get_name(cipher), i);
+				FIPSLOG_FAILED(gnutls_cipher_get_name(cipher), "cipher",
+					"compat - test vector %d (decryption)", i);
 				return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+			} else {
+				FIPSLOG_SUCCESS(gnutls_cipher_get_name(cipher), "cipher",
+					"compat - test vector %d (decryption)", i);
 			}
 
 			/* check in-place decryption */
@@ -1046,7 +1097,12 @@ static int test_cipher_aead_compat(gnutls_cipher_algorithm_t cipher,
 
 				if (memcmp(tmp2, vectors[i].plaintext, vectors[i].plaintext_size) != 0) {
 					_gnutls_debug_log("compat: %s vector %d in-place decryption failed!\n", gnutls_cipher_get_name(cipher), i);
+					FIPSLOG_FAILED(gnutls_cipher_get_name(cipher), "cipher",
+						"compat - vector %d in-place decryption", i);
 					return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+				} else {
+					FIPSLOG_SUCCESS(gnutls_cipher_get_name(cipher), "cipher",
+						"compat - vector %d in-place decryption", i);
 				}
 			}
 		}
@@ -1143,7 +1199,12 @@ static int test_cipher_aead_scatter(gnutls_cipher_algorithm_t cipher,
 			_gnutls_debug_log
 			    ("%s test vector %d failed (tag)!\n",
 			     gnutls_cipher_get_name(cipher), i);
+			FIPSLOG_FAILED(gnutls_cipher_get_name(cipher), "cipher",
+				"test vector %d encrypt", i);
 			return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+		} else {
+			FIPSLOG_SUCCESS(gnutls_cipher_get_name(cipher), "cipher",
+				"test vector %d encrypt", i);
 		}
 
 		if (vectors[i].tag_prepended)
@@ -1158,10 +1219,14 @@ static int test_cipher_aead_scatter(gnutls_cipher_algorithm_t cipher,
 				_gnutls_debug_log
 				    ("%s test vector %d failed!\n",
 				     gnutls_cipher_get_name(cipher), i);
-
+				FIPSLOG_FAILED(gnutls_cipher_get_name(cipher), "cipher",
+					"test vector %d", i);
 				return
 				    gnutls_assert_val
 				    (GNUTLS_E_SELF_TEST_ERROR);
+			} else {
+				FIPSLOG_SUCCESS(gnutls_cipher_get_name(cipher), "cipher",
+					"test vector %d", i);
 			}
 		}
 
@@ -1232,7 +1297,12 @@ static int test_cipher_aead_scatter(gnutls_cipher_algorithm_t cipher,
 			_gnutls_debug_log
 			    ("%s test vector %d failed (tag)!\n",
 			     gnutls_cipher_get_name(cipher), i);
+			FIPSLOG_FAILED(gnutls_cipher_get_name(cipher), "cipher",
+				"test vector %d (tag)", i);
 			return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+		} else {
+			FIPSLOG_SUCCESS(gnutls_cipher_get_name(cipher), "cipher",
+				"test vector %d (tag)", i);
 		}
 
 		if (vectors[i].tag_prepended)
@@ -1248,9 +1318,14 @@ static int test_cipher_aead_scatter(gnutls_cipher_algorithm_t cipher,
 				    ("%s test vector %d failed!\n",
 				     gnutls_cipher_get_name(cipher), i);
 
+				FIPSLOG_FAILED(gnutls_cipher_get_name(cipher), "cipher",
+					"test vector %d", i);
 				return
 				    gnutls_assert_val
 				    (GNUTLS_E_SELF_TEST_ERROR);
+			} else {
+				FIPSLOG_SUCCESS(gnutls_cipher_get_name(cipher), "cipher",
+					"test vector %d", i);
 			}
 		}
 
@@ -1341,7 +1416,12 @@ static int test_cipher_aead(gnutls_cipher_algorithm_t cipher,
 			_gnutls_debug_log
 			    ("%s test vector %d failed (tag)!\n",
 			     gnutls_cipher_get_name(cipher), i);
+			FIPSLOG_FAILED(gnutls_cipher_get_name(cipher), "cipher",
+				"test vector %d (tag)", i);
 			return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+		} else {
+			FIPSLOG_SUCCESS(gnutls_cipher_get_name(cipher), "cipher",
+				"test vector %d (tag)", i);
 		}
 
 		if (vectors[i].tag_prepended)
@@ -1357,9 +1437,15 @@ static int test_cipher_aead(gnutls_cipher_algorithm_t cipher,
 				    ("%s test vector %d failed!\n",
 				     gnutls_cipher_get_name(cipher), i);
 
+				FIPSLOG_FAILED(gnutls_cipher_get_name(cipher), "cipher",
+					"test vector %d", i);
+
 				return
 				    gnutls_assert_val
 				    (GNUTLS_E_SELF_TEST_ERROR);
+			} else {
+				FIPSLOG_SUCCESS(gnutls_cipher_get_name(cipher), "cipher",
+					"test vector %d", i);
 			}
 		}
 
@@ -1383,7 +1469,12 @@ static int test_cipher_aead(gnutls_cipher_algorithm_t cipher,
 			     memcmp(tmp2, vectors[i].plaintext, vectors[i].plaintext_size) != 0)) {
 				_gnutls_debug_log("%s test vector %d failed (decryption)!\n",
 					gnutls_cipher_get_name(cipher), i);
+				FIPSLOG_FAILED(gnutls_cipher_get_name(cipher), "cipher",
+					"test vector %d (decryption)", i);
 				return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+			} else {
+				FIPSLOG_SUCCESS(gnutls_cipher_get_name(cipher), "cipher",
+					"test vector %d (decryption)", i);
 			}
 
 			/* test tag verification */
@@ -1401,9 +1492,14 @@ static int test_cipher_aead(gnutls_cipher_algorithm_t cipher,
 
 				if (ret >= 0) {
 					_gnutls_debug_log("%s: tag check failed\n", gnutls_cipher_get_name(cipher));
+					FIPSLOG_FAILED(gnutls_cipher_get_name(cipher), "cipher",
+						"test vector %d (tag verification)", i);
 					return
 					    gnutls_assert_val
 					    (GNUTLS_E_SELF_TEST_ERROR);
+				} else {
+					FIPSLOG_SUCCESS(gnutls_cipher_get_name(cipher), "cipher",
+						"test vector %d (tag verification)", i);
 				}
 			}
 		}
@@ -1636,7 +1732,12 @@ static int test_digest(gnutls_digest_algorithm_t dig,
 			   vectors[i].output_size) != 0) {
 			_gnutls_debug_log("%s test vector %d failed!\n",
 					  gnutls_digest_get_name(dig), i);
+			FIPSLOG_FAILED(gnutls_digest_get_name(dig), "digest",
+					"comparison failed for test vector %d", i);
 			return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+		} else {
+			FIPSLOG_SUCCESS(gnutls_digest_get_name(dig), "digest",
+					"test vector %d", i);
 		}
 
 		if (copy != NULL) {
@@ -1653,7 +1754,12 @@ static int test_digest(gnutls_digest_algorithm_t dig,
 			    vectors[i].output_size) != 0) {
 				_gnutls_debug_log("%s copy test vector %d failed!\n",
 						  gnutls_digest_get_name(dig), i);
+				FIPSLOG_FAILED(gnutls_digest_get_name(dig), "digest",
+					"comparison failed for copy test vector %d", i);
 				return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+			} else {
+				FIPSLOG_SUCCESS(gnutls_digest_get_name(dig), "digest",
+					"copy test vector %d", i);
 			}
 		}
 	}
@@ -1913,7 +2019,13 @@ static int test_mac(gnutls_mac_algorithm_t mac,
 			    ("MAC-%s test vector %d failed!\n",
 			     gnutls_mac_get_name(mac), i);
 
+			FIPSLOG_FAILED(gnutls_mac_get_name(mac), "mac",
+				"comparison failed for MAC test vector %d", i);
+
 			return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+		} else {
+			FIPSLOG_SUCCESS(gnutls_mac_get_name(mac), "mac",
+				"MAC test vector %d", i);
 		}
 
 		if (copy != NULL) {
@@ -1931,7 +2043,12 @@ static int test_mac(gnutls_mac_algorithm_t mac,
 				_gnutls_debug_log
 					("MAC-%s copy test vector %d failed!\n",
 					 gnutls_mac_get_name(mac), i);
+				FIPSLOG_FAILED(gnutls_mac_get_name(mac), "mac",
+					"comparison failed for MAC copy test vector %d", i);
 				return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+			} else {
+				FIPSLOG_SUCCESS(gnutls_mac_get_name(mac), "mac",
+					"MAC copy test vector %d", i);
 			}
 		}
 	}
@@ -2289,7 +2406,13 @@ static int test_hkdf(gnutls_mac_algorithm_t mac,
 			    ("HKDF extract: MAC-%s test vector failed!\n",
 			     gnutls_mac_get_name(mac));
 
+			FIPSLOG_FAILED(gnutls_mac_get_name(mac), "kdf",
+				"HKDF extract - MAC test vector %d", i);
+
 			return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+		} else {
+			FIPSLOG_SUCCESS(gnutls_mac_get_name(mac), "kdf",
+				"HKDF extract - MAC test vector %d", i);
 		}
 
 		prk.data = (void *) vectors[i].prk;
@@ -2310,7 +2433,13 @@ static int test_hkdf(gnutls_mac_algorithm_t mac,
 			    ("HKDF expand: MAC-%s test vector failed!\n",
 			     gnutls_mac_get_name(mac));
 
+			FIPSLOG_FAILED(gnutls_mac_get_name(mac), "kdf",
+				"HKDF expand - MAC test vector %d", i);
+
 			return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+		} else {
+			FIPSLOG_SUCCESS(gnutls_mac_get_name(mac), "kdf",
+				"HKDF expand - MAC test vector %d", i);
 		}
 	}
 
@@ -2428,7 +2557,13 @@ static int test_pbkdf2(gnutls_mac_algorithm_t mac,
 			    ("PBKDF2: MAC-%s test vector failed!\n",
 			     gnutls_mac_get_name(mac));
 
+			FIPSLOG_FAILED(gnutls_mac_get_name(mac), "kdf",
+				"PBKDF2 - MAC test vector %d", i);
+
 			return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+		} else {
+			FIPSLOG_SUCCESS(gnutls_mac_get_name(mac), "kdf",
+				"PBKDF2 - MAC test vector %d", i);
 		}
 	}
 
@@ -2620,7 +2755,13 @@ static int test_tlsprf(gnutls_mac_algorithm_t mac,
 			    ("TLS-PRF: MAC-%s test vector failed!\n",
 			     gnutls_mac_get_name(mac));
 
+			FIPSLOG_FAILED(gnutls_mac_get_name(mac), "tls",
+				"TLS-PRF - MAC test vector %d", i);
+
 			return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+		} else {
+			FIPSLOG_SUCCESS(gnutls_mac_get_name(mac), "tls",
+				"TLS-PRF - MAC test vector %d", i);
 		}
 	}
 
