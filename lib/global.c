@@ -39,6 +39,7 @@
 #include <system-keys.h>
 #include "str.h"
 #include "global.h"
+#include "fipslog.h"
 
 /* Minimum library versions we accept. */
 #define GNUTLS_MIN_LIBTASN1_VERSION "0.3.4"
@@ -74,6 +75,91 @@ void *_gnutls_pkcs11_mutex;
 
 ASN1_TYPE _gnutls_pkix1_asn = ASN1_TYPE_EMPTY;
 ASN1_TYPE _gnutls_gnutls_asn = ASN1_TYPE_EMPTY;
+
+#if defined(GNUTLS_SUCCESS_AUDIT_WITH_SYSLOG)
+/*
+ * FIPS specific logging.
+ * parameters 'name.subname' is used to
+ * log specific algorithms or not.
+ */
+enum fips_logging_type fips_logging_enabled(const char *name, const char *subname)
+{
+	static bool env_var_check_done = false;
+	static enum fips_logging_type logging_enabled = FIPS_NO_LOGGING;
+	size_t cmp_len = 0;
+	size_t subname_cmp_len = 0;
+	const char *enames = NULL;
+	const char *np;
+
+	if (!env_var_check_done) {
+		const char *e = secure_getenv("GNUTLS_FIPS_LOGGING");
+		if (e != NULL) {
+			if (strcasecmp(e, "STDERR") == 0) {
+				logging_enabled = FIPS_LOG_STDERR;
+			} else {
+				logging_enabled = FIPS_LOG_SYSLOG;
+			}
+		}
+		env_var_check_done = true;
+	}
+	if (logging_enabled == FIPS_NO_LOGGING) {
+		return logging_enabled;
+	}
+	/*
+	 * Here we know logging is enabled. Parse
+	 * the GNUTLS_FIPS_LOGGING_NAMES variable
+	 * and log if the name matches. Names are
+	 * separated by a ':' character. Subnames
+	 * separated from names by a '.' character.
+	 */
+	enames = secure_getenv("GNUTLS_FIPS_LOGGING_NAMES");
+	if (enames == NULL) {
+		return logging_enabled;
+	}
+	cmp_len = strlen(name);
+	if (subname != NULL) {
+		subname_cmp_len = strlen(subname);
+	}
+	for (np = enames; np != NULL;) {
+		while (*np == ':') {
+			np++;
+		}
+		/* Does "name" match ? */
+		if (strncasecmp(np, name, cmp_len)==0) {
+			if (subname == NULL) {
+				/* Move past "name." */
+				np += cmp_len + 1;
+				if (*np == ':' || *np == '\0') {
+					return logging_enabled;
+				}
+				/* Allow wildcard match for subname in env var. */
+				if (*np == '*' && (np[1] == ':' || np[1] == '\0')) {
+					return logging_enabled;
+				}
+			} else {
+				/* Look for .subname */
+				if (np[cmp_len] != '.') {
+					np = strchr(np, ':');
+					continue;
+				}
+				/* Move past "name." */
+				np += cmp_len + 1;
+				/* Allow wildcard match for subname in env var. */
+				if (*np == '*' && (np[1] == ':' || np[1] == '\0')) {
+					return logging_enabled;
+				}
+				if (strncasecmp(np, subname, subname_cmp_len) == 0) {
+					if (np[subname_cmp_len] == ':' || np[subname_cmp_len] == '\0') {
+						return logging_enabled;
+					}
+				}
+			}
+		}
+		np = strchr(np, ':');
+	}
+	return FIPS_NO_LOGGING;
+}
+#endif /* GNUTLS_SUCCESS_AUDIT_WITH_SYSLOG */
 
 gnutls_log_func _gnutls_log_func = NULL;
 gnutls_audit_log_func _gnutls_audit_log_func = NULL;
