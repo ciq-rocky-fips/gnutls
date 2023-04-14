@@ -32,6 +32,9 @@
 #include <pk.h>
 #include <debug.h>
 
+/* syslog logging for FIPS. */
+#include "fipslog.h"
+
 #define DATASTR "Hello there!"
 static const gnutls_datum_t signed_data = {
 	.data = (void *) DATASTR,
@@ -266,7 +269,10 @@ static int test_rsa_enc(gnutls_pk_algorithm_t pk,
 		enc.size) == 0) {
 		gnutls_assert();
 		ret = GNUTLS_E_SELF_TEST_ERROR;
+		FIPSLOG_FAILED(gnutls_pk_get_name(pk), "encrypt", "%u %s", bits, "signed_data (plaintext) == enc_data");
 		goto cleanup;
+	} else {
+		FIPSLOG_SUCCESS(gnutls_pk_get_name(pk), "encrypt", "%u %s", bits, "signed_data (plaintext) != enc_data");
 	}
 
 	ret = gnutls_privkey_decrypt_data(key, 0, &enc, &dec);
@@ -279,7 +285,10 @@ static int test_rsa_enc(gnutls_pk_algorithm_t pk,
 	    || memcmp(dec.data, signed_data.data, dec.size) != 0) {
 		ret = GNUTLS_E_SELF_TEST_ERROR;
 		gnutls_assert();
+		FIPSLOG_FAILED(gnutls_pk_get_name(pk), "decrypt", "%u %s", bits, "signed_data != dec_data (decrypted)");
 		goto cleanup;
+	} else {
+		FIPSLOG_SUCCESS(gnutls_pk_get_name(pk), "decrypt", "%u %s", bits, "signed_data == dec_data (decrypted)");
 	}
 
 	ret = gnutls_privkey_decrypt_data2(key, 0, &enc, plaintext2,
@@ -291,7 +300,10 @@ static int test_rsa_enc(gnutls_pk_algorithm_t pk,
 	if (memcmp(plaintext2, signed_data.data, signed_data.size) != 0) {
 		ret = GNUTLS_E_SELF_TEST_ERROR;
 		gnutls_assert();
+		FIPSLOG_FAILED(gnutls_pk_get_name(pk), "decrypt", "%u %s", bits, "signed_data != plaintext2");
 		goto cleanup;
+	} else {
+		FIPSLOG_SUCCESS(gnutls_pk_get_name(pk), "decrypt", "%u %s", bits, "signed_data == plaintext2");
 	}
 
 	ret = 0;
@@ -432,7 +444,10 @@ static int test_sig(gnutls_pk_algorithm_t pk,
 	if (ret < 0) {
 		ret = GNUTLS_E_SELF_TEST_ERROR;
 		gnutls_assert();
+		FIPSLOG_FAILED(gnutls_pk_get_name(pk), "verify", "%s %s", param_name, "verify of signed_data != sig");
 		goto cleanup;
+	} else {
+		FIPSLOG_SUCCESS(gnutls_pk_get_name(pk), "verify", "%s %s", param_name, "verify signed_data == sig");
 	}
 
 	ret =
@@ -442,7 +457,10 @@ static int test_sig(gnutls_pk_algorithm_t pk,
 	if (ret != GNUTLS_E_PK_SIG_VERIFY_FAILED) {
 		ret = GNUTLS_E_SELF_TEST_ERROR;
 		gnutls_assert();
+		FIPSLOG_FAILED(gnutls_pk_get_name(pk), "verify", "%s %s", param_name, "verify of bad_data == sig");
 		goto cleanup;
+	} else {
+		FIPSLOG_SUCCESS(gnutls_pk_get_name(pk), "verify", "%s %s", param_name, "verify of bad_data != sig");
 	}
 
 	ret = 0;
@@ -541,7 +559,10 @@ static int test_known_sig(gnutls_pk_algorithm_t pk, unsigned bits,
 		fprintf(stderr, "\n");
 #endif
 		gnutls_assert();
+		FIPSLOG_FAILED(gnutls_pk_get_name(pk), "sign", "%s %s", param_name, "signed_data sig != expected sig");
 		goto cleanup;
+	} else {
+		FIPSLOG_SUCCESS(gnutls_pk_get_name(pk), "sign", "%s %s", param_name, "signed_data sig == expected sig");
 	}
 
 	/* Test if we can verify the generated signature */
@@ -558,7 +579,10 @@ static int test_known_sig(gnutls_pk_algorithm_t pk, unsigned bits,
 	if (ret < 0) {
 		ret = GNUTLS_E_SELF_TEST_ERROR;
 		gnutls_assert();
+		FIPSLOG_FAILED(gnutls_pk_get_name(pk), "verify", "%s %s", param_name, "verify signed_data sig != expected sig");
 		goto cleanup;
+	} else {
+		FIPSLOG_SUCCESS(gnutls_pk_get_name(pk), "verify", "%s %s", param_name, "verify signed_data sig == expected sig");
 	}
 
 	/* Test if a broken signature will cause verification error */
@@ -570,7 +594,10 @@ static int test_known_sig(gnutls_pk_algorithm_t pk, unsigned bits,
 	if (ret != GNUTLS_E_PK_SIG_VERIFY_FAILED) {
 		ret = GNUTLS_E_SELF_TEST_ERROR;
 		gnutls_assert();
+		FIPSLOG_FAILED(gnutls_pk_get_name(pk), "verify", "%s %s", param_name, "bad_data sig == expected sig");
 		goto cleanup;
+	} else {
+		FIPSLOG_SUCCESS(gnutls_pk_get_name(pk), "verify", "%s %s", param_name, "bad_data sig != expected sig");
 	}
 
 	ret = 0;
@@ -790,7 +817,10 @@ static int test_dh(void)
 	if (memcmp(out.data, known_dh_k, out.size) != 0) {
 		ret = GNUTLS_E_SELF_TEST_ERROR;
 		gnutls_assert();
+		FIPSLOG_FAILED("DH", "verify", "%s", "out != known_dh_k");
 		goto cleanup;
+	} else {
+		FIPSLOG_SUCCESS("DH", "verify", "%s", "out == known_dh_k");
 	}
 	
 	
@@ -892,7 +922,10 @@ static int test_ecdh(void)
 	if (memcmp(out.data, known_key, out.size) != 0) {
 		ret = GNUTLS_E_SELF_TEST_ERROR;
 		gnutls_assert();
+		FIPSLOG_FAILED(gnutls_pk_get_name(GNUTLS_PK_EC), "verify", "%s", "out != known_key");
 		goto cleanup;
+	} else {
+		FIPSLOG_SUCCESS(gnutls_pk_get_name(GNUTLS_PK_EC), "verify", "%s", "out == known_key");
 	}
 	
 	ret = 0;
