@@ -464,6 +464,23 @@ static int check_binary_integrity(void)
 		return ret;
 	}
 
+	if (fips_request_failure("CHECK_LIB_HMAC", "GNUTLS")) {
+		/* Flip one bit in the first byte of the HMAC we read from the file. */
+		hmac.gnutls.hmac[0] ^= 0x1;
+	}
+	if (fips_request_failure("CHECK_LIB_HMAC", "NETTLE")) {
+		/* Flip one bit in the first byte of the HMAC we read from the file. */
+		hmac.nettle.hmac[0] ^= 0x1;
+	}
+	if (fips_request_failure("CHECK_LIB_HMAC", "HOGWEED")) {
+		/* Flip one bit in the first byte of the HMAC we read from the file. */
+		hmac.hogweed.hmac[0] ^= 0x1;
+	}
+	if (fips_request_failure("CHECK_LIB_HMAC", "GMP")) {
+		/* Flip one bit in the first byte of the HMAC we read from the file. */
+		hmac.gmp.hmac[0] ^= 0x1;
+	}
+
 	FIPSLOG_SUCCESS("POST", "lib-mac-gnutls", "%s", "test started - library integrity using SHA256 mac");
 	ret = check_lib_hmac(&hmac.gnutls, paths.gnutls);
 	if (ret < 0) {
