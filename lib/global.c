@@ -161,6 +161,78 @@ enum fips_logging_type fips_logging_enabled(const char *name, const char *subnam
 	}
 	return FIPS_NO_LOGGING;
 }
+
+#if defined(GNUTLS_FAILURE_PROBES)
+/*
+ * FIPS specific failure tests..
+ * Use environment variable to check if a
+ * specific test should fail or not.
+ */
+bool fips_request_failure(const char *name, const char *subname)
+{
+	static bool fail_env_var_check_done = false;
+	static bool fail_tests = false;
+	size_t cmp_len = 0;
+	size_t subname_cmp_len = 0;
+	const char *enames = NULL;
+	const char *np;
+
+	if (!fail_env_var_check_done) {
+		const char *e = secure_getenv("GNUTLS_FIPS_FAIL_TESTS");
+		if (e != NULL) {
+			fail_tests = true;
+		}
+		fail_env_var_check_done = true;
+	}
+	if (!fail_tests) {
+		return false;
+	}
+
+	/*
+	 * Here we know fail test probes are enabled. Parse
+	 * the GNUTLS_FIPS_FAIL_TESTS variable
+	 * and return true if the name (plus any subname) matches. Names are
+	 * separated by a ':' character. Subnames are separated by a '.'
+	 * character.
+	 */
+	enames = secure_getenv("GNUTLS_FIPS_FAIL_TESTS");
+	if (enames == NULL) {
+		return false;
+	}
+	cmp_len = strlen(name);
+	if (subname != NULL) {
+		subname_cmp_len = strlen(subname);
+	}
+	for (np = enames; np != NULL;) {
+		while (*np == ':') {
+			np++;
+		}
+		/* Does "name" match ? */
+		if (strncasecmp(np, name, cmp_len)==0) {
+			if (subname == NULL) {
+				if (np[cmp_len] == ':' || np[cmp_len] == '\0') {
+					return true;
+				}
+			} else {
+				/* Look for .subname */
+				if (np[cmp_len] != '.') {
+					np = strchr(np, ':');
+					continue;
+				}
+				/* Move past "name." */
+				np += cmp_len + 1;
+				if (strncasecmp(np, subname, subname_cmp_len) == 0) {
+					if (np[subname_cmp_len] == ':' || np[subname_cmp_len] == '\0') {
+						return true;
+					}
+				}
+			}
+		}
+		np = strchr(np, ':');
+	}
+	return false;
+}
+#endif /* GNUTLS_FAILURE_PROBES */
 #endif /* GNUTLS_SUCCESS_AUDIT_WITH_SYSLOG */
 
 gnutls_log_func _gnutls_log_func = NULL;
