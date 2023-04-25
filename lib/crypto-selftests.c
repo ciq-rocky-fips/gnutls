@@ -886,6 +886,7 @@ static int test_cipher_all_block_sizes(gnutls_cipher_algorithm_t cipher,
 	int ret;
 	unsigned int i;
 	uint8_t tmp[384];
+	uint8_t fail_tmp[384];
 	gnutls_datum_t key, iv = {NULL, 0};
 	size_t block;
 	size_t offset;
@@ -901,6 +902,16 @@ static int test_cipher_all_block_sizes(gnutls_cipher_algorithm_t cipher,
 			if (iv.size != vectors[i].iv_size)
 				return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
 
+			if (iv.size > 0 && fips_request_failure(gnutls_cipher_get_name(cipher), "IV-encrypt-all-block")) {
+				if (iv.size > sizeof(fail_tmp)) {
+					return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+				}
+				memcpy(fail_tmp, iv.data, iv.size);
+				/* Flip one IV bit. */
+				fail_tmp[0] ^= 0x1;
+				iv.data = (void *)fail_tmp;
+			}
+
 			ret = gnutls_cipher_init(&hd, cipher, &key, &iv);
 			if (ret < 0) {
 				_gnutls_debug_log("error initializing: %s\n",
@@ -911,12 +922,29 @@ static int test_cipher_all_block_sizes(gnutls_cipher_algorithm_t cipher,
 			for (offset = 0;
 			     offset < vectors[i].plaintext_size;
 			     offset += block) {
-				ret =
-				    gnutls_cipher_encrypt2(hd,
+				/* If request fail, only flip a bit on the first part of the plaintext. */
+				if (offset == 0 && fips_request_failure(gnutls_cipher_get_name(cipher), "encrypt-all-block")) {
+					size_t elen = MIN(block, vectors[i].plaintext_size - offset);
+					if (elen >  sizeof(fail_tmp)) {
+						return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+					}
+					memcpy(fail_tmp, vectors[i].plaintext + offset, elen);
+					/* Flip one plaintext bit. */
+					fail_tmp[0] ^= 0x1;
+					ret =
+					    gnutls_cipher_encrypt2(hd,
+							   fail_tmp,
+							   elen,
+							   tmp + offset,
+							   sizeof(tmp) - offset);
+				} else {
+					ret =
+					    gnutls_cipher_encrypt2(hd,
 							   vectors[i].plaintext + offset,
 							   MIN(block, vectors[i].plaintext_size - offset),
 							   tmp + offset,
 							   sizeof(tmp) - offset);
+				}
 				if (ret < 0)
 					return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
 			}
@@ -949,6 +977,16 @@ static int test_cipher_all_block_sizes(gnutls_cipher_algorithm_t cipher,
 			iv.data = (void *) vectors[i].iv;
 			iv.size = gnutls_cipher_get_iv_size(cipher);
 
+			if (iv.size > 0 && fips_request_failure(gnutls_cipher_get_name(cipher), "IV-decrypt-all-block")) {
+				if (iv.size > sizeof(fail_tmp)) {
+					return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+				}
+				memcpy(fail_tmp, iv.data, iv.size);
+				/* Flip one IV bit. */
+				fail_tmp[0] ^= 0x1;
+				iv.data = (void *)fail_tmp;
+			}
+
 			ret = gnutls_cipher_init(&hd, cipher, &key, &iv);
 			if (ret < 0)
 				return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
@@ -956,12 +994,29 @@ static int test_cipher_all_block_sizes(gnutls_cipher_algorithm_t cipher,
 			for (offset = 0;
 			     offset + block <= vectors[i].plaintext_size;
 			     offset += block) {
-				ret =
-				    gnutls_cipher_decrypt2(hd,
+				/* If request fail, only flip a bit on the first part of the ciphertext. */
+				if (offset == 0 && fips_request_failure(gnutls_cipher_get_name(cipher), "decrypt-all-block")) {
+					size_t elen = MIN(block, vectors[i].plaintext_size - offset);
+					if (elen >  sizeof(fail_tmp)) {
+						return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+					}
+					memcpy(fail_tmp, vectors[i].ciphertext + offset, elen);
+					/* Flip one ciphertext bit. */
+					fail_tmp[0] ^= 0x1;
+					ret =
+					    gnutls_cipher_decrypt2(hd,
+							   fail_tmp,
+							   elen,
+							   tmp + offset,
+							   sizeof(tmp) - offset);
+				} else {
+					ret =
+					    gnutls_cipher_decrypt2(hd,
 							   vectors[i].ciphertext + offset,
 							   MIN(block, vectors[i].plaintext_size - offset),
 							   tmp + offset,
 							   sizeof(tmp) - offset);
+				}
 				if (ret < 0)
 					return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
 			}
