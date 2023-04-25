@@ -670,6 +670,7 @@ static int test_cipher(gnutls_cipher_algorithm_t cipher,
 	int ret;
 	unsigned int i;
 	uint8_t tmp[384];
+	uint8_t fail_tmp[384];
 	gnutls_datum_t key, iv = {NULL, 0};
 
 	for (i = 0; i < vectors_size; i++) {
@@ -684,6 +685,16 @@ static int test_cipher(gnutls_cipher_algorithm_t cipher,
 		if (iv.size != vectors[i].iv_size)
 			return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
 
+		if (iv.size > 0 && fips_request_failure(gnutls_cipher_get_name(cipher), "IV-encrypt")) {
+			if (iv.size > sizeof(fail_tmp)) {
+				return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+			}
+			memcpy(fail_tmp, iv.data, iv.size);
+			/* Flip one IV bit. */
+			fail_tmp[0] ^= 0x1;
+			iv.data = (void *)fail_tmp;
+		}
+
 		ret = gnutls_cipher_init(&hd, cipher, &key, &iv);
 		if (ret < 0) {
 			_gnutls_debug_log("error initializing: %s\n",
@@ -691,11 +702,25 @@ static int test_cipher(gnutls_cipher_algorithm_t cipher,
 			return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
 		}
 
-		ret =
-		    gnutls_cipher_encrypt2(hd,
+		if (fips_request_failure(gnutls_cipher_get_name(cipher), "encrypt")) {
+			if (vectors[i].plaintext_size > sizeof(fail_tmp)) {
+				return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+			}
+			memcpy(fail_tmp, vectors[i].plaintext, vectors[i].plaintext_size);
+			/* Flip one plaintext bit. */
+			fail_tmp[0] ^= 0x1;
+			ret =
+			    gnutls_cipher_encrypt2(hd,
+					   fail_tmp,
+					   vectors[i].plaintext_size,
+					   tmp, sizeof(tmp));
+		} else {
+			ret =
+			    gnutls_cipher_encrypt2(hd,
 					   vectors[i].plaintext,
 					   vectors[i].plaintext_size,
 					   tmp, sizeof(tmp));
+		}
 		if (ret < 0)
 			return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
 
@@ -716,6 +741,10 @@ static int test_cipher(gnutls_cipher_algorithm_t cipher,
 			gnutls_cipher_set_iv(hd, (void*)vectors[i].iv, vectors[i].iv_size);
 
 			memcpy(tmp, vectors[i].plaintext, vectors[i].plaintext_size);
+			if (fips_request_failure(gnutls_cipher_get_name(cipher), "encrypt-in-place")) {
+				/* Flip one plaintext bit. */
+				tmp[0] ^= 0x1;
+			}
 			ret = gnutls_cipher_encrypt(hd, tmp, vectors[i].plaintext_size);
 			if (ret < 0)
 				return
@@ -737,6 +766,10 @@ static int test_cipher(gnutls_cipher_algorithm_t cipher,
 			if (ret < 0)
 				return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
 
+			if (fips_request_failure(gnutls_cipher_get_name(cipher), "internal-IV-check")) {
+				/* Flip one IV bit. */
+				tmp[0] ^= 0x1;
+			}
 			if (memcmp(tmp, vectors[i].internal_iv, ret) != 0) {
 				_gnutls_debug_log("%s vector %d internal IV check failed!\n",
 						  gnutls_cipher_get_name(cipher),
@@ -759,15 +792,39 @@ static int test_cipher(gnutls_cipher_algorithm_t cipher,
 
 		iv.data = (void *) vectors[i].iv;
 
+		if (iv.size > 0 && fips_request_failure(gnutls_cipher_get_name(cipher), "IV-decrypt")) {
+			if (iv.size > sizeof(fail_tmp)) {
+				return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+			}
+			memcpy(fail_tmp, iv.data, iv.size);
+			/* Flip one IV bit. */
+			fail_tmp[0] ^= 0x1;
+			iv.data = (void *)fail_tmp;
+		}
+
 		ret = gnutls_cipher_init(&hd, cipher, &key, &iv);
 		if (ret < 0)
 			return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
 
-		ret =
-		    gnutls_cipher_decrypt2(hd,
+		if (fips_request_failure(gnutls_cipher_get_name(cipher), "decrypt")) {
+			if (vectors[i].plaintext_size > sizeof(fail_tmp)) {
+				return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+			}
+			memcpy(fail_tmp, vectors[i].ciphertext, vectors[i].plaintext_size);
+			/* Flip one ciphertext bit. */
+			fail_tmp[0] ^= 0x1;
+			ret =
+			    gnutls_cipher_decrypt2(hd,
+					   fail_tmp,
+					   vectors[i].plaintext_size, tmp,
+					   sizeof(tmp));
+		} else {
+			ret =
+			    gnutls_cipher_decrypt2(hd,
 					   vectors[i].ciphertext,
 					   vectors[i].plaintext_size, tmp,
 					   sizeof(tmp));
+		}
 		if (ret < 0) {
 			_gnutls_debug_log
 			    ("%s decryption of test vector %d failed!\n",
@@ -792,6 +849,10 @@ static int test_cipher(gnutls_cipher_algorithm_t cipher,
 			gnutls_cipher_set_iv(hd, (void*)vectors[i].iv, vectors[i].iv_size);
 
 			memcpy(tmp, vectors[i].ciphertext, vectors[i].plaintext_size);
+			if (fips_request_failure(gnutls_cipher_get_name(cipher), "decrypt-in-place")) {
+				/* Flip one ciphertext bit. */
+				tmp[0] ^= 0x1;
+			}
 			ret = gnutls_cipher_decrypt(hd, tmp, vectors[i].plaintext_size);
 			if (ret < 0)
 				return
