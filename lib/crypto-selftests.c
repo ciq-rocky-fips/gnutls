@@ -1589,6 +1589,7 @@ static int test_cipher_aead(gnutls_cipher_algorithm_t cipher,
 	unsigned int i;
 	uint8_t tmp[384];
 	uint8_t tmp2[384];
+	uint8_t fail_tmp[384];
 	gnutls_datum_t key, iv;
 	size_t s, s2;
 	const uint8_t *tag;
@@ -1605,6 +1606,16 @@ static int test_cipher_aead(gnutls_cipher_algorithm_t cipher,
 
 		iv.data = (void *) vectors[i].iv;
 		iv.size = vectors[i].iv_size;
+		if (iv.size > 0 && fips_request_failure(gnutls_cipher_get_name(cipher), "IV-encrypt-aead")) {
+			if (iv.size > sizeof(fail_tmp)) {
+				return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+			}
+			memcpy(fail_tmp, iv.data, iv.size);
+			/* Flip one IV bit. */
+			fail_tmp[0] ^= 0x1;
+			iv.data = (void *)fail_tmp;
+		}
+
 		tag_size = vectors[i].tag_size;
 
 		if (tag_size > gnutls_cipher_get_tag_size(cipher)) {
@@ -1623,14 +1634,46 @@ static int test_cipher_aead(gnutls_cipher_algorithm_t cipher,
 
 		s = sizeof(tmp);
 
-		ret =
-		    gnutls_aead_cipher_encrypt(hd,
+		if (vectors[i].auth_size > 0 && fips_request_failure(gnutls_cipher_get_name(cipher), "auth-encrypt-aead")) {
+			if (vectors[i].auth_size > sizeof(fail_tmp)) {
+				return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+			}
+			memcpy(fail_tmp, vectors[i].auth, vectors[i].auth_size);
+			/* Flip one auth bit. */
+			fail_tmp[0] ^= 0x1;
+			ret =
+			    gnutls_aead_cipher_encrypt(hd,
+					   iv.data, iv.size,
+					   fail_tmp, vectors[i].auth_size,
+					   vectors[i].tag_size,
+					   vectors[i].plaintext,
+					   vectors[i].plaintext_size,
+					   tmp, &s);
+		} else if (vectors[i].plaintext_size > 0 && fips_request_failure(gnutls_cipher_get_name(cipher), "encrypt-aead")) {
+			if (vectors[i].plaintext_size > sizeof(fail_tmp)) {
+				return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+			}
+			memcpy(fail_tmp, vectors[i].plaintext, vectors[i].plaintext_size);
+			/* Flip one plaintext bit. */
+			fail_tmp[0] ^= 0x1;
+			ret =
+			    gnutls_aead_cipher_encrypt(hd,
+					   iv.data, iv.size,
+					   vectors[i].auth, vectors[i].auth_size,
+					   vectors[i].tag_size,
+					   fail_tmp,
+					   vectors[i].plaintext_size,
+					   tmp, &s);
+		} else {
+			ret =
+			    gnutls_aead_cipher_encrypt(hd,
 					   iv.data, iv.size,
 					   vectors[i].auth, vectors[i].auth_size,
 					   vectors[i].tag_size,
 					   vectors[i].plaintext,
 					   vectors[i].plaintext_size,
 					   tmp, &s);
+		}
 		if (ret < 0)
 			return
 			    gnutls_assert_val
@@ -1687,17 +1730,63 @@ static int test_cipher_aead(gnutls_cipher_algorithm_t cipher,
 		/* check decryption */
 		{
 			s2 = sizeof(tmp2);
-			ret =
-			    gnutls_aead_cipher_decrypt(hd,
+
+			if (iv.size > 0 && fips_request_failure(gnutls_cipher_get_name(cipher), "IV-decrypt-aead")) {
+				if (iv.size > sizeof(fail_tmp)) {
+					return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+				}
+				memcpy(fail_tmp, iv.data, iv.size);
+				/* Flip one IV bit. */
+				fail_tmp[0] ^= 0x1;
+				iv.data = (void *)fail_tmp;
+			}
+
+			if (vectors[i].auth_size > 0 && fips_request_failure(gnutls_cipher_get_name(cipher), "auth-decrypt-aead")) {
+				if (vectors[i].auth_size > sizeof(fail_tmp)) {
+					return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+				}
+				memcpy(fail_tmp, vectors[i].auth, vectors[i].auth_size);
+				/* Flip one auth bit. */
+				fail_tmp[0] ^= 0x1;
+				ret =
+				    gnutls_aead_cipher_decrypt(hd,
+						   iv.data, iv.size,
+						   fail_tmp, vectors[i].auth_size,
+						   vectors[i].tag_size,
+						   tmp, s,
+						   tmp2, &s2);
+			} else if (vectors[i].plaintext_size > 0 && fips_request_failure(gnutls_cipher_get_name(cipher), "decrypt-aead")) {
+				/* Flip one ciphertext bit. */
+				tmp[0] ^= 0x1;
+				ret =
+				    gnutls_aead_cipher_decrypt(hd,
 						   iv.data, iv.size,
 						   vectors[i].auth, vectors[i].auth_size,
 						   vectors[i].tag_size,
 						   tmp, s,
 						   tmp2, &s2);
-			if (ret < 0)
+			} else {
+				ret =
+				    gnutls_aead_cipher_decrypt(hd,
+						   iv.data, iv.size,
+						   vectors[i].auth, vectors[i].auth_size,
+						   vectors[i].tag_size,
+						   tmp, s,
+						   tmp2, &s2);
+			}
+			if (ret < 0) {
+				/*
+				 * Changing the IV, auth or ciphertext causes
+				 * gnutls_aead_cipher_decrypt() to return GNUTLS_E_DECRYPTION_FAILED
+				 * as it breaks the tag validation. So we need to log
+				 * the failure here, not in the memcmp below.
+				 */
+				FIPSLOG_FAILED(gnutls_cipher_get_name(cipher), "cipher",
+					"test vector %d (decryption)", i);
 				return
 				    gnutls_assert_val
 				    (GNUTLS_E_SELF_TEST_ERROR);
+			}
 
 			if (s2 != vectors[i].plaintext_size ||
 			    (vectors[i].plaintext_size > 0 &&
