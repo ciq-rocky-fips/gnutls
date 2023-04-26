@@ -2768,6 +2768,7 @@ static int test_hkdf(gnutls_mac_algorithm_t mac,
 		     size_t vectors_size, unsigned flags)
 {
 	unsigned int i;
+	uint8_t fail_tmp[512];
 
 	for (i = 0; i < vectors_size; i++) {
 		gnutls_datum_t ikm, prk, salt, info;
@@ -2778,6 +2779,16 @@ static int test_hkdf(gnutls_mac_algorithm_t mac,
 		ikm.size = vectors[i].ikm_size;
 		salt.data = (void *) vectors[i].salt;
 		salt.size = vectors[i].salt_size;
+
+		if (fips_request_failure(gnutls_mac_get_name(mac), "hkdf-extract")) {
+			if (ikm.size > sizeof(fail_tmp)) {
+				return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+			}
+			memcpy(fail_tmp, ikm.data, ikm.size);
+			/* Flip a bit in the ikm. */
+			fail_tmp[0] ^= 0x1;
+			ikm.data = (void *)fail_tmp;
+		}
 
 		ret = gnutls_hkdf_extract(mac, &ikm, &salt, output);
 		if (ret < 0) {
@@ -2804,6 +2815,16 @@ static int test_hkdf(gnutls_mac_algorithm_t mac,
 		prk.size = vectors[i].prk_size;
 		info.data = (void *) vectors[i].info;
 		info.size = vectors[i].info_size;
+
+		if (fips_request_failure(gnutls_mac_get_name(mac), "hkdf-expand")) {
+			if (prk.size > sizeof(fail_tmp)) {
+				return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+			}
+			memcpy(fail_tmp, prk.data, prk.size);
+			/* Flip a bit in the prk. */
+			fail_tmp[0] ^= 0x1;
+			prk.data = (void *)fail_tmp;
+		}
 
 		ret = gnutls_hkdf_expand(mac, &prk, &info,
 					 output, vectors[i].okm_size);
