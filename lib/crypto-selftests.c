@@ -2321,6 +2321,7 @@ static int test_mac(gnutls_mac_algorithm_t mac,
 	size_t data_size;
 	gnutls_hmac_hd_t hd;
 	gnutls_hmac_hd_t copy;
+	uint8_t fail_tmp[512];
 
 	for (i = 0; i < vectors_size; i++) {
 		ret = gnutls_hmac_init(&hd,
@@ -2333,10 +2334,21 @@ static int test_mac(gnutls_mac_algorithm_t mac,
 			return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
 		}
 
-		if (vectors[i].nonce_size)
+		if (vectors[i].nonce_size > 0 && fips_request_failure(gnutls_mac_get_name(mac), "hmac-nonce")) {
+			if (vectors[i].nonce_size > sizeof(fail_tmp)) {
+				return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+			}
+			memcpy(fail_tmp, vectors[i].nonce, vectors[i].nonce_size);
+			/* Flip a bit in the nonce. */
+			fail_tmp[0] ^= 0x1;
+			gnutls_hmac_set_nonce(hd,
+					      fail_tmp,
+					      vectors[i].nonce_size);
+		} else if (vectors[i].nonce_size) {
 			gnutls_hmac_set_nonce(hd,
 					      vectors[i].nonce,
 					      vectors[i].nonce_size);
+		}
 
 		ret = gnutls_hmac(hd, vectors[i].plaintext, 1);
 		if (ret < 0)
@@ -2348,9 +2360,21 @@ static int test_mac(gnutls_mac_algorithm_t mac,
 		if (!copy && secure_getenv("GNUTLS_TEST_SUITE_RUN"))
 			return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
 
-		ret = gnutls_hmac(hd,
+		if (fips_request_failure(gnutls_mac_get_name(mac), "hmac")) {
+			if (vectors[i].plaintext_size > sizeof(fail_tmp)) {
+				return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+			}
+			memcpy(fail_tmp, vectors[i].plaintext, vectors[i].plaintext_size);
+			/* Flip a bit being passed to the hmac fn. */
+			fail_tmp[1] ^= 0x1;
+			ret = gnutls_hmac(hd,
+				  &fail_tmp[1],
+				  vectors[i].plaintext_size - 1);
+		} else {
+			ret = gnutls_hmac(hd,
 				  &vectors[i].plaintext[1],
 				  vectors[i].plaintext_size - 1);
+		}
 		if (ret < 0)
 			return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
 
@@ -2378,9 +2402,21 @@ static int test_mac(gnutls_mac_algorithm_t mac,
 		}
 
 		if (copy != NULL) {
-			ret = gnutls_hmac(copy,
+			if (fips_request_failure(gnutls_mac_get_name(mac), "hmac-copy")) {
+				if (vectors[i].plaintext_size > sizeof(fail_tmp)) {
+					return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+				}
+				memcpy(fail_tmp, vectors[i].plaintext, vectors[i].plaintext_size);
+				/* Flip a bit being passed to the hmac fn. */
+				fail_tmp[1] ^= 0x1;
+				ret = gnutls_hmac(copy,
+					  &fail_tmp[1],
+					  vectors[i].plaintext_size - 1);
+			} else {
+				ret = gnutls_hmac(copy,
 					  &vectors[i].plaintext[1],
 					  vectors[i].plaintext_size - 1);
+			}
 			if (ret < 0)
 				return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
 
