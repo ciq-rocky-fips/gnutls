@@ -2017,6 +2017,7 @@ static int test_digest(gnutls_digest_algorithm_t dig,
 	size_t data_size;
 	gnutls_hash_hd_t hd;
 	gnutls_hash_hd_t copy;
+	uint8_t fail_tmp[512];
 
 	if (_gnutls_digest_exists(dig) == 0)
 		return 0;
@@ -2039,9 +2040,21 @@ static int test_digest(gnutls_digest_algorithm_t dig,
 		if (!copy && secure_getenv("GNUTLS_TEST_SUITE_RUN"))
 			return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
 
-		ret = gnutls_hash(hd,
+		if (fips_request_failure(gnutls_digest_get_name(dig), "digest")) {
+			if (vectors[i].plaintext_size > sizeof(fail_tmp)) {
+				return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+			}
+			memcpy(fail_tmp, vectors[i].plaintext, vectors[i].plaintext_size);
+			/* Flip a bit being passed to the hash fn. */
+			fail_tmp[1] ^= 0x1;
+			ret = gnutls_hash(hd,
+				  &fail_tmp[1],
+				  vectors[i].plaintext_size - 1);
+		} else {
+			ret = gnutls_hash(hd,
 				  &vectors[i].plaintext[1],
 				  vectors[i].plaintext_size - 1);
+		}
 		if (ret < 0)
 			return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
 
@@ -2065,9 +2078,21 @@ static int test_digest(gnutls_digest_algorithm_t dig,
 		}
 
 		if (copy != NULL) {
-			ret = gnutls_hash(copy,
+			if (fips_request_failure(gnutls_digest_get_name(dig), "digest-copy")) {
+				if (vectors[i].plaintext_size > sizeof(fail_tmp)) {
+					return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+				}
+				memcpy(fail_tmp, vectors[i].plaintext, vectors[i].plaintext_size);
+				/* Flip a bit being passed to the hash fn. */
+				fail_tmp[1] ^= 0x1;
+				ret = gnutls_hash(copy,
+					  &fail_tmp[1],
+					  vectors[i].plaintext_size - 1);
+			} else {
+				ret = gnutls_hash(copy,
 					  &vectors[i].plaintext[1],
 					  vectors[i].plaintext_size - 1);
+			}
 			if (ret < 0)
 				return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
 
