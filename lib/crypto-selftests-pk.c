@@ -706,6 +706,7 @@ static int test_dh(void)
 	gnutls_pk_params_st priv;
 	gnutls_pk_params_st pub;
 	gnutls_datum_t out = {NULL, 0};
+	uint8_t fail_tmp[1024];
 
 	/* FFDHE 3072 test vector provided by Stephan Mueller in:
 	 * https://gitlab.com/gnutls/gnutls/-/merge_requests/1342#note_424430996
@@ -855,7 +856,19 @@ static int test_dh(void)
 		goto cleanup;
 	}
 
-	ret = _gnutls_mpi_init_scan(&priv.params[DH_X], test_x, sizeof(test_x));
+	if (fips_request_failure("DH", "dh_derive")) {
+		if (sizeof(test_x) > sizeof(fail_tmp)) {
+			ret = GNUTLS_E_SELF_TEST_ERROR;
+			gnutls_assert();
+			goto cleanup;
+		}
+		memcpy(fail_tmp, test_x, sizeof(test_x));
+		/* Flip one bit in the DH_X param. */
+		fail_tmp[0] ^= 0x1;
+		ret = _gnutls_mpi_init_scan(&priv.params[DH_X], fail_tmp, sizeof(test_x));
+	} else {
+		ret = _gnutls_mpi_init_scan(&priv.params[DH_X], test_x, sizeof(test_x));
+	}
 	if (ret < 0) {
 		gnutls_assert();
 		goto cleanup;
