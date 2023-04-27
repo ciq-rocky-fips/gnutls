@@ -947,6 +947,7 @@ static int test_ecdh(void)
 		0x74, 0xc2, 0xde, 0x62, 0xb6, 0xb9, 0x59, 0xc9, 
 		0x56, 0xf6, 0x9e, 0x17, 0xea, 0xbf, 0x7d, 0xa1, 
 		0xd7, 0x65, 0xd6, 0x7b, 0xac, 0xca, 0xd5, 0xe3 };
+	uint8_t fail_tmp[1024];
 	gnutls_pk_params_init(&priv);
 	gnutls_pk_params_init(&pub);
 	
@@ -955,7 +956,19 @@ static int test_ecdh(void)
 	
 	priv.algo = pub.algo = GNUTLS_PK_EC;
 	
-	ret = _gnutls_mpi_init_scan(&priv.params[ECC_K], test_k, sizeof(test_k));
+	if (fips_request_failure("ECDH", "ecdh_derive")) {
+		if (sizeof(test_k) > sizeof(fail_tmp)) {
+			ret = GNUTLS_E_SELF_TEST_ERROR;
+			gnutls_assert();
+			goto cleanup;
+		}
+		memcpy(fail_tmp, test_k, sizeof(test_k));
+		/* Flip one bit in the ECC_K priv.params. */
+		fail_tmp[0] ^= 0x1;
+		ret = _gnutls_mpi_init_scan(&priv.params[ECC_K], fail_tmp, sizeof(test_k));
+	} else {
+		ret = _gnutls_mpi_init_scan(&priv.params[ECC_K], test_k, sizeof(test_k));
+	}
 	if (ret < 0) {
 		gnutls_assert();
 		goto cleanup;
