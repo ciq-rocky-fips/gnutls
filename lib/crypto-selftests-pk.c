@@ -333,6 +333,7 @@ static int test_sig(gnutls_pk_algorithm_t pk,
 	gnutls_datum_t sig = { NULL, 0 };
 	gnutls_pubkey_t pub = NULL;
 	char param_name[32];
+	uint8_t fail_tmp[1024];
 
 	ret = gnutls_privkey_init(&key);
 	if (ret < 0)
@@ -432,15 +433,47 @@ static int test_sig(gnutls_pk_algorithm_t pk,
 		goto cleanup;
 	}
 
-	ret = gnutls_privkey_sign_data2(key, sigalgo, 0, &signed_data, &sig);
+	if (fips_request_failure(gnutls_pk_get_name(pk), "sign")) {
+		gnutls_datum_t signed_data_corrupted;
+		if (signed_data.size > sizeof(fail_tmp)) {
+			ret = GNUTLS_E_SELF_TEST_ERROR;
+			gnutls_assert();
+			goto cleanup;
+		}
+		memcpy(fail_tmp, signed_data.data, signed_data.size);
+		/* Flip one bit in the plaintext. */
+		fail_tmp[0] ^= 0x1;
+		signed_data_corrupted.data = (void *)fail_tmp;
+		signed_data_corrupted.size = signed_data.size;
+		ret = gnutls_privkey_sign_data2(key, sigalgo, 0, &signed_data_corrupted, &sig);
+	} else {
+		ret = gnutls_privkey_sign_data2(key, sigalgo, 0, &signed_data, &sig);
+	}
 	if (ret < 0) {
 		gnutls_assert();
 		goto cleanup;
 	}
 
-	ret =
-	    gnutls_pubkey_verify_data2(pub, sigalgo, 0,
+	if (fips_request_failure(gnutls_pk_get_name(pk), "verify")) {
+		gnutls_datum_t sig_corrupted;
+		if (sig.size > sizeof(fail_tmp)) {
+			ret = GNUTLS_E_SELF_TEST_ERROR;
+			gnutls_assert();
+			goto cleanup;
+		}
+		memcpy(fail_tmp, sig.data, sig.size);
+		/* Flip one bit in the signature. */
+		fail_tmp[0] ^= 0x1;
+		sig_corrupted.data = (void *)fail_tmp;
+		sig_corrupted.size = sig.size;
+		ret =
+		    gnutls_pubkey_verify_data2(pub, sigalgo, 0,
+				       &signed_data, &sig_corrupted);
+	} else {
+		ret =
+		    gnutls_pubkey_verify_data2(pub, sigalgo, 0,
 				       &signed_data, &sig);
+	}
 	if (ret < 0) {
 		ret = GNUTLS_E_SELF_TEST_ERROR;
 		gnutls_assert();
