@@ -69,6 +69,7 @@ x86_aes_xts_cipher_setkey(void *_ctx, const void *userkey, size_t keysize)
 	size_t keybits;
 	const uint8_t *key = userkey;
 	const char *ciphername = NULL;
+	uint8_t fail_tmp[1024];
 
 	if ((keysize != 32) && (keysize != 64))
 		return gnutls_assert_val(GNUTLS_E_INVALID_REQUEST);
@@ -77,6 +78,16 @@ x86_aes_xts_cipher_setkey(void *_ctx, const void *userkey, size_t keysize)
 		ciphername = "AES-128-XTS";
 	} else {
 		ciphername = "AES-256-XTS";
+	}
+
+	if (_gnutls_fips_mode_enabled() && fips_request_failure(ciphername, "duplicate_aes_key")) {
+		if (keysize > sizeof(fail_tmp)) {
+			return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+		}
+		/* Create duplicate key. */
+		memcpy(fail_tmp, key, (keysize / 2));
+		memcpy(&fail_tmp[(keysize / 2)], key, (keysize / 2));
+		key = fail_tmp;
 	}
 
 	/* Check key block according to FIPS-140-2 IG A.9 */
