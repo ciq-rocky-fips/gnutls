@@ -99,6 +99,8 @@ int drbg_aes_self_test(void)
 	unsigned char result[64];
 	uint8_t fail_tmp[1024];
 
+	FIPSLOG_SUCCESS("DRBG-AES", "POST", "%s", "KAT test started");
+
 	memset(&priv, 0, sizeof(priv));
 	priv.ctx = &test_ctx;
 
@@ -107,12 +109,14 @@ int drbg_aes_self_test(void)
 	    drbg_aes_init(&test_ctx, DRBG_AES_SEED_SIZE, tv[0].entropy,
 			  DRBG_AES_SEED_SIZE*2, (void*)tv);
 	if (ret != 0) {
+		FIPSLOG_FAILED("DRBG-AES", "POST", "%s", "KAT test ended");
 		gnutls_assert();
 		return 0;
 	}
 
 	tmp = gnutls_malloc(MAX_DRBG_AES_GENERATE_SIZE+1);
 	if (tmp == NULL) {
+		FIPSLOG_FAILED("DRBG-AES", "POST", "%s", "KAT test ended");
 		gnutls_assert();
 		return 0;
 	}
@@ -249,8 +253,10 @@ int drbg_aes_self_test(void)
 	}
 
 	gnutls_free(tmp);
+	FIPSLOG_SUCCESS("DRBG-AES", "POST", "%s", "KAT test ended");
 	return 1;
  fail:
+	FIPSLOG_FAILED("DRBG-AES", "POST", "%s", "KAT test ended");
 	free(tmp);
 	return 0;
 }
