@@ -685,18 +685,28 @@ static int test_known_sig(gnutls_pk_algorithm_t pk, unsigned bits,
 }
 
 #define PK_TEST(pk, func, bits, sigalgo) \
+		do { \
+			FIPSLOG_SUCCESS(_specific_op_name, "POST", _op_name, "test started"); \
 			ret = func(pk, bits, sigalgo); \
 			if (ret < 0) { \
+				FIPSLOG_FAILED(_specific_op_name, "POST", _op_name, "test ended"); \
 				gnutls_assert(); \
 				goto cleanup; \
-			}
+			} \
+			FIPSLOG_SUCCESS(_specific_op_name, "POST", _op_name, "test ended"); \
+		} while (0)
 
 #define PK_KNOWN_TEST(pk, bits, dig, pkey, sig, flags) \
+		do { \
+			FIPSLOG_SUCCESS(_specific_op_name, "POST", _op_name, "test started"); \
 			ret = test_known_sig(pk, bits, dig, pkey, sizeof(pkey)-1, sig, sizeof(sig)-1, flags); \
 			if (ret < 0) { \
+				FIPSLOG_FAILED(_specific_op_name, "POST", _op_name, "test ended"); \
 				gnutls_assert(); \
 				goto cleanup; \
-			}
+			} \
+			FIPSLOG_SUCCESS(_specific_op_name, "POST", _op_name, "test ended"); \
+		} while (0)
 
 
 /* Known answer tests for DH */
@@ -1056,6 +1066,8 @@ int gnutls_pk_self_test(unsigned flags, gnutls_pk_algorithm_t pk)
 	bool is_post = false;
 	bool is_fips140_mode_enabled = false;
 
+	const char *_specific_op_name = NULL;
+
 	if (flags & GNUTLS_SELF_TEST_FLAG_ALL)
 		pk = GNUTLS_PK_UNKNOWN;
 
@@ -1065,23 +1077,32 @@ int gnutls_pk_self_test(unsigned flags, gnutls_pk_algorithm_t pk)
 	if (gnutls_fips140_mode_enabled())
 		is_fips140_mode_enabled = true;
 
+	_specific_op_name = gnutls_pk_get_name(pk);
+
 	switch (pk) {
 	case GNUTLS_PK_UNKNOWN:
 		FALLTHROUGH;
 	case GNUTLS_PK_DH:
+		FIPSLOG_SUCCESS(_specific_op_name, "POST", "%s", "KAT test started");
 		ret = test_dh();
 		if (ret < 0) {
+			FIPSLOG_FAILED(_specific_op_name, "POST", "%s", "KAT test ended");
 			gnutls_assert();
 			goto cleanup;
 		}
+		FIPSLOG_SUCCESS(_specific_op_name, "POST", "%s", "KAT test ended");
 
 		if (!(flags & GNUTLS_SELF_TEST_FLAG_ALL))
 			return 0;
 		FALLTHROUGH;
 	case GNUTLS_PK_RSA:
+#undef _op_name
+#define _op_name "KAT known sig %s"
 		PK_KNOWN_TEST(GNUTLS_PK_RSA, 2048, GNUTLS_DIG_SHA256,
 			      rsa_2048_privkey, rsa_2048_sig, 0);
 
+#undef _op_name
+#define _op_name "KAT encryption %s"
 		PK_TEST(GNUTLS_PK_RSA, test_rsa_enc, 2048, 0);
 
 		if (!(flags & GNUTLS_SELF_TEST_FLAG_ALL))
@@ -1089,6 +1110,8 @@ int gnutls_pk_self_test(unsigned flags, gnutls_pk_algorithm_t pk)
 
 		FALLTHROUGH;
 	case GNUTLS_PK_RSA_PSS:
+#undef _op_name
+#define _op_name "KAT sign %s"
 		PK_TEST(GNUTLS_PK_RSA_PSS, test_sig, 2048,
 			GNUTLS_SIGN_RSA_PSS_RSAE_SHA256);
 
@@ -1098,10 +1121,14 @@ int gnutls_pk_self_test(unsigned flags, gnutls_pk_algorithm_t pk)
 		FALLTHROUGH;
 	case GNUTLS_PK_DSA:
 		if (is_post || !is_fips140_mode_enabled) {
+#undef _op_name
+#define _op_name "KAT known sig %s"
 			PK_KNOWN_TEST(GNUTLS_PK_DSA, 2048, GNUTLS_DIG_SHA256,
 				      dsa_2048_privkey, dsa_2048_sig,
 				      GNUTLS_PRIVKEY_FLAG_REPRODUCIBLE);
 		} else {
+#undef _op_name
+#define _op_name "KAT sign %s"
 			PK_TEST(GNUTLS_PK_DSA, test_sig, 2048,
 				GNUTLS_SIGN_DSA_SHA256);
 		}
@@ -1112,22 +1139,31 @@ int gnutls_pk_self_test(unsigned flags, gnutls_pk_algorithm_t pk)
 		FALLTHROUGH;
 	case GNUTLS_PK_EC:
 		/* Test ECDH and ECDSA */
+		FIPSLOG_SUCCESS(_specific_op_name, "POST", "%s", "KAT test started");
 		ret = test_ecdh();
 		if (ret < 0) {
+			FIPSLOG_FAILED(_specific_op_name, "POST", "%s", "KAT test ended");
 			gnutls_assert();
 			goto cleanup;
 		}
+		FIPSLOG_SUCCESS(_specific_op_name, "POST", "%s", "KAT test ended");
 
 		/* Test ECDSA */
 		if (is_post || !is_fips140_mode_enabled) {
+#undef _op_name
+#define _op_name "KAT known sig %s"
 			PK_KNOWN_TEST(GNUTLS_PK_EC,
 					  GNUTLS_CURVE_TO_BITS(GNUTLS_ECC_CURVE_SECP256R1),
 					  GNUTLS_DIG_SHA256, ecdsa_secp256r1_privkey,
 					  ecdsa_secp256r1_sig, GNUTLS_PRIVKEY_FLAG_REPRODUCIBLE);
+#undef _op_name
+#define _op_name "KAT sign %s"
 			PK_TEST(GNUTLS_PK_EC, test_sig,
 				GNUTLS_CURVE_TO_BITS(GNUTLS_ECC_CURVE_SECP256R1),
 				GNUTLS_SIGN_ECDSA_SHA256);
 		} else {
+#undef _op_name
+#define _op_name "KAT sign %s"
 			PK_TEST(GNUTLS_PK_EC, test_sig,
 				GNUTLS_CURVE_TO_BITS(GNUTLS_ECC_CURVE_SECP256R1),
 				GNUTLS_SIGN_ECDSA_SHA256);
@@ -1137,28 +1173,40 @@ int gnutls_pk_self_test(unsigned flags, gnutls_pk_algorithm_t pk)
 			return 0;
 
 		if (is_post || !is_fips140_mode_enabled) {
+#undef _op_name
+#define _op_name "KAT known sig %s"
 			PK_KNOWN_TEST(GNUTLS_PK_EC,
 					  GNUTLS_CURVE_TO_BITS(GNUTLS_ECC_CURVE_SECP384R1),
 					  GNUTLS_DIG_SHA384, ecdsa_secp384r1_privkey,
 					  ecdsa_secp384r1_sig, GNUTLS_PRIVKEY_FLAG_REPRODUCIBLE);
+#undef _op_name
+#define _op_name "KAT sign %s"
 			PK_TEST(GNUTLS_PK_EC, test_sig,
 				GNUTLS_CURVE_TO_BITS(GNUTLS_ECC_CURVE_SECP384R1),
 				GNUTLS_SIGN_ECDSA_SHA384);
 		} else {
+#undef _op_name
+#define _op_name "KAT sign %s"
 			PK_TEST(GNUTLS_PK_EC, test_sig,
 				GNUTLS_CURVE_TO_BITS(GNUTLS_ECC_CURVE_SECP384R1),
 				GNUTLS_SIGN_ECDSA_SHA384);
 		}
 
 		if (is_post || !is_fips140_mode_enabled) {
+#undef _op_name
+#define _op_name "KAT known sig %s"
 			PK_KNOWN_TEST(GNUTLS_PK_EC,
 					  GNUTLS_CURVE_TO_BITS(GNUTLS_ECC_CURVE_SECP521R1),
 					  GNUTLS_DIG_SHA512, ecdsa_secp521r1_privkey,
 					  ecdsa_secp521r1_sig, GNUTLS_PRIVKEY_FLAG_REPRODUCIBLE);
+#undef _op_name
+#define _op_name "KAT sign %s"
 			PK_TEST(GNUTLS_PK_EC, test_sig,
 				GNUTLS_CURVE_TO_BITS(GNUTLS_ECC_CURVE_SECP521R1),
 				GNUTLS_SIGN_ECDSA_SHA512);
 		} else {
+#undef _op_name
+#define _op_name "KAT sign %s"
 			PK_TEST(GNUTLS_PK_EC, test_sig,
 				GNUTLS_CURVE_TO_BITS(GNUTLS_ECC_CURVE_SECP521R1),
 				GNUTLS_SIGN_ECDSA_SHA512);
@@ -1166,28 +1214,40 @@ int gnutls_pk_self_test(unsigned flags, gnutls_pk_algorithm_t pk)
 
 #ifdef ENABLE_NON_SUITEB_CURVES
 		if (is_post || !is_fips140_mode_enabled) {
+#undef _op_name
+#define _op_name "KAT known sig %s"
 			PK_KNOWN_TEST(GNUTLS_PK_EC,
 					  GNUTLS_CURVE_TO_BITS(GNUTLS_ECC_CURVE_SECP192R1),
 					  GNUTLS_DIG_SHA256, ecdsa_secp192r1_privkey,
 					  ecdsa_secp192r1_sig, GNUTLS_PRIVKEY_FLAG_REPRODUCIBLE);
+#undef _op_name
+#define _op_name "KAT sign %s"
 			PK_TEST(GNUTLS_PK_EC, test_sig,
 				GNUTLS_CURVE_TO_BITS(GNUTLS_ECC_CURVE_SECP192R1),
 				GNUTLS_SIGN_ECDSA_SHA256);
 		} else {
+#undef _op_name
+#define _op_name "KAT sign %s"
 			PK_TEST(GNUTLS_PK_EC, test_sig,
 				GNUTLS_CURVE_TO_BITS(GNUTLS_ECC_CURVE_SECP192R1),
 				GNUTLS_SIGN_ECDSA_SHA256);
 		}
 
 		if (is_post || !is_fips140_mode_enabled) {
+#undef _op_name
+#define _op_name "KAT known sig %s"
 			PK_KNOWN_TEST(GNUTLS_PK_EC,
 					  GNUTLS_CURVE_TO_BITS(GNUTLS_ECC_CURVE_SECP224R1),
 					  GNUTLS_DIG_SHA256, ecdsa_secp224r1_privkey,
 					  ecdsa_secp224r1_sig, GNUTLS_PRIVKEY_FLAG_REPRODUCIBLE);
+#undef _op_name
+#define _op_name "KAT sign %s"
 			PK_TEST(GNUTLS_PK_EC, test_sig,
 				GNUTLS_CURVE_TO_BITS(GNUTLS_ECC_CURVE_SECP224R1),
 				GNUTLS_SIGN_ECDSA_SHA256);
 		} else {
+#undef _op_name
+#define _op_name "KAT sign %s"
 			PK_TEST(GNUTLS_PK_EC, test_sig,
 				GNUTLS_CURVE_TO_BITS(GNUTLS_ECC_CURVE_SECP224R1),
 				GNUTLS_SIGN_ECDSA_SHA256);
