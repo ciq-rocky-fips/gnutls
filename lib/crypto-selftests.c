@@ -3272,6 +3272,13 @@ int gnutls_tlsprf13_self_test(void)
 		0xC2, 0x67, 0x35, 0xDD, 0x11, 0x94, 0xD2, 0x16
 	};
 
+	FIPSLOG_SUCCESS("TLS1_3", "POST", "%s", "TLS1_3-PRF test started");
+
+	if (fips_request_failure("TLS1_3", "TLS1_3-PRF")) {
+		/* Flip a bit in the data. */
+		tls13_kdf_psk[0] ^= 0x1;
+	}
+
 	ret = gnutls_hmac_fast(GNUTLS_MAC_SHA256,
 				"",		/* key */
 				0,		/* keylen */
@@ -3287,8 +3294,18 @@ int gnutls_tlsprf13_self_test(void)
 		    ("TLS1_3-PRF: MAC-%s test vector failed!\n",
 		     gnutls_mac_get_name(GNUTLS_MAC_SHA256));
 
+		FIPSLOG_FAILED("TLS1_3", "TLS1_3-PRF",
+			"MAC %s test vector",
+			gnutls_mac_get_name(GNUTLS_MAC_SHA256));
+
+		FIPSLOG_FAILED("TLS1_3", "POST", "%s", "TLS1_3-PRF test ended");
 		return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+	} else {
+		FIPSLOG_SUCCESS("TLS1_3", "TLS1_3-PRF",
+				"MAC %s test vector",
+				gnutls_mac_get_name(GNUTLS_MAC_SHA256));
 	}
+	FIPSLOG_SUCCESS("TLS1_3", "POST", "%s", "TLS1_3-PRF test ended");
 	return 0;
 }
 
