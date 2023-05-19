@@ -3202,7 +3202,7 @@ static int test_tlsprf(gnutls_mac_algorithm_t mac,
 		char output[4096];
 		int ret;
 
-		if (fips_request_failure(gnutls_mac_get_name(mac), "tlsprf")) {
+		if (fips_request_failure("TLS1_2", "TLS1_2-PRF")) {
 			if (vectors[i].seed_size > sizeof(fail_tmp)) {
 				return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
 			}
@@ -3229,16 +3229,18 @@ static int test_tlsprf(gnutls_mac_algorithm_t mac,
 
 		if (memcmp(output, vectors[i].output, vectors[i].output_size) != 0) {
 			_gnutls_debug_log
-			    ("TLS-PRF: MAC-%s test vector failed!\n",
+			    ("TLS1_2-PRF: MAC-%s test vector failed!\n",
 			     gnutls_mac_get_name(mac));
 
-			FIPSLOG_FAILED(gnutls_mac_get_name(mac), "tls",
-				"TLS-PRF - MAC test vector %d", i);
+			FIPSLOG_FAILED("TLS1_2", "TLS1_2-PRF",
+				"MAC %s test vector %d",
+				gnutls_mac_get_name(mac), i);
 
 			return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
 		} else {
-			FIPSLOG_SUCCESS(gnutls_mac_get_name(mac), "tls",
-				"TLS-PRF - MAC test vector %d", i);
+			FIPSLOG_SUCCESS("TLS1_2", "TLS1_2-PRF",
+				"MAC %s test vector %d",
+				gnutls_mac_get_name(mac), i);
 		}
 	}
 
@@ -3304,14 +3306,13 @@ int gnutls_tlsprf13_self_test(void)
 int gnutls_tlsprf_self_test(unsigned flags, gnutls_mac_algorithm_t mac)
 {
 	int ret;
-	const char *_specific_op_name = NULL;
+	const char *_specific_op_name = "TLS1_2";
 
 	if (flags & GNUTLS_SELF_TEST_FLAG_ALL)
 		mac = GNUTLS_MAC_UNKNOWN;
 
-	_specific_op_name = gnutls_mac_get_name(mac);
 #undef _op_name
-#define _op_name "tlsprf %s"
+#define _op_name "TLS1_2-PRF %s"
 
 	switch (mac) {
 	case GNUTLS_MAC_UNKNOWN:
