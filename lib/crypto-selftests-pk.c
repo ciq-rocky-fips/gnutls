@@ -906,10 +906,10 @@ static int test_dh(void)
 	if (memcmp(out.data, known_dh_k, out.size) != 0) {
 		ret = GNUTLS_E_SELF_TEST_ERROR;
 		gnutls_assert();
-		FIPSLOG_FAILED("DH", "verify", "%s", "out != known_dh_k");
+		FIPSLOG_FAILED("DH", "shared-secret-computation", "%s", "out != known_dh_k");
 		goto cleanup;
 	} else {
-		FIPSLOG_SUCCESS("DH", "verify", "%s", "out == known_dh_k");
+		FIPSLOG_SUCCESS("DH", "shared-secret-computation", "%s", "out == known_dh_k");
 	}
 	
 	
@@ -1026,10 +1026,10 @@ static int test_ecdh(void)
 	if (memcmp(out.data, known_key, out.size) != 0) {
 		ret = GNUTLS_E_SELF_TEST_ERROR;
 		gnutls_assert();
-		FIPSLOG_FAILED("ECDH", "verify", "%s", "out != known_key");
+		FIPSLOG_FAILED("ECDH", "shared-secret-computation", "%s", "out != known_key");
 		goto cleanup;
 	} else {
-		FIPSLOG_SUCCESS("ECDH", "verify", "%s", "out == known_key");
+		FIPSLOG_SUCCESS("ECDH", "shared-secret-computation", "%s", "out == known_key");
 	}
 	
 	ret = 0;
