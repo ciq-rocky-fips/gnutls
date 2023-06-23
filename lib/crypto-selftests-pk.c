@@ -226,6 +226,7 @@ static const char gost12_512_privkey[] =
 	"hsQ3JCCy4xnd5jWT\n"
 	"-----END PRIVATE KEY-----\n";
 
+#if 0
 static int test_rsa_enc(gnutls_pk_algorithm_t pk,
 			unsigned bits, gnutls_digest_algorithm_t ign)
 {
@@ -323,6 +324,7 @@ static int test_rsa_enc(gnutls_pk_algorithm_t pk,
 
 	return ret;
 }
+#endif
 
 static int test_sig(gnutls_pk_algorithm_t pk,
 		    unsigned bits, gnutls_sign_algorithm_t sigalgo)
@@ -1106,9 +1108,11 @@ int gnutls_pk_self_test(unsigned flags, gnutls_pk_algorithm_t pk)
 			      rsa_2048_privkey, rsa_2048_sig, 0);
 
 #undef _op_name
+#if 0
+	/* rsa encrypt/decrypt is not FIPS140-3 complient in GNUTLS. */
 #define _op_name "KAT encryption %s"
 		PK_TEST(GNUTLS_PK_RSA, test_rsa_enc, 2048, 0);
-
+#endif
 		if (!(flags & GNUTLS_SELF_TEST_FLAG_ALL))
 			return 0;
 
