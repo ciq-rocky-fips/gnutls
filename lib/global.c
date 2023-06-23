@@ -540,17 +540,46 @@ static int _gnutls_global_init(unsigned constructor)
 	 * (e.g., AESNI overridden AES). They are after _gnutls_register_accel_crypto()
 	 * intentionally */
 	if (res != 0) {
+		gnutls_fips140_context_t test_fips_context = NULL;
+		gnutls_fips140_operation_state_t fips_state = GNUTLS_FIPS140_OP_ERROR;
 		_gnutls_switch_lib_state(LIB_STATE_SELFTEST);
+		ret = gnutls_fips140_context_init(&test_fips_context);
+		if (ret < 0) {
+			gnutls_assert();
+			goto out;
+		}
+		ret = gnutls_fips140_push_context(test_fips_context);
+		if (ret < 0) {
+			gnutls_fips140_context_deinit(test_fips_context);
+			gnutls_assert();
+			goto out;
+		}
 		ret = _gnutls_fips_perform_self_checks2();
 		if (ret < 0) {
 			_gnutls_switch_lib_state(LIB_STATE_ERROR);
 			_gnutls_audit_log(NULL, "FIPS140-2 self testing part 2 failed\n");
-			FIPSLOG_FAILED("POST", "init", "%s", "FIPS140 self-test part2");
 			if (res != 2) {
+				gnutls_fips140_pop_context();
+				gnutls_fips140_context_deinit(test_fips_context);
+				FIPSLOG_FAILED("POST", "init", "%s", "FIPS140 self-test part2");
 				gnutls_assert();
 				goto out;
 			}
 		}
+		/* After testing we must still be in the approved fips state. */
+		fips_state = gnutls_fips140_get_operation_state(test_fips_context);
+		if (fips_state != GNUTLS_FIPS140_OP_APPROVED) {
+			gnutls_fips140_pop_context();
+			gnutls_fips140_context_deinit(test_fips_context);
+			_gnutls_switch_lib_state(LIB_STATE_ERROR);
+			_gnutls_audit_log(NULL, "FIPS140-2 self testing part 2 failed\n");
+			FIPSLOG_FAILED("POST", "init", "%s", "FIPS140 self-test part2");
+			ret = GNUTLS_E_SELF_TEST_ERROR;
+			gnutls_assert();
+			goto out;
+		}
+		gnutls_fips140_pop_context();
+		gnutls_fips140_context_deinit(test_fips_context);
 		_gnutls_fips_mode_reset_zombie();
 		FIPSLOG_SUCCESS("POST",
 				"init",
