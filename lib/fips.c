@@ -690,6 +690,13 @@ int _gnutls_fips_perform_self_checks1(void)
 int _gnutls_fips_perform_self_checks2(gnutls_fips140_context_t test_fips_context)
 {
 	int ret;
+	gnutls_fips140_context_t sub_fips_context = NULL;
+
+	/* Init the sub-context for tests that can go into fail mode. */
+	ret = gnutls_fips140_context_init(&sub_fips_context);
+	if (ret < 0) {
+		goto fail_out;
+	}
 
 	/* Tests the FIPS algorithms */
 
@@ -838,10 +845,17 @@ int _gnutls_fips_perform_self_checks2(gnutls_fips140_context_t test_fips_context
 		}
 	}
 
+	if (sub_fips_context != NULL) {
+		gnutls_fips140_context_deinit(sub_fips_context);
+	}
+
 	return 0;
 
   fail_out:
 
+	if (sub_fips_context != NULL) {
+		gnutls_fips140_context_deinit(sub_fips_context);
+	}
 	return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
 }
 #endif
