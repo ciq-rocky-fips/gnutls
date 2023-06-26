@@ -687,6 +687,14 @@ int _gnutls_fips_perform_self_checks1(void)
 	return 0;
 }
 
+#undef CHECK_FIPS_OP_STATE
+#define CHECK_FIPS_OP_STATE(context, state) \
+	do { \
+		if (gnutls_fips140_get_operation_state(context) != (state)) { \
+			goto fail_out; \
+		} \
+	} while (0)
+
 int _gnutls_fips_perform_self_checks2(gnutls_fips140_context_t test_fips_context)
 {
 	int ret;
@@ -705,11 +713,13 @@ int _gnutls_fips_perform_self_checks2(gnutls_fips140_context_t test_fips_context
 	if (ret < 0) {
 		goto fail_out;
 	}
+	CHECK_FIPS_OP_STATE(test_fips_context, GNUTLS_FIPS140_OP_APPROVED);
 
 	ret = gnutls_cipher_self_test(0, GNUTLS_CIPHER_AES_256_CBC);
 	if (ret < 0) {
 		goto fail_out;
 	}
+	CHECK_FIPS_OP_STATE(test_fips_context, GNUTLS_FIPS140_OP_APPROVED);
 
 	ret = gnutls_cipher_self_test(0, GNUTLS_CIPHER_AES_128_GCM);
 	if (ret < 0) {
@@ -730,79 +740,94 @@ int _gnutls_fips_perform_self_checks2(gnutls_fips140_context_t test_fips_context
 	if (ret < 0) {
 		goto fail_out;
 	}
+	CHECK_FIPS_OP_STATE(test_fips_context, GNUTLS_FIPS140_OP_APPROVED);
 
 	ret = gnutls_cipher_self_test(0, GNUTLS_CIPHER_AES_256_CFB8);
 	if (ret < 0) {
 		goto fail_out;
 	}
+	CHECK_FIPS_OP_STATE(test_fips_context, GNUTLS_FIPS140_OP_APPROVED);
 
 	/* Digest tests */
 	ret = gnutls_digest_self_test(0, GNUTLS_DIG_SHA3_224);
 	if (ret < 0) {
 		goto fail_out;
 	}
+	CHECK_FIPS_OP_STATE(test_fips_context, GNUTLS_FIPS140_OP_APPROVED);
 
 	ret = gnutls_digest_self_test(0, GNUTLS_DIG_SHA3_256);
 	if (ret < 0) {
 		goto fail_out;
 	}
+	CHECK_FIPS_OP_STATE(test_fips_context, GNUTLS_FIPS140_OP_APPROVED);
 
 	ret = gnutls_digest_self_test(0, GNUTLS_DIG_SHA3_384);
 	if (ret < 0) {
 		goto fail_out;
 	}
+	CHECK_FIPS_OP_STATE(test_fips_context, GNUTLS_FIPS140_OP_APPROVED);
 
 	ret = gnutls_digest_self_test(0, GNUTLS_DIG_SHA3_512);
 	if (ret < 0) {
 		goto fail_out;
 	}
+	CHECK_FIPS_OP_STATE(test_fips_context, GNUTLS_FIPS140_OP_APPROVED);
 
 	/* MAC (includes message digest test) */
 	ret = gnutls_mac_self_test(0, GNUTLS_MAC_SHA1);
 	if (ret < 0) {
 		goto fail_out;
 	}
+	CHECK_FIPS_OP_STATE(test_fips_context, GNUTLS_FIPS140_OP_APPROVED);
 
 	ret = gnutls_mac_self_test(0, GNUTLS_MAC_SHA224);
 	if (ret < 0) {
 		goto fail_out;
 	}
+	CHECK_FIPS_OP_STATE(test_fips_context, GNUTLS_FIPS140_OP_APPROVED);
 
 	ret = gnutls_mac_self_test(0, GNUTLS_MAC_SHA256);
 	if (ret < 0) {
 		goto fail_out;
 	}
+	CHECK_FIPS_OP_STATE(test_fips_context, GNUTLS_FIPS140_OP_APPROVED);
 
 	ret = gnutls_mac_self_test(0, GNUTLS_MAC_SHA384);
 	if (ret < 0) {
 		goto fail_out;
 	}
+	CHECK_FIPS_OP_STATE(test_fips_context, GNUTLS_FIPS140_OP_APPROVED);
 
 	ret = gnutls_mac_self_test(0, GNUTLS_MAC_SHA512);
 	if (ret < 0) {
 		goto fail_out;
 	}
+	CHECK_FIPS_OP_STATE(test_fips_context, GNUTLS_FIPS140_OP_APPROVED);
 
 	ret = gnutls_mac_self_test(0, GNUTLS_MAC_AES_CMAC_256);
 	if (ret < 0) {
 		goto fail_out;
 	}
+	CHECK_FIPS_OP_STATE(test_fips_context, GNUTLS_FIPS140_OP_APPROVED);
 
 	/* PK */
 	ret = gnutls_pk_self_test(0, GNUTLS_PK_RSA);
 	if (ret < 0) {
 		goto fail_out;
 	}
+	CHECK_FIPS_OP_STATE(test_fips_context, GNUTLS_FIPS140_OP_APPROVED);
 
 	ret = gnutls_pk_self_test(0, GNUTLS_PK_EC);
 	if (ret < 0) {
 		goto fail_out;
 	}
+	CHECK_FIPS_OP_STATE(test_fips_context, GNUTLS_FIPS140_OP_APPROVED);
 
 	ret = gnutls_pk_self_test(0, GNUTLS_PK_DH);
 	if (ret < 0) {
 		goto fail_out;
 	}
+	CHECK_FIPS_OP_STATE(test_fips_context, GNUTLS_FIPS140_OP_APPROVED);
 
 	/* HKDF */
 	ret = gnutls_hkdf_self_test(0, GNUTLS_MAC_SHA256);
@@ -821,6 +846,7 @@ int _gnutls_fips_perform_self_checks2(gnutls_fips140_context_t test_fips_context
 	if (ret < 0) {
 		goto fail_out;
 	}
+	CHECK_FIPS_OP_STATE(test_fips_context, GNUTLS_FIPS140_OP_APPROVED);
 
 	/* TLS1_3-PRF */
 	ret = gnutls_tlsprf13_self_test();
@@ -858,6 +884,7 @@ int _gnutls_fips_perform_self_checks2(gnutls_fips140_context_t test_fips_context
 	}
 	return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
 }
+#undef CHECK_FIPS_OP_STATE
 #endif
 
 /**
