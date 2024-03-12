@@ -68,6 +68,7 @@
 #include "siv-cmac.h"
 #endif
 #include <fips.h>
+#include <intprops.h>
 
 struct nettle_cipher_ctx;
 
@@ -125,7 +126,22 @@ struct nettle_cipher_ctx {
 	unsigned iv_size;
 
 	bool enc;
+	size_t rekey_counter;
 };
+
+#define AES_GCM_ENCRYPT_MAX_BYTES ((1ULL << 36) - 32)
+static inline int
+record_aes_gcm_encrypt_size(size_t *counter, size_t size) {
+	size_t sum;
+
+	if (!INT_ADD_OK(*counter, size, &sum) ||
+	    sum > AES_GCM_ENCRYPT_MAX_BYTES) {
+		return gnutls_assert_val(GNUTLS_E_INVALID_REQUEST);
+	}
+	*counter = sum;
+
+	return 0;
+}
 
 static void
 _stream_encrypt(struct nettle_cipher_ctx *ctx, size_t length, uint8_t * dst,
@@ -1036,6 +1052,16 @@ wrap_nettle_cipher_setkey(void *_ctx, const void *key, size_t keysize)
 	else
 		ctx->cipher->set_decrypt_key(ctx->ctx_ptr, key);
 
+	switch (ctx->cipher->algo) {
+	case GNUTLS_CIPHER_AES_128_GCM:
+	case GNUTLS_CIPHER_AES_192_GCM:
+	case GNUTLS_CIPHER_AES_256_GCM:
+		ctx->rekey_counter = 0;
+		break;
+	default:
+		break;
+	}
+
 	return 0;
 }
 
@@ -1050,6 +1076,7 @@ wrap_nettle_cipher_setiv(void *_ctx, const void *iv, size_t iv_size)
 	case GNUTLS_CIPHER_AES_192_GCM:
 	case GNUTLS_CIPHER_AES_256_GCM:
 		FIPS_RULE(iv_size < GCM_IV_SIZE, GNUTLS_E_INVALID_REQUEST, "access to short GCM nonce size\n");
+		ctx->rekey_counter = 0;
 		break;
 	case GNUTLS_CIPHER_SALSA20_256:
 	case GNUTLS_CIPHER_ESTREAM_SALSA20_256:
@@ -1110,9 +1137,23 @@ wrap_nettle_cipher_encrypt(void *_ctx, const void *plain, size_t plain_size,
 			   void *encr, size_t encr_size)
 {
 	struct nettle_cipher_ctx *ctx = _ctx;
+	int ret;
 
 	if (unlikely(ctx->cipher->encrypt == NULL))
 		return gnutls_assert_val(GNUTLS_E_INVALID_REQUEST);
+
+	switch (ctx->cipher->algo) {
+	case GNUTLS_CIPHER_AES_128_GCM:
+	case GNUTLS_CIPHER_AES_192_GCM:
+	case GNUTLS_CIPHER_AES_256_GCM:
+		ret = record_aes_gcm_encrypt_size(&ctx->rekey_counter, plain_size);
+		if (ret < 0) {
+			return gnutls_assert_val(GNUTLS_E_INVALID_REQUEST);
+		}
+		break;
+	default:
+		break;
+	}
 
 	ctx->cipher->encrypt(ctx, plain_size, encr, plain);
 
