@@ -221,7 +221,7 @@ ctests += mini-record-2 simple gnutls_hmac_fast set_pkcs12_cred cert certuniquei
 	 tls13-without-timeout-func buffer status-request-revoked \
 	 set_x509_ocsp_multi_cli kdf-api keylog-func \
 	 dtls_hello_random_value tls_hello_random_value x509cert-dntypes \
-	 pkcs7-verify-double-free fips-rsa-sizes
+	 pkcs7-verify-double-free fips-rsa-sizes xts-key-check
 
 if HAVE_SECCOMP_TESTS
 ctests += dtls-with-seccomp tls-with-seccomp dtls-client-with-seccomp tls-client-with-seccomp
