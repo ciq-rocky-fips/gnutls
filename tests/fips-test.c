@@ -501,6 +501,15 @@ void doit(void)
 	}
 	FIPS_POP_CONTEXT(APPROVED);
 
+        /* run self-tests manually */
+	FIPS_PUSH_CONTEXT();
+	ret = gnutls_rnd(GNUTLS_RND_RANDOM, key16, sizeof(key16));
+	ret = gnutls_fips140_run_self_tests();
+	if (ret < 0) {
+		fail("gnutls_fips140_run_self_tests failed\n");
+	}
+	FIPS_POP_CONTEXT(APPROVED);
+
 	/* Test when FIPS140 is set to error state */
 	_gnutls_lib_simulate_error();
 
@@ -543,12 +552,6 @@ void doit(void)
 	}
 
 	gnutls_fips140_context_deinit(fips_context);
-
-	/* run self-tests manually */
-	ret = gnutls_fips140_run_self_tests();
-	if (ret < 0) {
-		fail("gnutls_fips140_run_self_tests failed\n");
-	}
 
 	gnutls_global_deinit();
 	return;
