@@ -60317,7 +60317,7 @@ shlibpath_var=
 shlibpath_overrides_runpath=unknown
 version_type=none
 dynamic_linker="$host_os ld.so"
-sys_lib_dlsearch_path_spec="/lib /usr/lib"
+sys_lib_dlsearch_path_spec="/lib /usr/lib /lib64 /usr/lib64"
 need_lib_prefix=unknown
 hardcode_into_libs=no
 
