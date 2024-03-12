@@ -72,7 +72,7 @@ EXTRA_DIST = suppressions.valgrind eagain-common.h cert-common.h test-chains.h \
 	testpkcs11-certs/client.key testpkcs11-certs/server.crt testpkcs11-certs/server-tmpl \
 	testpkcs11-certs/ca.key testpkcs11-certs/client.crt testpkcs11-certs/client-tmpl testpkcs11-certs/server.key \
 	crt_type-neg-common.c \
-	system-override-default-priority-string.bad.config system-override-default-priority-string.none.config system-override-default-priority-string.only-tls13.config
+	system-override-default-priority-string.bad.config system-override-default-priority-string.none.config system-override-default-priority-string.only-tls13.config system-override-session-hash.sh
 
 AM_CFLAGS = $(WARN_CFLAGS) $(WERROR_CFLAGS)
 AM_CPPFLAGS = \
@@ -221,7 +221,7 @@ ctests += mini-record-2 simple gnutls_hmac_fast set_pkcs12_cred cert certuniquei
 	 tls13-without-timeout-func buffer status-request-revoked \
 	 set_x509_ocsp_multi_cli kdf-api keylog-func \
 	 dtls_hello_random_value tls_hello_random_value x509cert-dntypes \
-	 pkcs7-verify-double-free fips-rsa-sizes xts-key-check
+	 pkcs7-verify-double-free fips-rsa-sizes xts-key-check tls-force-ems
 
 if HAVE_SECCOMP_TESTS
 ctests += dtls-with-seccomp tls-with-seccomp dtls-client-with-seccomp tls-client-with-seccomp

@@ -883,6 +883,12 @@ static void enable_no_ext_master_secret(gnutls_priority_t c)
 {
 	c->_no_ext_master_secret = 1;
 }
+
+static void enable_force_ext_master_secret(gnutls_priority_t c)
+{
+	c->force_ext_master_secret = EMS_REQUIRE;
+}
+
 static void enable_no_etm(gnutls_priority_t c)
 {
 	c->_no_etm = 1;
@@ -1003,6 +1009,8 @@ static unsigned system_wide_disabled_ciphers[MAX_ALGOS+1] = {0};
 static unsigned system_wide_disabled_macs[MAX_ALGOS+1] = {0};
 static unsigned system_wide_disabled_groups[MAX_ALGOS+1] = {0};
 static unsigned system_wide_disabled_kxs[MAX_ALGOS+1] = {0};
+static ext_master_secret_t system_wide_config_force_ext_master_secret = EMS_REQUEST;
+static bool system_wide_config_force_ext_master_secret_set = false;
 
 static const char *system_priority_file = SYSTEM_PRIORITY_FILE;
 static time_t system_priority_last_mod = 0;
@@ -1284,6 +1292,21 @@ static int cfg_ini_handler(void *_ctx, const char *section, const char *name, co
 			}
 			system_wide_disabled_kxs[i] = algo;
 			system_wide_disabled_kxs[i+1] = 0;
+		} else if (c_strcasecmp(name, "tls-session-hash") == 0) {
+			if (c_strcasecmp(value, "request") == 0) {
+				system_wide_config_force_ext_master_secret = EMS_REQUEST;
+				system_wide_config_force_ext_master_secret_set = true;
+			} else if (c_strcasecmp(value, "require") == 0) {
+				system_wide_config_force_ext_master_secret = EMS_REQUIRE;
+				system_wide_config_force_ext_master_secret_set = true;
+			} else {
+				_gnutls_debug_log(
+					"cfg: unknown value for %s: %s\n", name,
+					value);
+				if (fail_on_invalid_config)
+					return 0;
+				goto exit;
+			}
 		} else {
 			_gnutls_debug_log("unknown parameter %s\n", name);
 			if (fail_on_invalid_config)
@@ -2007,6 +2030,12 @@ gnutls_priority_init(gnutls_priority_t * priority_cache,
 	(*priority_cache)->min_record_version = 1;
 	gnutls_atomic_init(&(*priority_cache)->usage_cnt);
 
+	if (_gnutls_fips_mode_enabled()) {
+		(*priority_cache)->force_ext_master_secret = EMS_REQUIRE;
+	} else {
+		(*priority_cache)->force_ext_master_secret = EMS_REQUEST;
+	}
+
 	if (priorities == NULL) {
 		priorities = _gnutls_default_priority_string;
 		resolved_match = 0;
@@ -2255,6 +2284,15 @@ gnutls_priority_init(gnutls_priority_t * priority_cache,
 			o->func(*priority_cache);
 		} else
 			goto error;
+	}
+
+	/* This needs to be done after parsing modifiers, as
+	 * tls-session-hash has precedence over modifiers.
+	 */
+	if (system_wide_config_force_ext_master_secret_set) {
+		(*priority_cache)->force_ext_master_secret =
+			system_wide_config_force_ext_master_secret;
+		(*priority_cache)->_no_ext_master_secret = false;
 	}
 
 	ret = set_ciphersuite_list(*priority_cache);

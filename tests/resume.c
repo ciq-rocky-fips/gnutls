@@ -85,6 +85,7 @@ struct params_res {
 	int change_ciphersuite;
 	int early_start;
 	int no_early_start;
+	int no_fips;
 };
 
 pid_t child;
@@ -120,14 +121,16 @@ struct params_res resume_tests[] = {
 	 .enable_session_ticket_client = 0,
 	 .expect_resume = 0,
 	 .first_no_ext_master = 0,
-	 .second_no_ext_master = 1},
+	 .second_no_ext_master = 1,
+	 .no_fips = 1},
 	{.desc = "try to resume from db (none -> ext master secret)",
 	 .enable_db = 1,
 	 .enable_session_ticket_server = 0,
 	 .enable_session_ticket_client = 0,
 	 .expect_resume = 0,
 	 .first_no_ext_master = 1,
-	 .second_no_ext_master = 0},
+	 .second_no_ext_master = 0,
+	 .no_fips = 1},
 #endif
 #if defined(TLS13)
 	/* only makes sense under TLS1.3 as negotiation involves a new
@@ -192,14 +195,16 @@ struct params_res resume_tests[] = {
 	 .enable_session_ticket_client = 1,
 	 .expect_resume = 0,
 	 .first_no_ext_master = 0,
-	 .second_no_ext_master = 1},
+	 .second_no_ext_master = 1,
+	 .no_fips = 1},
 	{.desc = "try to resume from session ticket (none -> ext master secret)",
 	 .enable_db = 0,
 	 .enable_session_ticket_server = 1,
 	 .enable_session_ticket_client = 1,
 	 .expect_resume = 0,
 	 .first_no_ext_master = 1,
-	 .second_no_ext_master = 0},
+	 .second_no_ext_master = 0,
+	 .no_fips = 1},
 	{.desc = "try to resume from session ticket (server only)",
 	  .enable_db = 0,
 	  .enable_session_ticket_server = 1,
@@ -915,6 +920,12 @@ void doit(void)
 	for (i = 0; resume_tests[i].desc; i++) {
 		int client_sds[SESSIONS], server_sds[SESSIONS];
 		int j;
+
+		if (resume_tests[i].no_fips && gnutls_fips140_mode_enabled()) {
+			success("skipping %s under FIPS mode\n",
+				resume_tests[i].desc);
+			continue;
+		}
 
 		printf("%s\n", resume_tests[i].desc);
 

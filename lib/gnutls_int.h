@@ -917,6 +917,11 @@ typedef struct sign_algo_list_st {
 
 #include "atomic.h"
 
+typedef enum ext_master_secret_t {
+	EMS_REQUEST,
+	EMS_REQUIRE
+} ext_master_secret_t;
+
 /* For the external api */
 struct gnutls_priority_st {
 	priority_st protocol;
@@ -954,6 +959,7 @@ struct gnutls_priority_st {
 	bool have_psk;
 	bool force_etm;
 	unsigned int additional_verify_flags;
+	ext_master_secret_t force_ext_master_secret;
 
 	/* TLS_FALLBACK_SCSV */
 	bool fallback;
