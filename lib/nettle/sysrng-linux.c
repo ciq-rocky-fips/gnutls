@@ -31,6 +31,9 @@
 # include <num.h>
 # include <errno.h>
 # include <rnd-common.h>
+# include "fips.h"
+#else
+# define _gnutls_fips_mode_enabled() 0
 #endif
 
 #include <sys/types.h>
@@ -107,7 +110,12 @@ static int force_getrandom(void *buf, size_t buflen, unsigned int flags)
 static int _rnd_get_system_entropy_getrandom(void* _rnd, size_t size)
 {
 	int ret;
-	ret = force_getrandom(_rnd, size, 0);
+	unsigned int flags = 0;
+
+	if (_gnutls_fips_mode_enabled()) {
+		flags |= 2/*GRND_RANDOM*/;
+	}
+	ret = force_getrandom(_rnd, size, flags);
 	if (ret == -1) {
 		int e = errno;
 		gnutls_assert();
