@@ -607,6 +607,12 @@ int _gnutls_fips_perform_self_checks2(void)
 		return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
 	}
 
+	/* TLS1_3-PRF */
+	ret = gnutls_tlsprf13_self_test();
+	if (ret < 0) {
+		return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+	}
+
 	if (_gnutls_rnd_ops.self_test == NULL) {
 		return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
 	}
