@@ -29,6 +29,7 @@
 #include "errors.h"
 #include <random.h>
 #include <crypto.h>
+#include <nettle/sha2.h>
 #include <nettle/sha3.h>
 
 #define STR(tag, tag_size, val) \
@@ -2627,6 +2628,47 @@ static int test_tlsprf(gnutls_mac_algorithm_t mac,
 	    ("TLS-PRF: MAC-%s self check succeeded\n",
 	     gnutls_mac_get_name(mac));
 
+	return 0;
+}
+
+/*
+ * Rewritten from FIPS_selftest_tls13() in OpenSSL.
+ */
+
+int gnutls_tlsprf13_self_test(void)
+{
+	int ret;
+	uint8_t hmac[SHA256_DIGEST_SIZE];
+	uint8_t tls13_kdf_psk[] = {
+		0xF8, 0xAF, 0x6A, 0xEA, 0x2D, 0x39, 0x7B, 0xAF,
+		0x29, 0x48, 0xA2, 0x5B, 0x28, 0x34, 0x20, 0x06,
+		0x92, 0xCF, 0xF1, 0x7E, 0xEE, 0x91, 0x65, 0xE4,
+		0xE2, 0x7B, 0xAB, 0xEE, 0x9E, 0xDE, 0xFD, 0x05
+	};
+	const uint8_t tls13_kdf_early_secret[] = {
+		0x15, 0x3B, 0x63, 0x94, 0xA9, 0xC0, 0x3C, 0xF3,
+		0xF5, 0xAC, 0xCC, 0x6E, 0x45, 0x5A, 0x76, 0x93,
+		0x28, 0x11, 0x38, 0xA1, 0xBC, 0xFA, 0x38, 0x03,
+		0xC2, 0x67, 0x35, 0xDD, 0x11, 0x94, 0xD2, 0x16
+	};
+
+	ret = gnutls_hmac_fast(GNUTLS_MAC_SHA256,
+				"",		/* key */
+				0,		/* keylen */
+				tls13_kdf_psk,	/* data to hash */
+				sizeof(tls13_kdf_psk),/* length of data to hash */
+				hmac);		/* output */
+	if (ret < 0) {
+		return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+	}
+
+	if (memcmp(hmac, tls13_kdf_early_secret, sizeof(hmac)) != 0) {
+		_gnutls_debug_log
+		    ("TLS1_3-PRF: MAC-%s test vector failed!\n",
+		     gnutls_mac_get_name(GNUTLS_MAC_SHA256));
+
+		return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+	}
 	return 0;
 }
 
