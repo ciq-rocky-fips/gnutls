@@ -499,6 +499,16 @@ const char *gnutls_check_version(const char *req_version)
 	return NULL;
 }
 
+/**
+ * gnutls_FIPS_show_version_service: 
+ *
+ * Returns: The version string of the release
+  **/
+const char *gnutls_FIPS_show_version_service()
+{	
+	return "Rocky Linux 8 GnuTLS Cryptographic Module Version rocky8.20230614";
+}
+
 static void _CONSTRUCTOR lib_init(void)
 {
 int ret;
