@@ -230,8 +230,9 @@ Modifies or sets the CKA_LABEL in the specified by the URL object
 .NOP \f\*[B-Font]\-\-write\f[]
 Writes the loaded objects to a PKCS #11 token.
 .sp
-It can be used to write private, public keys, certificates or secret keys to a token. Must be combined with
-    one of \--load-privkey, \--load-pubkey, \--load-certificate option.
+It can be used to write private, public keys, certificates or secret keys to a token. Must be combined with one of \--load-privkey, \--load-pubkey, \--load-certificate option.
+.sp
+When writing a certificate object, its CKA_ID is set to the same CKA_ID of the corresponding public key, if it exists on the token; otherwise it will be derived from the X.509 Subject Key Identifier of the certificate. If this behavior is undesired, write the public key to the token beforehand.
 .TP
 .NOP \f\*[B-Font]\-\-delete\f[]
 Deletes the objects matching the given PKCS #11 URL.
