@@ -4204,7 +4204,15 @@ sha512_block_data_order_avx2:
 	vmovdqa	%ymm10,64(%rsp)
 	vpaddq	64(%rbp),%ymm6,%ymm10
 	vmovdqa	%ymm11,96(%rsp)
+
+	movq	152(%rsp),%rdi
+.cfi_def_cfa	%rdi,8
 	leaq	-128(%rsp),%rsp
+
+
+
+	movq	%rdi,-8(%rsp)
+.cfi_escape	0x0f,0x05,0x77,0x78,0x06,0x23,0x08
 	vpaddq	96(%rbp),%ymm7,%ymm11
 	vmovdqa	%ymm8,0(%rsp)
 	xorq	%r14,%r14
@@ -4220,6 +4228,12 @@ sha512_block_data_order_avx2:
 .align	16
 .Lavx2_00_47:
 	leaq	-128(%rsp),%rsp
+.cfi_escape	0x0f,0x06,0x77,0xf8,0x00,0x06,0x23,0x08
+
+	pushq	128-8(%rsp)
+.cfi_escape	0x0f,0x05,0x77,0x00,0x06,0x23,0x08
+	leaq	8(%rsp),%rsp
+.cfi_escape	0x0f,0x05,0x77,0x78,0x06,0x23,0x08
 	vpalignr	$8,%ymm0,%ymm1,%ymm8
 	addq	0+256(%rsp),%r11
 	andq	%r8,%r12
@@ -4513,6 +4527,12 @@ sha512_block_data_order_avx2:
 	movq	%r9,%r12
 	vmovdqa	%ymm10,96(%rsp)
 	leaq	-128(%rsp),%rsp
+.cfi_escape	0x0f,0x06,0x77,0xf8,0x00,0x06,0x23,0x08
+
+	pushq	128-8(%rsp)
+.cfi_escape	0x0f,0x05,0x77,0x00,0x06,0x23,0x08
+	leaq	8(%rsp),%rsp
+.cfi_escape	0x0f,0x05,0x77,0x78,0x06,0x23,0x08
 	vpalignr	$8,%ymm4,%ymm5,%ymm8
 	addq	0+256(%rsp),%r11
 	andq	%r8,%r12
@@ -5426,6 +5446,8 @@ sha512_block_data_order_avx2:
 
 	leaq	1152(%rsp),%rsp
 
+.cfi_escape	0x0f,0x06,0x77,0x98,0x01,0x06,0x23,0x08
+
 	addq	0(%rdi),%rax
 	addq	8(%rdi),%rbx
 	addq	16(%rdi),%rcx
@@ -5451,9 +5473,11 @@ sha512_block_data_order_avx2:
 	jbe	.Loop_avx2
 	leaq	(%rsp),%rbp
 
+
+.cfi_escape	0x0f,0x06,0x76,0x98,0x01,0x06,0x23,0x08
+
 .Ldone_avx2:
-	leaq	(%rbp),%rsp
-	movq	152(%rsp),%rsi
+	movq	152(%rbp),%rsi
 .cfi_def_cfa	%rsi,8
 	vzeroupper
 	movq	-48(%rsi),%r15
@@ -5474,5 +5498,26 @@ sha512_block_data_order_avx2:
 	.byte	0xf3,0xc3
 .cfi_endproc	
 .size	sha512_block_data_order_avx2,.-sha512_block_data_order_avx2
+	.section ".note.gnu.property", "a"
+	.p2align 3
+	.long 1f - 0f
+	.long 4f - 1f
+	.long 5
+0:
+	# "GNU" encoded with .byte, since .asciz isn't supported
+	# on Solaris.
+	.byte 0x47
+	.byte 0x4e
+	.byte 0x55
+	.byte 0
+1:
+	.p2align 3
+	.long 0xc0000002
+	.long 3f - 2f
+2:
+	.long 3
+3:
+	.p2align 3
+4:
 
 .section .note.GNU-stack,"",%progbits

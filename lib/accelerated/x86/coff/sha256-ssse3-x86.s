@@ -43,6 +43,7 @@
 .align	16
 _sha256_block_data_order:
 .L_sha256_block_data_order_begin:
+.byte	243,15,30,251
 	pushl	%ebp
 	pushl	%ebx
 	pushl	%esi
