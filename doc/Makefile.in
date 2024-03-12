@@ -1839,6 +1839,7 @@ ENUMS = enums/dane_cert_type_t enums/dane_cert_usage_t \
 	enums/gnutls_credentials_type_t enums/gnutls_ctype_target_t \
 	enums/gnutls_digest_algorithm_t enums/gnutls_ecc_curve_t \
 	enums/gnutls_ext_flags_t enums/gnutls_ext_parse_type_t \
+	enums/gnutls_fips140_operation_state_t \
 	enums/gnutls_fips_mode_t enums/gnutls_gost_paramset_t \
 	enums/gnutls_group_t enums/gnutls_handshake_description_t \
 	enums/gnutls_init_flags_t enums/gnutls_keygen_types_t \
@@ -2282,8 +2283,18 @@ FUNCS = functions/dane_cert_type_name \
 	functions/gnutls_ext_set_data.short \
 	functions/gnutls_fingerprint \
 	functions/gnutls_fingerprint.short \
+	functions/gnutls_fips140_context_deinit \
+	functions/gnutls_fips140_context_deinit.short \
+	functions/gnutls_fips140_context_init \
+	functions/gnutls_fips140_context_init.short \
+	functions/gnutls_fips140_get_operation_state \
+	functions/gnutls_fips140_get_operation_state.short \
 	functions/gnutls_fips140_mode_enabled \
 	functions/gnutls_fips140_mode_enabled.short \
+	functions/gnutls_fips140_pop_context \
+	functions/gnutls_fips140_pop_context.short \
+	functions/gnutls_fips140_push_context \
+	functions/gnutls_fips140_push_context.short \
 	functions/gnutls_fips140_set_mode \
 	functions/gnutls_fips140_set_mode.short \
 	functions/gnutls_get_system_config_file \
