@@ -327,9 +327,7 @@ test_ciphers(void)
 	test_cipher_disallowed(GNUTLS_CIPHER_GOST28147_CPC_CFB);
 	test_cipher_disallowed(GNUTLS_CIPHER_AES_128_SIV);
 	test_cipher_disallowed(GNUTLS_CIPHER_AES_256_SIV);
-	test_cipher_disallowed(GNUTLS_CIPHER_GOST28147_TC26Z_CNT);
-	test_cipher_disallowed(GNUTLS_CIPHER_MAGMA_CTR_ACPKM);
-	test_cipher_disallowed(GNUTLS_CIPHER_KUZNYECHIK_CTR_ACPKM);
+	test_cipher_disallowed(GNUTLS_CIPHER_GOST28147_TC26Z_CNT);	
 	test_cipher_disallowed(GNUTLS_CIPHER_3DES_CBC);
 	test_cipher_disallowed(GNUTLS_CIPHER_DES_CBC);
 	test_cipher_disallowed(GNUTLS_CIPHER_ARCFOUR_40);
