@@ -43,6 +43,7 @@
 #  byteswap \
 #  c-ctype \
 #  c-strcase \
+#  dirname-lgpl \
 #  extensions \
 #  fopen-gnu \
 #  func \
@@ -209,6 +210,14 @@ EXTRA_DIST += attribute.h
 
 ## end   gnulib module attribute
 
+## begin gnulib module basename-lgpl
+
+libgnu_la_SOURCES += basename-lgpl.c
+
+EXTRA_DIST += basename-lgpl.h
+
+## end   gnulib module basename-lgpl
+
 ## begin gnulib module bitrotate
 
 libgnu_la_SOURCES += bitrotate.h bitrotate.c
@@ -266,6 +275,14 @@ EXTRA_DIST += close.c
 EXTRA_libgnu_la_SOURCES += close.c
 
 ## end   gnulib module close
+
+## begin gnulib module dirname-lgpl
+
+libgnu_la_SOURCES += dirname-lgpl.c stripslash.c
+
+EXTRA_DIST += dirname.h
+
+## end   gnulib module dirname-lgpl
 
 ## begin gnulib module dup2
 

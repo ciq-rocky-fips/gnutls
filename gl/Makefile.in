@@ -57,6 +57,7 @@
 #  byteswap \
 #  c-ctype \
 #  c-strcase \
+#  dirname-lgpl \
 #  extensions \
 #  fopen-gnu \
 #  func \
@@ -321,8 +322,9 @@ LIBRARIES = $(noinst_LIBRARIES)
 LTLIBRARIES = $(noinst_LTLIBRARIES)
 am__DEPENDENCIES_1 =
 am__dirstamp = $(am__leading_dot)dirstamp
-am_libgnu_la_OBJECTS = bitrotate.lo c-ctype.lo c-strcasecmp.lo \
-	c-strncasecmp.lo cloexec.lo fd-hook.lo hash.lo \
+am_libgnu_la_OBJECTS = basename-lgpl.lo bitrotate.lo c-ctype.lo c-strcasecmp.lo \
+	c-strncasecmp.lo cloexec.lo fd-hook.lo hash.lo dirname-lgpl.lo \
+	stripslash.lo \
 	hash-pjw-bare.lo malloca.lo read-file.lo stat-time.lo \
 	sys_socket.lo glthread/threadlib.lo unistd.lo xsize.lo
 libgnu_la_OBJECTS = $(am_libgnu_la_OBJECTS)
@@ -349,6 +351,7 @@ DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/build-aux/depcomp
 am__maybe_remake_depfiles = depfiles
 am__depfiles_remade = ./$(DEPDIR)/alloca.Plo ./$(DEPDIR)/asnprintf.Plo \
+	./$(DEPDIR)/basename-lgpl.Plo ./$(DEPDIR)/dirname-lgpl.Plo \
 	./$(DEPDIR)/asprintf.Plo ./$(DEPDIR)/bitrotate.Plo \
 	./$(DEPDIR)/c-ctype.Plo ./$(DEPDIR)/c-strcasecmp.Plo \
 	./$(DEPDIR)/c-strncasecmp.Plo ./$(DEPDIR)/cloexec.Plo \
@@ -372,6 +375,7 @@ am__depfiles_remade = ./$(DEPDIR)/alloca.Plo ./$(DEPDIR)/asnprintf.Plo \
 	./$(DEPDIR)/snprintf.Plo ./$(DEPDIR)/stat-time.Plo \
 	./$(DEPDIR)/stat-w32.Plo ./$(DEPDIR)/stat.Plo \
 	./$(DEPDIR)/strcasecmp.Plo ./$(DEPDIR)/strdup.Plo \
+	./$(DEPDIR)/stripslash.Plo \
 	./$(DEPDIR)/strncasecmp.Plo ./$(DEPDIR)/strndup.Plo \
 	./$(DEPDIR)/strnlen.Plo ./$(DEPDIR)/strtok_r.Plo \
 	./$(DEPDIR)/strverscmp.Plo ./$(DEPDIR)/sys_socket.Plo \
@@ -1748,7 +1752,7 @@ noinst_HEADERS =
 noinst_LIBRARIES = 
 noinst_LTLIBRARIES = libgnu.la
 EXTRA_DIST = alloca.c alloca.in.h arpa_inet.in.h attribute.h \
-	byteswap.in.h cloexec.h close.c dup2.c errno.in.h \
+	basename-lgpl.h byteswap.in.h cloexec.h close.c dup2.c errno.in.h dirname.h \
 	explicit_bzero.c fcntl.c fcntl.in.h fd-hook.h filename.h \
 	float.c float.in.h itold.c fopen.c fstat.c stat-w32.c \
 	stat-w32.h ftell.c ftello.c stdio-impl.h \
@@ -1799,8 +1803,9 @@ DISTCLEANFILES =
 MAINTAINERCLEANFILES = 
 AM_CPPFLAGS = 
 AM_CFLAGS = 
-libgnu_la_SOURCES = bitrotate.h bitrotate.c c-ctype.h c-ctype.c \
+libgnu_la_SOURCES = basename-lgpl.c bitrotate.h bitrotate.c c-ctype.h \
 	c-strcase.h c-strcasecmp.c c-strncasecmp.c cloexec.c fd-hook.c \
+	dirname-lgpl.c stripslash.c \
 	gettext.h hash.c hash-pjw-bare.h hash-pjw-bare.c malloca.c \
 	minmax.h read-file.c size_max.h stat-time.c sys_socket.c \
 	glthread/threadlib.c unistd.c xsize.h xsize.c
@@ -1913,12 +1918,14 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/alloca.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asnprintf.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asprintf.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/basename-lgpl.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bitrotate.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/c-ctype.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/c-strcasecmp.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/c-strncasecmp.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cloexec.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/close.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dirname-lgpl.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dup2.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/explicit_bzero.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fcntl.Plo@am__quote@ # am--include-marker
@@ -1958,6 +1965,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stat.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/strcasecmp.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/strdup.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stripslash.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/strncasecmp.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/strndup.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/strnlen.Plo@am__quote@ # am--include-marker
@@ -2219,12 +2227,14 @@ distclean: distclean-recursive
 		-rm -f ./$(DEPDIR)/alloca.Plo
 	-rm -f ./$(DEPDIR)/asnprintf.Plo
 	-rm -f ./$(DEPDIR)/asprintf.Plo
+	-rm -f ./$(DEPDIR)/basename-lgpl.Plo
 	-rm -f ./$(DEPDIR)/bitrotate.Plo
 	-rm -f ./$(DEPDIR)/c-ctype.Plo
 	-rm -f ./$(DEPDIR)/c-strcasecmp.Plo
 	-rm -f ./$(DEPDIR)/c-strncasecmp.Plo
 	-rm -f ./$(DEPDIR)/cloexec.Plo
 	-rm -f ./$(DEPDIR)/close.Plo
+	-rm -f ./$(DEPDIR)/dirname-lgpl.Plo
 	-rm -f ./$(DEPDIR)/dup2.Plo
 	-rm -f ./$(DEPDIR)/explicit_bzero.Plo
 	-rm -f ./$(DEPDIR)/fcntl.Plo
@@ -2264,6 +2274,7 @@ distclean: distclean-recursive
 	-rm -f ./$(DEPDIR)/stat.Plo
 	-rm -f ./$(DEPDIR)/strcasecmp.Plo
 	-rm -f ./$(DEPDIR)/strdup.Plo
+	-rm -f ./$(DEPDIR)/stripslash.Plo
 	-rm -f ./$(DEPDIR)/strncasecmp.Plo
 	-rm -f ./$(DEPDIR)/strndup.Plo
 	-rm -f ./$(DEPDIR)/strnlen.Plo
@@ -2325,12 +2336,14 @@ maintainer-clean: maintainer-clean-recursive
 		-rm -f ./$(DEPDIR)/alloca.Plo
 	-rm -f ./$(DEPDIR)/asnprintf.Plo
 	-rm -f ./$(DEPDIR)/asprintf.Plo
+	-rm -f ./$(DEPDIR)/basename-lgpl.Plo
 	-rm -f ./$(DEPDIR)/bitrotate.Plo
 	-rm -f ./$(DEPDIR)/c-ctype.Plo
 	-rm -f ./$(DEPDIR)/c-strcasecmp.Plo
 	-rm -f ./$(DEPDIR)/c-strncasecmp.Plo
 	-rm -f ./$(DEPDIR)/cloexec.Plo
 	-rm -f ./$(DEPDIR)/close.Plo
+	-rm -f ./$(DEPDIR)/dirname-lgpl.Plo
 	-rm -f ./$(DEPDIR)/dup2.Plo
 	-rm -f ./$(DEPDIR)/explicit_bzero.Plo
 	-rm -f ./$(DEPDIR)/fcntl.Plo
@@ -2370,6 +2383,7 @@ maintainer-clean: maintainer-clean-recursive
 	-rm -f ./$(DEPDIR)/stat.Plo
 	-rm -f ./$(DEPDIR)/strcasecmp.Plo
 	-rm -f ./$(DEPDIR)/strdup.Plo
+	-rm -f ./$(DEPDIR)/stripslash.Plo
 	-rm -f ./$(DEPDIR)/strncasecmp.Plo
 	-rm -f ./$(DEPDIR)/strndup.Plo
 	-rm -f ./$(DEPDIR)/strnlen.Plo
