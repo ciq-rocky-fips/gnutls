@@ -1949,7 +1949,7 @@ static int test_mac(gnutls_mac_algorithm_t mac,
 
 #define CASE2(x, func, func2, vectors) case x:	  \
 			ret = func(x, V(vectors), flags); \
-			if (!(flags & GNUTLS_SELF_TEST_FLAG_ALL) || ret < 0) \
+			if (ret < 0) \
 				return ret; \
 			ret = func2(x, V(vectors), flags); \
 			if (!(flags & GNUTLS_SELF_TEST_FLAG_ALL) || ret < 0) \
