@@ -1,4 +1,4 @@
-# Copyright (c) 2011-2013, Andy Polyakov <appro@openssl.org>
+# Copyright (c) 2011-2016, Andy Polyakov <appro@openssl.org>
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -42,36 +42,50 @@
 
 .p2align	4
 _padlock_capability:
+
+.byte	243,15,30,250
 	movq	%rbx,%r8
 	xorl	%eax,%eax
 	cpuid
 	xorl	%eax,%eax
-	cmpl	$1953391939,%ebx
+	cmpl	$0x746e6543,%ebx
+	jne	L$zhaoxin
+	cmpl	$0x48727561,%edx
 	jne	L$noluck
-	cmpl	$1215460705,%edx
+	cmpl	$0x736c7561,%ecx
 	jne	L$noluck
-	cmpl	$1936487777,%ecx
+	jmp	L$zhaoxinEnd
+L$zhaoxin:
+	cmpl	$0x68532020,%ebx
 	jne	L$noluck
-	movl	$3221225472,%eax
+	cmpl	$0x68676e61,%edx
+	jne	L$noluck
+	cmpl	$0x20206961,%ecx
+	jne	L$noluck
+L$zhaoxinEnd:
+	movl	$0xC0000000,%eax
 	cpuid
 	movl	%eax,%edx
 	xorl	%eax,%eax
-	cmpl	$3221225473,%edx
+	cmpl	$0xC0000001,%edx
 	jb	L$noluck
-	movl	$3221225473,%eax
+	movl	$0xC0000001,%eax
 	cpuid
 	movl	%edx,%eax
-	andl	$4294967279,%eax
-	orl	$16,%eax
+	andl	$0xffffffef,%eax
+	orl	$0x10,%eax
 L$noluck:
 	movq	%r8,%rbx
 	.byte	0xf3,0xc3
+
 
 
 .globl	_padlock_key_bswap
 
 .p2align	4
 _padlock_key_bswap:
+
+.byte	243,15,30,250
 	movl	240(%rdi),%edx
 L$bswap_loop:
 	movl	(%rdi),%eax
@@ -83,10 +97,13 @@ L$bswap_loop:
 	.byte	0xf3,0xc3
 
 
+
 .globl	_padlock_verify_context
 
 .p2align	4
 _padlock_verify_context:
+
+.byte	243,15,30,250
 	movq	%rdi,%rdx
 	pushf
 	leaq	L$padlock_saved_context(%rip),%rax
@@ -96,8 +113,11 @@ _padlock_verify_context:
 
 
 
+
 .p2align	4
 _padlock_verify_ctx:
+
+.byte	243,15,30,250
 	movq	8(%rsp),%r8
 	btq	$30,%r8
 	jnc	L$verified
@@ -110,41 +130,53 @@ L$verified:
 	.byte	0xf3,0xc3
 
 
+
 .globl	_padlock_reload_key
 
 .p2align	4
 _padlock_reload_key:
+
+.byte	243,15,30,250
 	pushf
 	popf
 	.byte	0xf3,0xc3
+
 
 
 .globl	_padlock_aes_block
 
 .p2align	4
 _padlock_aes_block:
+
+.byte	243,15,30,250
 	movq	%rbx,%r8
 	movq	$1,%rcx
 	leaq	32(%rdx),%rbx
 	leaq	16(%rdx),%rdx
-.byte	0xf3,0x0f,0xa7,0xc8	
+.byte	0xf3,0x0f,0xa7,0xc8
 	movq	%r8,%rbx
 	.byte	0xf3,0xc3
+
 
 
 .globl	_padlock_xstore
 
 .p2align	4
 _padlock_xstore:
+
+.byte	243,15,30,250
 	movl	%esi,%edx
-.byte	0x0f,0xa7,0xc0		
+.byte	0x0f,0xa7,0xc0
 	.byte	0xf3,0xc3
+
 
 
 .globl	_padlock_sha1_oneshot
 
 .p2align	4
 _padlock_sha1_oneshot:
+
+.byte	243,15,30,250
 	movq	%rdx,%rcx
 	movq	%rdi,%rdx
 	movups	(%rdi),%xmm0
@@ -154,19 +186,22 @@ _padlock_sha1_oneshot:
 	movq	%rsp,%rdi
 	movl	%eax,16(%rsp)
 	xorq	%rax,%rax
-.byte	0xf3,0x0f,0xa6,0xc8	
+.byte	0xf3,0x0f,0xa6,0xc8
 	movaps	(%rsp),%xmm0
 	movl	16(%rsp),%eax
 	addq	$128+8,%rsp
 	movups	%xmm0,(%rdx)
 	movl	%eax,16(%rdx)
 	.byte	0xf3,0xc3
+
 
 
 .globl	_padlock_sha1_blocks
 
 .p2align	4
 _padlock_sha1_blocks:
+
+.byte	243,15,30,250
 	movq	%rdx,%rcx
 	movq	%rdi,%rdx
 	movups	(%rdi),%xmm0
@@ -176,7 +211,7 @@ _padlock_sha1_blocks:
 	movq	%rsp,%rdi
 	movl	%eax,16(%rsp)
 	movq	$-1,%rax
-.byte	0xf3,0x0f,0xa6,0xc8	
+.byte	0xf3,0x0f,0xa6,0xc8
 	movaps	(%rsp),%xmm0
 	movl	16(%rsp),%eax
 	addq	$128+8,%rsp
@@ -185,10 +220,13 @@ _padlock_sha1_blocks:
 	.byte	0xf3,0xc3
 
 
+
 .globl	_padlock_sha256_oneshot
 
 .p2align	4
 _padlock_sha256_oneshot:
+
+.byte	243,15,30,250
 	movq	%rdx,%rcx
 	movq	%rdi,%rdx
 	movups	(%rdi),%xmm0
@@ -198,7 +236,7 @@ _padlock_sha256_oneshot:
 	movq	%rsp,%rdi
 	movaps	%xmm1,16(%rsp)
 	xorq	%rax,%rax
-.byte	0xf3,0x0f,0xa6,0xd0	
+.byte	0xf3,0x0f,0xa6,0xd0
 	movaps	(%rsp),%xmm0
 	movaps	16(%rsp),%xmm1
 	addq	$128+8,%rsp
@@ -207,10 +245,13 @@ _padlock_sha256_oneshot:
 	.byte	0xf3,0xc3
 
 
+
 .globl	_padlock_sha256_blocks
 
 .p2align	4
 _padlock_sha256_blocks:
+
+.byte	243,15,30,250
 	movq	%rdx,%rcx
 	movq	%rdi,%rdx
 	movups	(%rdi),%xmm0
@@ -220,7 +261,7 @@ _padlock_sha256_blocks:
 	movq	%rsp,%rdi
 	movaps	%xmm1,16(%rsp)
 	movq	$-1,%rax
-.byte	0xf3,0x0f,0xa6,0xd0	
+.byte	0xf3,0x0f,0xa6,0xd0
 	movaps	(%rsp),%xmm0
 	movaps	16(%rsp),%xmm1
 	addq	$128+8,%rsp
@@ -229,10 +270,13 @@ _padlock_sha256_blocks:
 	.byte	0xf3,0xc3
 
 
+
 .globl	_padlock_sha512_blocks
 
 .p2align	4
 _padlock_sha512_blocks:
+
+.byte	243,15,30,250
 	movq	%rdx,%rcx
 	movq	%rdi,%rdx
 	movups	(%rdi),%xmm0
@@ -245,7 +289,7 @@ _padlock_sha512_blocks:
 	movaps	%xmm1,16(%rsp)
 	movaps	%xmm2,32(%rsp)
 	movaps	%xmm3,48(%rsp)
-.byte	0xf3,0x0f,0xa6,0xe0	
+.byte	0xf3,0x0f,0xa6,0xe0
 	movaps	(%rsp),%xmm0
 	movaps	16(%rsp),%xmm1
 	movaps	32(%rsp),%xmm2
@@ -257,10 +301,13 @@ _padlock_sha512_blocks:
 	movups	%xmm3,48(%rdx)
 	.byte	0xf3,0xc3
 
+
 .globl	_padlock_ecb_encrypt
 
 .p2align	4
 _padlock_ecb_encrypt:
+
+.byte	243,15,30,250
 	pushq	%rbp
 	pushq	%rbx
 
@@ -278,9 +325,9 @@ _padlock_ecb_encrypt:
 	xorl	%ebx,%ebx
 	testl	$32,(%rdx)
 	jnz	L$ecb_aligned
-	testq	$15,%rdi
+	testq	$0x0f,%rdi
 	setz	%al
-	testq	$15,%rsi
+	testq	$0x0f,%rsi
 	setz	%bl
 	testl	%ebx,%eax
 	jnz	L$ecb_aligned
@@ -304,7 +351,7 @@ _padlock_ecb_encrypt:
 	cmoveq	%rdi,%rax
 	addq	%rcx,%rax
 	negq	%rax
-	andq	$4095,%rax
+	andq	$0xfff,%rax
 	cmpq	$128,%rax
 	movq	$-128,%rax
 	cmovaeq	%rbx,%rax
@@ -320,12 +367,12 @@ L$ecb_loop:
 	movq	%rcx,%r10
 	movq	%rbx,%rcx
 	movq	%rbx,%r11
-	testq	$15,%rdi
+	testq	$0x0f,%rdi
 	cmovnzq	%rsp,%rdi
-	testq	$15,%rsi
+	testq	$0x0f,%rsi
 	jz	L$ecb_inp_aligned
 	shrq	$3,%rcx
-.byte	0xf3,0x48,0xa5		
+.byte	0xf3,0x48,0xa5
 	subq	%rbx,%rdi
 	movq	%rbx,%rcx
 	movq	%rdi,%rsi
@@ -333,15 +380,15 @@ L$ecb_inp_aligned:
 	leaq	-16(%rdx),%rax
 	leaq	16(%rdx),%rbx
 	shrq	$4,%rcx
-.byte	0xf3,0x0f,0xa7,200	
+.byte	0xf3,0x0f,0xa7,200
 	movq	%r8,%rdi
 	movq	%r11,%rbx
-	testq	$15,%rdi
+	testq	$0x0f,%rdi
 	jz	L$ecb_out_aligned
 	movq	%rbx,%rcx
 	leaq	(%rsp),%rsi
 	shrq	$3,%rcx
-.byte	0xf3,0x48,0xa5		
+.byte	0xf3,0x48,0xa5
 	subq	%rbx,%rdi
 L$ecb_out_aligned:
 	movq	%r9,%rsi
@@ -362,7 +409,7 @@ L$ecb_unaligned_tail:
 	subq	%rax,%rsp
 	shrq	$3,%rcx
 	leaq	(%rsp),%rdi
-.byte	0xf3,0x48,0xa5		
+.byte	0xf3,0x48,0xa5
 	movq	%rsp,%rsi
 	movq	%r8,%rdi
 	movq	%rbx,%rcx
@@ -388,7 +435,7 @@ L$ecb_done:
 L$ecb_aligned:
 	leaq	(%rsi,%rcx,1),%rbp
 	negq	%rbp
-	andq	$4095,%rbp
+	andq	$0xfff,%rbp
 	xorl	%eax,%eax
 	cmpq	$128,%rbp
 	movq	$128-1,%rbp
@@ -399,7 +446,7 @@ L$ecb_aligned:
 	leaq	-16(%rdx),%rax
 	leaq	16(%rdx),%rbx
 	shrq	$4,%rcx
-.byte	0xf3,0x0f,0xa7,200	
+.byte	0xf3,0x0f,0xa7,200
 	testq	%rbp,%rbp
 	jz	L$ecb_exit
 
@@ -411,7 +458,7 @@ L$ecb_aligned_tail:
 	subq	%rcx,%rsp
 	shrq	$3,%rcx
 	leaq	(%rsp),%rdi
-.byte	0xf3,0x48,0xa5		
+.byte	0xf3,0x48,0xa5
 	leaq	(%r8),%rdi
 	leaq	(%rsp),%rsi
 	movq	%rbx,%rcx
@@ -424,10 +471,13 @@ L$ecb_abort:
 	popq	%rbp
 	.byte	0xf3,0xc3
 
+
 .globl	_padlock_cbc_encrypt
 
 .p2align	4
 _padlock_cbc_encrypt:
+
+.byte	243,15,30,250
 	pushq	%rbp
 	pushq	%rbx
 
@@ -445,9 +495,9 @@ _padlock_cbc_encrypt:
 	xorl	%ebx,%ebx
 	testl	$32,(%rdx)
 	jnz	L$cbc_aligned
-	testq	$15,%rdi
+	testq	$0x0f,%rdi
 	setz	%al
-	testq	$15,%rsi
+	testq	$0x0f,%rsi
 	setz	%bl
 	testl	%ebx,%eax
 	jnz	L$cbc_aligned
@@ -471,7 +521,7 @@ _padlock_cbc_encrypt:
 	cmoveq	%rdi,%rax
 	addq	%rcx,%rax
 	negq	%rax
-	andq	$4095,%rax
+	andq	$0xfff,%rax
 	cmpq	$64,%rax
 	movq	$-64,%rax
 	cmovaeq	%rbx,%rax
@@ -487,12 +537,12 @@ L$cbc_loop:
 	movq	%rcx,%r10
 	movq	%rbx,%rcx
 	movq	%rbx,%r11
-	testq	$15,%rdi
+	testq	$0x0f,%rdi
 	cmovnzq	%rsp,%rdi
-	testq	$15,%rsi
+	testq	$0x0f,%rsi
 	jz	L$cbc_inp_aligned
 	shrq	$3,%rcx
-.byte	0xf3,0x48,0xa5		
+.byte	0xf3,0x48,0xa5
 	subq	%rbx,%rdi
 	movq	%rbx,%rcx
 	movq	%rdi,%rsi
@@ -500,17 +550,17 @@ L$cbc_inp_aligned:
 	leaq	-16(%rdx),%rax
 	leaq	16(%rdx),%rbx
 	shrq	$4,%rcx
-.byte	0xf3,0x0f,0xa7,208	
+.byte	0xf3,0x0f,0xa7,208
 	movdqa	(%rax),%xmm0
 	movdqa	%xmm0,-16(%rdx)
 	movq	%r8,%rdi
 	movq	%r11,%rbx
-	testq	$15,%rdi
+	testq	$0x0f,%rdi
 	jz	L$cbc_out_aligned
 	movq	%rbx,%rcx
 	leaq	(%rsp),%rsi
 	shrq	$3,%rcx
-.byte	0xf3,0x48,0xa5		
+.byte	0xf3,0x48,0xa5
 	subq	%rbx,%rdi
 L$cbc_out_aligned:
 	movq	%r9,%rsi
@@ -531,7 +581,7 @@ L$cbc_unaligned_tail:
 	subq	%rax,%rsp
 	shrq	$3,%rcx
 	leaq	(%rsp),%rdi
-.byte	0xf3,0x48,0xa5		
+.byte	0xf3,0x48,0xa5
 	movq	%rsp,%rsi
 	movq	%r8,%rdi
 	movq	%rbx,%rcx
@@ -557,7 +607,7 @@ L$cbc_done:
 L$cbc_aligned:
 	leaq	(%rsi,%rcx,1),%rbp
 	negq	%rbp
-	andq	$4095,%rbp
+	andq	$0xfff,%rbp
 	xorl	%eax,%eax
 	cmpq	$64,%rbp
 	movq	$64-1,%rbp
@@ -568,7 +618,7 @@ L$cbc_aligned:
 	leaq	-16(%rdx),%rax
 	leaq	16(%rdx),%rbx
 	shrq	$4,%rcx
-.byte	0xf3,0x0f,0xa7,208	
+.byte	0xf3,0x0f,0xa7,208
 	movdqa	(%rax),%xmm0
 	movdqa	%xmm0,-16(%rdx)
 	testq	%rbp,%rbp
@@ -582,7 +632,7 @@ L$cbc_aligned_tail:
 	subq	%rcx,%rsp
 	shrq	$3,%rcx
 	leaq	(%rsp),%rdi
-.byte	0xf3,0x48,0xa5		
+.byte	0xf3,0x48,0xa5
 	leaq	(%r8),%rdi
 	leaq	(%rsp),%rsi
 	movq	%rbx,%rcx
@@ -595,10 +645,13 @@ L$cbc_abort:
 	popq	%rbp
 	.byte	0xf3,0xc3
 
+
 .globl	_padlock_cfb_encrypt
 
 .p2align	4
 _padlock_cfb_encrypt:
+
+.byte	243,15,30,250
 	pushq	%rbp
 	pushq	%rbx
 
@@ -616,9 +669,9 @@ _padlock_cfb_encrypt:
 	xorl	%ebx,%ebx
 	testl	$32,(%rdx)
 	jnz	L$cfb_aligned
-	testq	$15,%rdi
+	testq	$0x0f,%rdi
 	setz	%al
-	testq	$15,%rsi
+	testq	$0x0f,%rsi
 	setz	%bl
 	testl	%ebx,%eax
 	jnz	L$cfb_aligned
@@ -645,12 +698,12 @@ L$cfb_loop:
 	movq	%rcx,%r10
 	movq	%rbx,%rcx
 	movq	%rbx,%r11
-	testq	$15,%rdi
+	testq	$0x0f,%rdi
 	cmovnzq	%rsp,%rdi
-	testq	$15,%rsi
+	testq	$0x0f,%rsi
 	jz	L$cfb_inp_aligned
 	shrq	$3,%rcx
-.byte	0xf3,0x48,0xa5		
+.byte	0xf3,0x48,0xa5
 	subq	%rbx,%rdi
 	movq	%rbx,%rcx
 	movq	%rdi,%rsi
@@ -658,17 +711,17 @@ L$cfb_inp_aligned:
 	leaq	-16(%rdx),%rax
 	leaq	16(%rdx),%rbx
 	shrq	$4,%rcx
-.byte	0xf3,0x0f,0xa7,224	
+.byte	0xf3,0x0f,0xa7,224
 	movdqa	(%rax),%xmm0
 	movdqa	%xmm0,-16(%rdx)
 	movq	%r8,%rdi
 	movq	%r11,%rbx
-	testq	$15,%rdi
+	testq	$0x0f,%rdi
 	jz	L$cfb_out_aligned
 	movq	%rbx,%rcx
 	leaq	(%rsp),%rsi
 	shrq	$3,%rcx
-.byte	0xf3,0x48,0xa5		
+.byte	0xf3,0x48,0xa5
 	subq	%rbx,%rdi
 L$cfb_out_aligned:
 	movq	%r9,%rsi
@@ -698,7 +751,7 @@ L$cfb_aligned:
 	leaq	-16(%rdx),%rax
 	leaq	16(%rdx),%rbx
 	shrq	$4,%rcx
-.byte	0xf3,0x0f,0xa7,224	
+.byte	0xf3,0x0f,0xa7,224
 	movdqa	(%rax),%xmm0
 	movdqa	%xmm0,-16(%rdx)
 L$cfb_exit:
@@ -709,10 +762,13 @@ L$cfb_abort:
 	popq	%rbp
 	.byte	0xf3,0xc3
 
+
 .globl	_padlock_ofb_encrypt
 
 .p2align	4
 _padlock_ofb_encrypt:
+
+.byte	243,15,30,250
 	pushq	%rbp
 	pushq	%rbx
 
@@ -730,9 +786,9 @@ _padlock_ofb_encrypt:
 	xorl	%ebx,%ebx
 	testl	$32,(%rdx)
 	jnz	L$ofb_aligned
-	testq	$15,%rdi
+	testq	$0x0f,%rdi
 	setz	%al
-	testq	$15,%rsi
+	testq	$0x0f,%rsi
 	setz	%bl
 	testl	%ebx,%eax
 	jnz	L$ofb_aligned
@@ -759,12 +815,12 @@ L$ofb_loop:
 	movq	%rcx,%r10
 	movq	%rbx,%rcx
 	movq	%rbx,%r11
-	testq	$15,%rdi
+	testq	$0x0f,%rdi
 	cmovnzq	%rsp,%rdi
-	testq	$15,%rsi
+	testq	$0x0f,%rsi
 	jz	L$ofb_inp_aligned
 	shrq	$3,%rcx
-.byte	0xf3,0x48,0xa5		
+.byte	0xf3,0x48,0xa5
 	subq	%rbx,%rdi
 	movq	%rbx,%rcx
 	movq	%rdi,%rsi
@@ -772,17 +828,17 @@ L$ofb_inp_aligned:
 	leaq	-16(%rdx),%rax
 	leaq	16(%rdx),%rbx
 	shrq	$4,%rcx
-.byte	0xf3,0x0f,0xa7,232	
+.byte	0xf3,0x0f,0xa7,232
 	movdqa	(%rax),%xmm0
 	movdqa	%xmm0,-16(%rdx)
 	movq	%r8,%rdi
 	movq	%r11,%rbx
-	testq	$15,%rdi
+	testq	$0x0f,%rdi
 	jz	L$ofb_out_aligned
 	movq	%rbx,%rcx
 	leaq	(%rsp),%rsi
 	shrq	$3,%rcx
-.byte	0xf3,0x48,0xa5		
+.byte	0xf3,0x48,0xa5
 	subq	%rbx,%rdi
 L$ofb_out_aligned:
 	movq	%r9,%rsi
@@ -812,7 +868,7 @@ L$ofb_aligned:
 	leaq	-16(%rdx),%rax
 	leaq	16(%rdx),%rbx
 	shrq	$4,%rcx
-.byte	0xf3,0x0f,0xa7,232	
+.byte	0xf3,0x0f,0xa7,232
 	movdqa	(%rax),%xmm0
 	movdqa	%xmm0,-16(%rdx)
 L$ofb_exit:
@@ -823,10 +879,13 @@ L$ofb_abort:
 	popq	%rbp
 	.byte	0xf3,0xc3
 
+
 .globl	_padlock_ctr32_encrypt
 
 .p2align	4
 _padlock_ctr32_encrypt:
+
+.byte	243,15,30,250
 	pushq	%rbp
 	pushq	%rbx
 
@@ -844,9 +903,9 @@ _padlock_ctr32_encrypt:
 	xorl	%ebx,%ebx
 	testl	$32,(%rdx)
 	jnz	L$ctr32_aligned
-	testq	$15,%rdi
+	testq	$0x0f,%rdi
 	setz	%al
-	testq	$15,%rsi
+	testq	$0x0f,%rsi
 	setz	%bl
 	testl	%ebx,%eax
 	jnz	L$ctr32_aligned
@@ -881,7 +940,7 @@ L$ctr32_reenter:
 	cmoveq	%rdi,%rax
 	addq	%rcx,%rax
 	negq	%rax
-	andq	$4095,%rax
+	andq	$0xfff,%rax
 	cmpq	$32,%rax
 	movq	$-32,%rax
 	cmovaeq	%rbx,%rax
@@ -897,12 +956,12 @@ L$ctr32_loop:
 	movq	%rcx,%r10
 	movq	%rbx,%rcx
 	movq	%rbx,%r11
-	testq	$15,%rdi
+	testq	$0x0f,%rdi
 	cmovnzq	%rsp,%rdi
-	testq	$15,%rsi
+	testq	$0x0f,%rsi
 	jz	L$ctr32_inp_aligned
 	shrq	$3,%rcx
-.byte	0xf3,0x48,0xa5		
+.byte	0xf3,0x48,0xa5
 	subq	%rbx,%rdi
 	movq	%rbx,%rcx
 	movq	%rdi,%rsi
@@ -910,23 +969,23 @@ L$ctr32_inp_aligned:
 	leaq	-16(%rdx),%rax
 	leaq	16(%rdx),%rbx
 	shrq	$4,%rcx
-.byte	0xf3,0x0f,0xa7,216	
+.byte	0xf3,0x0f,0xa7,216
 	movl	-4(%rdx),%eax
-	testl	$4294901760,%eax
+	testl	$0xffff0000,%eax
 	jnz	L$ctr32_no_carry
 	bswapl	%eax
-	addl	$65536,%eax
+	addl	$0x10000,%eax
 	bswapl	%eax
 	movl	%eax,-4(%rdx)
 L$ctr32_no_carry:
 	movq	%r8,%rdi
 	movq	%r11,%rbx
-	testq	$15,%rdi
+	testq	$0x0f,%rdi
 	jz	L$ctr32_out_aligned
 	movq	%rbx,%rcx
 	leaq	(%rsp),%rsi
 	shrq	$3,%rcx
-.byte	0xf3,0x48,0xa5		
+.byte	0xf3,0x48,0xa5
 	subq	%rbx,%rdi
 L$ctr32_out_aligned:
 	movq	%r9,%rsi
@@ -944,7 +1003,7 @@ L$ctr32_out_aligned:
 	cmoveq	%rdi,%rax
 	addq	%rcx,%rax
 	negq	%rax
-	andq	$4095,%rax
+	andq	$0xfff,%rax
 	cmpq	$32,%rax
 	movq	$-32,%rax
 	cmovaeq	%rbx,%rax
@@ -959,7 +1018,7 @@ L$ctr32_unaligned_tail:
 	subq	%rax,%rsp
 	shrq	$3,%rcx
 	leaq	(%rsp),%rdi
-.byte	0xf3,0x48,0xa5		
+.byte	0xf3,0x48,0xa5
 	movq	%rsp,%rsi
 	movq	%r8,%rdi
 	movq	%rbx,%rcx
@@ -986,7 +1045,7 @@ L$ctr32_aligned:
 	movl	-4(%rdx),%eax
 	bswapl	%eax
 	negl	%eax
-	andl	$65535,%eax
+	andl	$0xffff,%eax
 	movq	$1048576,%rbx
 	shll	$4,%eax
 	cmovzq	%rbx,%rax
@@ -1003,11 +1062,11 @@ L$ctr32_aligned_loop:
 	leaq	-16(%rdx),%rax
 	leaq	16(%rdx),%rbx
 	shrq	$4,%rcx
-.byte	0xf3,0x0f,0xa7,216	
+.byte	0xf3,0x0f,0xa7,216
 
 	movl	-4(%rdx),%eax
 	bswapl	%eax
-	addl	$65536,%eax
+	addl	$0x10000,%eax
 	bswapl	%eax
 	movl	%eax,-4(%rdx)
 
@@ -1021,7 +1080,7 @@ L$ctr32_aligned_loop:
 L$ctr32_aligned_skip:
 	leaq	(%rsi,%rcx,1),%rbp
 	negq	%rbp
-	andq	$4095,%rbp
+	andq	$0xfff,%rbp
 	xorl	%eax,%eax
 	cmpq	$32,%rbp
 	movq	$32-1,%rbp
@@ -1032,7 +1091,7 @@ L$ctr32_aligned_skip:
 	leaq	-16(%rdx),%rax
 	leaq	16(%rdx),%rbx
 	shrq	$4,%rcx
-.byte	0xf3,0x0f,0xa7,216	
+.byte	0xf3,0x0f,0xa7,216
 	testq	%rbp,%rbp
 	jz	L$ctr32_exit
 
@@ -1044,7 +1103,7 @@ L$ctr32_aligned_tail:
 	subq	%rcx,%rsp
 	shrq	$3,%rcx
 	leaq	(%rsp),%rdi
-.byte	0xf3,0x48,0xa5		
+.byte	0xf3,0x48,0xa5
 	leaq	(%r8),%rdi
 	leaq	(%rsp),%rsi
 	movq	%rbx,%rcx
@@ -1056,6 +1115,7 @@ L$ctr32_abort:
 	popq	%rbx
 	popq	%rbp
 	.byte	0xf3,0xc3
+
 
 .byte	86,73,65,32,80,97,100,108,111,99,107,32,120,56,54,95,54,52,32,109,111,100,117,108,101,44,32,67,82,89,80,84,79,71,65,77,83,32,98,121,32,60,97,112,112,114,111,64,111,112,101,110,115,115,108,46,111,114,103,62,0
 .p2align	4

@@ -71,6 +71,7 @@
 .def	__vpaes_preheat;	.scl	3;	.type	32;	.endef
 .align	16
 __vpaes_preheat:
+.byte	243,15,30,251
 	addl	(%esp),%ebp
 	movdqa	-48(%ebp),%xmm7
 	movdqa	-16(%ebp),%xmm6
@@ -78,6 +79,7 @@ __vpaes_preheat:
 .def	__vpaes_encrypt_core;	.scl	3;	.type	32;	.endef
 .align	16
 __vpaes_encrypt_core:
+.byte	243,15,30,251
 	movl	$16,%ecx
 	movl	240(%edx),%eax
 	movdqa	%xmm6,%xmm1
@@ -154,6 +156,7 @@ __vpaes_encrypt_core:
 .def	__vpaes_decrypt_core;	.scl	3;	.type	32;	.endef
 .align	16
 __vpaes_decrypt_core:
+.byte	243,15,30,251
 	leal	608(%ebp),%ebx
 	movl	240(%edx),%eax
 	movdqa	%xmm6,%xmm1
@@ -241,6 +244,7 @@ __vpaes_decrypt_core:
 .def	__vpaes_schedule_core;	.scl	3;	.type	32;	.endef
 .align	16
 __vpaes_schedule_core:
+.byte	243,15,30,251
 	addl	(%esp),%ebp
 	movdqu	(%esi),%xmm0
 	movdqa	320(%ebp),%xmm2
@@ -334,6 +338,7 @@ __vpaes_schedule_core:
 .def	__vpaes_schedule_192_smear;	.scl	3;	.type	32;	.endef
 .align	16
 __vpaes_schedule_192_smear:
+.byte	243,15,30,251
 	pshufd	$128,%xmm6,%xmm1
 	pshufd	$254,%xmm7,%xmm0
 	pxor	%xmm1,%xmm6
@@ -345,6 +350,7 @@ __vpaes_schedule_192_smear:
 .def	__vpaes_schedule_round;	.scl	3;	.type	32;	.endef
 .align	16
 __vpaes_schedule_round:
+.byte	243,15,30,251
 	movdqa	8(%esp),%xmm2
 	pxor	%xmm1,%xmm1
 .byte	102,15,58,15,202,15
@@ -393,6 +399,7 @@ __vpaes_schedule_round:
 .def	__vpaes_schedule_transform;	.scl	3;	.type	32;	.endef
 .align	16
 __vpaes_schedule_transform:
+.byte	243,15,30,251
 	movdqa	-16(%ebp),%xmm2
 	movdqa	%xmm2,%xmm1
 	pandn	%xmm0,%xmm1
@@ -407,6 +414,7 @@ __vpaes_schedule_transform:
 .def	__vpaes_schedule_mangle;	.scl	3;	.type	32;	.endef
 .align	16
 __vpaes_schedule_mangle:
+.byte	243,15,30,251
 	movdqa	%xmm0,%xmm4
 	movdqa	128(%ebp),%xmm5
 	testl	%edi,%edi
@@ -467,6 +475,7 @@ __vpaes_schedule_mangle:
 .align	16
 _vpaes_set_encrypt_key:
 .L_vpaes_set_encrypt_key_begin:
+.byte	243,15,30,251
 	pushl	%ebp
 	pushl	%ebx
 	pushl	%esi
@@ -499,6 +508,7 @@ _vpaes_set_encrypt_key:
 .align	16
 _vpaes_set_decrypt_key:
 .L_vpaes_set_decrypt_key_begin:
+.byte	243,15,30,251
 	pushl	%ebp
 	pushl	%ebx
 	pushl	%esi
@@ -536,6 +546,7 @@ _vpaes_set_decrypt_key:
 .align	16
 _vpaes_encrypt:
 .L_vpaes_encrypt_begin:
+.byte	243,15,30,251
 	pushl	%ebp
 	pushl	%ebx
 	pushl	%esi
@@ -564,6 +575,7 @@ _vpaes_encrypt:
 .align	16
 _vpaes_decrypt:
 .L_vpaes_decrypt_begin:
+.byte	243,15,30,251
 	pushl	%ebp
 	pushl	%ebx
 	pushl	%esi
@@ -592,6 +604,7 @@ _vpaes_decrypt:
 .align	16
 _vpaes_cbc_encrypt:
 .L_vpaes_cbc_encrypt_begin:
+.byte	243,15,30,251
 	pushl	%ebp
 	pushl	%ebx
 	pushl	%esi

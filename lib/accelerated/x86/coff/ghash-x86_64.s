@@ -52,6 +52,7 @@ gcm_gmult_4bit:
 	movq	%rdx,%rsi
 
 
+.byte	243,15,30,250
 	pushq	%rbx
 
 	pushq	%rbp
@@ -168,6 +169,7 @@ gcm_ghash_4bit:
 	movq	%r9,%rcx
 
 
+.byte	243,15,30,250
 	pushq	%rbx
 
 	pushq	%rbp
@@ -918,6 +920,7 @@ gcm_init_clmul:
 .p2align	4
 gcm_gmult_clmul:
 
+.byte	243,15,30,250
 .L_gmult_clmul:
 	movdqu	(%rcx),%xmm0
 	movdqa	.Lbswap_mask(%rip),%xmm5
@@ -971,6 +974,7 @@ gcm_gmult_clmul:
 .p2align	5
 gcm_ghash_clmul:
 
+.byte	243,15,30,250
 .L_ghash_clmul:
 	leaq	-136(%rsp),%rax
 .LSEH_begin_gcm_ghash_clmul:
@@ -1498,6 +1502,7 @@ gcm_init_avx:
 .p2align	5
 gcm_gmult_avx:
 
+.byte	243,15,30,250
 	jmp	.L_gmult_clmul
 
 
@@ -1506,6 +1511,7 @@ gcm_gmult_avx:
 .p2align	5
 gcm_ghash_avx:
 
+.byte	243,15,30,250
 	leaq	-136(%rsp),%rax
 .LSEH_begin_gcm_ghash_avx:
 

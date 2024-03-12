@@ -643,6 +643,7 @@ vpaes_set_encrypt_key:
 	movq	%r8,%rdx
 
 
+.byte	243,15,30,250
 	leaq	-184(%rsp),%rsp
 	movaps	%xmm6,16(%rsp)
 	movaps	%xmm7,32(%rsp)
@@ -695,6 +696,7 @@ vpaes_set_decrypt_key:
 	movq	%r8,%rdx
 
 
+.byte	243,15,30,250
 	leaq	-184(%rsp),%rsp
 	movaps	%xmm6,16(%rsp)
 	movaps	%xmm7,32(%rsp)
@@ -752,6 +754,7 @@ vpaes_encrypt:
 	movq	%r8,%rdx
 
 
+.byte	243,15,30,250
 	leaq	-184(%rsp),%rsp
 	movaps	%xmm6,16(%rsp)
 	movaps	%xmm7,32(%rsp)
@@ -799,6 +802,7 @@ vpaes_decrypt:
 	movq	%r8,%rdx
 
 
+.byte	243,15,30,250
 	leaq	-184(%rsp),%rsp
 	movaps	%xmm6,16(%rsp)
 	movaps	%xmm7,32(%rsp)
@@ -848,6 +852,7 @@ vpaes_cbc_encrypt:
 	movq	48(%rsp),%r9
 
 
+.byte	243,15,30,250
 	xchgq	%rcx,%rdx
 	subq	$16,%rcx
 	jc	.Lcbc_abort
