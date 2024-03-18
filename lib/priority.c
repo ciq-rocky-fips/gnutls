@@ -2117,13 +2117,14 @@ char *_gnutls_resolve_priorities(const char* priorities)
 		additional++;
 	}
 
-	/* Always try to refresh the cached data, to allow it to be
-	 * updated without restarting all applications.
-	 */
-	ret = _gnutls_update_system_priorities(false /* defer_system_wide */);
-	if (ret < 0) {
-		_gnutls_debug_log("failed to update system priorities: %s\n",
-				  gnutls_strerror(ret));
+	/* If priority string is not constructed yet, construct and finalize */
+	if (!system_wide_config.priority_string) {
+		ret = _gnutls_update_system_priorities(false
+		                                       /* defer_system_wide */);
+		if (ret < 0) {
+			_gnutls_debug_log("failed to update system priorities: "
+			                  " %s\n", gnutls_strerror(ret));
+		}
 	}
 
 	do {
