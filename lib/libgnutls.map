@@ -1405,6 +1405,7 @@ GNUTLS_3_7_7
 	gnutls_fips140_run_self_tests;
 	gnutls_cipher_encrypt3;
 	gnutls_cipher_decrypt3;
+	gnutls_FIPS_show_version_service;
  local:
 	*;
 } GNUTLS_3_7_5;

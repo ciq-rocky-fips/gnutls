@@ -3418,6 +3418,8 @@ int gnutls_fips140_pop_context(void);
 
 int gnutls_fips140_run_self_tests(void);
 
+const char *gnutls_FIPS_show_version_service(void);
+
   /* Gnutls error codes. The mapping to a TLS alert is also shown in
    * comments.
    */
