@@ -274,6 +274,8 @@ void doit(void)
 	gnutls_datum_t signature;
 	unsigned int bits;
 	uint8_t hmac[64];
+	uint8_t pbkdf2[64];
+	gnutls_datum_t temp_key = { NULL, 0 };
 
 	fprintf(stderr,
 		"Please note that if in FIPS140 mode, you need to assure the library's integrity prior to running this test\n");
@@ -371,10 +373,57 @@ void doit(void)
 	}
 	FIPS_POP_CONTEXT(NOT_APPROVED);
 
+	/* PBKDF2 with key equal to or longer than 112 bits: approved */
+	FIPS_PUSH_CONTEXT();
+	ret = gnutls_pbkdf2(GNUTLS_MAC_SHA256, &key, &iv, 100,
+			    &pbkdf2, sizeof(pbkdf2));
+	if (ret < 0) {
+		fail("gnutls_pbkdf2 failed\n");
+	}
+	FIPS_POP_CONTEXT(APPROVED);
+
+	/* PBKDF2 with key shorter than 112 bits: not approved */
+	FIPS_PUSH_CONTEXT();
+	key.size = 13;
+	ret = gnutls_pbkdf2(GNUTLS_MAC_SHA256, &key, &iv, 100,
+			    &pbkdf2, sizeof(pbkdf2));
+	if (ret < 0) {
+		fail("gnutls_pbkdf2 failed\n");
+	}
+	key.size = sizeof(key16);
+	FIPS_POP_CONTEXT(NOT_APPROVED);
+
+	/* PBKDF2 with output shorter than 112 bits: not approved */
+	FIPS_PUSH_CONTEXT();
+	ret = gnutls_pbkdf2(GNUTLS_MAC_SHA256, &key, &iv, 100,
+			    &pbkdf2, 13);
+	if (ret < 0) {
+		fail("gnutls_pbkdf2 failed\n");
+	}
+	FIPS_POP_CONTEXT(NOT_APPROVED);
+
 	ret = gnutls_rnd(GNUTLS_RND_NONCE, key16, sizeof(key16));
 	if (ret < 0) {
 		fail("gnutls_rnd failed\n");
 	}
+
+	/* Symmetric key generation equal to or longer than 112 bits: approved */
+	FIPS_PUSH_CONTEXT();
+	ret = gnutls_key_generate(&temp_key, 14);
+	if (ret < 0) {
+		fail("gnutls_key_generate failed\n");
+	}
+	gnutls_free(temp_key.data);
+	FIPS_POP_CONTEXT(APPROVED);
+
+	/* Symmetric key generation shorter than 112 bits: not approved */
+	FIPS_PUSH_CONTEXT();
+	ret = gnutls_key_generate(&temp_key, 13);
+	if (ret < 0) {
+		fail("gnutls_key_generate failed\n");
+	}
+	gnutls_free(temp_key.data);
+	FIPS_POP_CONTEXT(NOT_APPROVED);
 
 	ret = gnutls_pubkey_init(&pubkey);
 	if (ret < 0) {
