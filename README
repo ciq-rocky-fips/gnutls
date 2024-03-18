@@ -1,0 +1,14 @@
+SRC-GIT repository for the FIPS gnutls.
+
+The code is maintained in separate branches:
+
+FIPS-3.6.16: Production FIPS gnutls for Rocky 8.
+	Based on GNUTLS-3.6.16.
+
+FIPS-FT-3.6.16: Functional test FIPS gnutls for Rocky 8.
+
+	This code is only intended for funcitonal testing
+	of the fips functionality and not to be used in production.
+	This branch is a set of commits based ontop of FIPS-3.6.16 and is
+	not supposed to be updated manually. Instead it should be rebased
+	ontop of FIPS-3.6.16 anytime FIPS-3.6.16 changes.
