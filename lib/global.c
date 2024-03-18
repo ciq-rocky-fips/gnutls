@@ -491,14 +491,6 @@ static void _CONSTRUCTOR lib_init(void)
 			return;
 	}
 
-	e = secure_getenv("GNUTLS_NO_EXPLICIT_INIT");
-	if (e != NULL) {
-		_gnutls_debug_log("GNUTLS_NO_EXPLICIT_INIT is deprecated; use GNUTLS_NO_IMPLICIT_INIT\n");
-		ret = atoi(e);
-		if (ret == 1)
-			return;
-	}
-
 	ret = _gnutls_global_init(1);
 	if (ret < 0) {
 		fprintf(stderr, "Error in GnuTLS initialization: %s\n", gnutls_strerror(ret));
