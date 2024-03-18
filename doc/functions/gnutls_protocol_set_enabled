@@ -1,0 +1,21 @@
+
+
+
+
+@deftypefun {int} {gnutls_protocol_set_enabled} (gnutls_protocol_t @var{version}, unsigned int @var{enabled})
+@var{version}: is a (gnutls) version number
+
+@var{enabled}: whether to enable the protocol
+
+Mark the previous system wide setting that marked  @code{version} as
+enabled or disabled. This only has effect when the version is
+enabled through the allowlisting mode in the configuration file, or
+when the setting is modified with a prior call to this function.
+
+This function must be called prior to any session priority setting functions;
+otherwise the behavior is undefined.
+
+@strong{Returns:} 0 on success or negative error code otherwise.
+
+@strong{Since:} 3.7.3
+@end deftypefun
