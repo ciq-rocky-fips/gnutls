@@ -2229,10 +2229,7 @@ _pkcs1_rsa_verify_sig(gnutls_pk_algorithm_t pk,
 	d.size = digest_size;
 
 	if (pk == GNUTLS_PK_RSA) {
-		/* SHA-1 is allowed for SigVer in FIPS 140-3 in legacy
-		 * mode */
 		switch (me->id) {
-		case GNUTLS_MAC_SHA1:
 		case GNUTLS_MAC_SHA256:
 		case GNUTLS_MAC_SHA384:
 		case GNUTLS_MAC_SHA512:
