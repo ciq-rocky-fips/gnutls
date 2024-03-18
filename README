@@ -1,0 +1,33 @@
+SRC-GIT repository for the FIPS gnutls.
+
+The code is maintained in separate branches:
+
+FIPS-3.6.16: Production FIPS gnutls for Rocky 8.
+	Based on GNUTLS-3.6.16.
+
+FIPS-FT-3.6.16: Functional test FIPS gnutls for Rocky 8.
+
+	This code is only intended for funcitonal testing
+	of the fips functionality and not to be used in production.
+	This branch is a set of commits based ontop of FIPS-3.6.16 and is
+	not supposed to be updated manually. Instead it should be rebased
+	ontop of FIPS-3.6.16 anytime FIPS-3.6.16 changes.
+
+To run the functional test scripts from the FIPS-FT-3.6.16 branch.
+
+1). Build gnutls locally:
+$ ./gnutls_config.sh `pwd`/INSTALLED
+$ make -j
+$ make install
+
+Copy the created .hmac file into the installed library directory:
+
+$ cp ./lib/.libs/.libgnutls.so.30.hmac /usr/lib64/
+
+Run the functional tests:
+
+$ ./post-test.sh INSTALLED/bin/gnutls-cli INSTALLED/bin/certtool
+
+The functional test fail script post-test-inject-fail.sh must
+be run as root and WILL MODIFY SYSTEM LIBRATIES. For that reason
+it is recommended to run this inside a Rocky8 VM system.
