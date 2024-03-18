@@ -584,7 +584,7 @@ void doit(void)
 	}
 	FIPS_POP_CONTEXT(NOT_APPROVED);
 
-	/* Verify a signature created with 2432-bit RSA and SHA-1; approved */
+	/* Verify a signature created with 2432-bit RSA and SHA-1; not approved */
 	FIPS_PUSH_CONTEXT();
 	ret = gnutls_pubkey_verify_data2(pubkey, GNUTLS_SIGN_RSA_SHA1,
 					 GNUTLS_VERIFY_ALLOW_SIGN_WITH_SHA1, &data,
@@ -592,7 +592,7 @@ void doit(void)
 	if (ret < 0) {
 		fail("gnutls_pubkey_verify_data2 failed\n");
 	}
-	FIPS_POP_CONTEXT(APPROVED);
+	FIPS_POP_CONTEXT(NOT_APPROVED);
 	gnutls_free(signature.data);
 	gnutls_pubkey_deinit(pubkey);
 	gnutls_privkey_deinit(privkey);
@@ -696,7 +696,7 @@ void doit(void)
 	}
 	FIPS_POP_CONTEXT(NOT_APPROVED);
 
-	/* Verify a signature created with ECDSA and SHA-1; approved */
+	/* Verify a signature created with ECDSA and SHA-1; not approved */
 	FIPS_PUSH_CONTEXT();
 	ret = gnutls_pubkey_verify_data2(pubkey, GNUTLS_SIGN_ECDSA_SHA1,
 					 GNUTLS_VERIFY_ALLOW_SIGN_WITH_SHA1, &data,
@@ -704,7 +704,7 @@ void doit(void)
 	if (ret < 0) {
 		fail("gnutls_pubkey_verify_data2 failed\n");
 	}
-	FIPS_POP_CONTEXT(APPROVED);
+	FIPS_POP_CONTEXT(NOT_APPROVED);
 	gnutls_free(signature.data);
 
 	/* Create a signature with ECDSA and SHA-1 (old API); not approved */
