@@ -605,6 +605,14 @@ _wrap_nettle_pk_encrypt(gnutls_pk_algorithm_t algo,
 			struct rsa_public_key pub;
 			nettle_random_func *random_func;
 
+#ifdef ENABLE_FIPS140
+			if ((_gnutls_get_lib_state() != LIB_STATE_SELFTEST) &&
+					(_gnutls_fips_mode_enabled() == GNUTLS_FIPS140_STRICT)) {
+				ret = gnutls_assert_val(GNUTLS_E_UNWANTED_ALGORITHM);
+				goto cleanup;
+			}
+#endif
+
 			ret = _rsa_params_to_pubkey(pk_params, &pub);
 			if (ret < 0) {
 				gnutls_assert();
@@ -679,6 +687,13 @@ _wrap_nettle_pk_decrypt(gnutls_pk_algorithm_t algo,
 			bigint_t c;
 			nettle_random_func *random_func;
 
+#ifdef ENABLE_FIPS140
+			if ((_gnutls_get_lib_state() != LIB_STATE_SELFTEST) &&
+					(_gnutls_fips_mode_enabled() == GNUTLS_FIPS140_STRICT)) {
+				ret = gnutls_assert_val(GNUTLS_E_UNWANTED_ALGORITHM);
+				goto cleanup;
+			}
+#endif
 			_rsa_params_to_privkey(pk_params, &priv);
 			ret = _rsa_params_to_pubkey(pk_params, &pub);
 			if (ret < 0) {
@@ -772,6 +787,14 @@ _wrap_nettle_pk_decrypt2(gnutls_pk_algorithm_t algo,
 		ret = gnutls_assert_val(GNUTLS_E_INTERNAL_ERROR);
 		goto fail;
 	}
+
+#ifdef ENABLE_FIPS140
+	if ((_gnutls_get_lib_state() != LIB_STATE_SELFTEST) &&
+			(_gnutls_fips_mode_enabled() == GNUTLS_FIPS140_STRICT)) {
+		ret = gnutls_assert_val(GNUTLS_E_UNWANTED_ALGORITHM);
+		goto fail;
+	}
+#endif
 
 	_rsa_params_to_privkey(pk_params, &priv);
 	ret = _rsa_params_to_pubkey(pk_params, &pub);
