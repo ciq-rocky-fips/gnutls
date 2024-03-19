@@ -40,6 +40,8 @@
 #include <link.h>
 #endif
 
+#include "fipslog.h"
+
 unsigned int _gnutls_lib_state = LIB_STATE_POWERON;
 
 struct gnutls_fips140_context_st {
@@ -378,9 +380,15 @@ static int check_lib_hmac(struct hmac_entry *entry, const char *path)
 
 	if (gnutls_memcmp(entry->hmac, hmac, HMAC_SIZE)) {
 		_gnutls_debug_log("Calculated MAC for %s does not match\n", path);
+		FIPSLOG_FAILED("POST", "lib-mac", "Calculated MAC using %s "
+			"for %s does not match", gnutls_mac_get_name(HMAC_ALGO), path);
 		gnutls_memset(hmac, 0, HMAC_SIZE);
 		return gnutls_assert_val(GNUTLS_E_PARSING_ERROR);
+	} else {
+		FIPSLOG_SUCCESS("POST", "lib-mac", "Calculated MAC using %s "
+			"for %s matches", gnutls_mac_get_name(HMAC_ALGO), path);
 	}
+
 	_gnutls_debug_log("Successfully verified MAC for %s\n", path);
 
 	gnutls_memset(hmac, 0, HMAC_SIZE);
@@ -474,19 +482,50 @@ static int check_binary_integrity(void)
 		return ret;
 	}
 
+	FIPSLOG_SUCCESS("POST", "lib-mac-gnutls", "%s",
+		"test started - library integrity using SHA256 mac");
 	ret = check_lib_hmac(&hmac.gnutls, paths.gnutls);
-	if (ret < 0)
+	if (ret < 0) {
+		FIPSLOG_FAILED("POST", "lib-mac-gnutls", "%s",
+			"test ended - library integrity using SHA256 mac");
 		return ret;
+	}
+	FIPSLOG_SUCCESS("POST", "lib-mac-gnutls", "%s",
+			"test ended - library integrity using SHA256 mac");
+
+	FIPSLOG_SUCCESS("POST", "lib-mac-nettle", "%s",
+		"test started - library integrity using SHA256 mac");
 	ret = check_lib_hmac(&hmac.nettle, paths.nettle);
-	if (ret < 0)
+	if (ret < 0) {
+		FIPSLOG_FAILED("POST", "lib-mac-nettle", "%s",
+			"test ended - library integrity using SHA256 mac");
 		return ret;
+	}
+	FIPSLOG_SUCCESS("POST", "lib-mac-nettle", "%s",
+		"test ended - library integrity using SHA256 mac");
+
+	FIPSLOG_SUCCESS("POST", "lib-mac-hogweed", "%s",
+		"test started - library integrity using SHA256 mac");
 	ret = check_lib_hmac(&hmac.hogweed, paths.hogweed);
-	if (ret < 0)
+	if (ret < 0) {
+		FIPSLOG_FAILED("POST", "lib-mac-hogweed", "%s",
+			"test ended - library integrity using SHA256 mac");
 		return ret;
+	}
+	FIPSLOG_SUCCESS("POST", "lib-mac-hogweed", "%s",
+		"test ended - library integrity using SHA256 mac");
+
 #ifdef GMP_LIBRARY_SONAME
+	FIPSLOG_SUCCESS("POST", "lib-mac-gmp", "%s",
+		"test started - library integrity using SHA256 mac");
 	ret = check_lib_hmac(&hmac.gmp, paths.gmp);
-	if (ret < 0)
+	if (ret < 0) {
+		FIPSLOG_FAILED("POST", "lib-mac-gmp", "%s",
+			"test ended - library integrity using SHA256 mac");
 		return ret;
+	}
+	FIPSLOG_SUCCESS("POST", "lib-mac-gmp", "%s",
+		"test ended - library integrity using SHA256 mac");
 #endif
 
 	return 0;
