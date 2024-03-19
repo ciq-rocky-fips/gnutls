@@ -2435,7 +2435,10 @@ static int pct_test(gnutls_pk_algorithm_t algo, const gnutls_pk_params_st* param
 	gnutls_datum_t ddata, tmp = {NULL,0};
 	char* gen_data = NULL;
 	gnutls_x509_spki_st spki;
+#if 0
+	/* Only used in RSA encrypt/decrypt. */
 	gnutls_fips140_context_t context;
+#endif
 
 	memcpy(&spki, &params->spki, sizeof(spki));
 
@@ -2484,6 +2487,7 @@ static int pct_test(gnutls_pk_algorithm_t algo, const gnutls_pk_params_st* param
 
 	switch (algo) {
 	case GNUTLS_PK_RSA:
+#if 0
 		/* Push a temporary FIPS context because _gnutls_pk_encrypt and
 		 * _gnutls_pk_decrypt below will mark RSAES-PKCS1-v1_5 operation
 		 * non-approved */
@@ -2529,6 +2533,7 @@ static int pct_test(gnutls_pk_algorithm_t algo, const gnutls_pk_params_st* param
 		sig.data = NULL;
 
 		FALLTHROUGH;
+#endif
 	case GNUTLS_PK_EC: /* we only do keys for ECDSA */
 	case GNUTLS_PK_EDDSA_ED25519:
 	case GNUTLS_PK_EDDSA_ED448:
