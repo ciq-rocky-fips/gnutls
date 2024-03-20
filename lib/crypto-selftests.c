@@ -3871,16 +3871,31 @@ static int test_tlsprf(gnutls_mac_algorithm_t mac,
 		       size_t vectors_size, unsigned flags)
 {
 	unsigned int i;
+	uint8_t fail_tmp[512];
 
 	for (i = 0; i < vectors_size; i++) {
 		char output[4096];
 		int ret;
 
-		ret = _gnutls_prf_raw(mac,
+		if (fips_request_failure(gnutls_mac_get_name(mac), "tlsprf")) {
+			if (vectors[i].seed_size > sizeof(fail_tmp)) {
+				return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+			}
+			memcpy(fail_tmp, vectors[i].seed, vectors[i].seed_size);
+			/* Flip a bit in the seed. */
+			fail_tmp[0] ^= 0x1;
+			ret = _gnutls_prf_raw(mac,
+				      vectors[i].key_size, vectors[i].key,
+				      vectors[i].label_size, (const char *)vectors[i].label,
+				      vectors[i].seed_size, fail_tmp,
+				      vectors[i].output_size, output);
+		} else {
+			ret = _gnutls_prf_raw(mac,
 				      vectors[i].key_size, vectors[i].key,
 				      vectors[i].label_size, (const char *)vectors[i].label,
 				      vectors[i].seed_size, vectors[i].seed,
 				      vectors[i].output_size, output);
+		}
 		if (ret < 0) {
 			_gnutls_debug_log("error calculating TLS-PRF: MAC-%s\n",
 					  gnutls_mac_get_name(mac));
