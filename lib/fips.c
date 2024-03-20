@@ -728,149 +728,153 @@ int _gnutls_fips_perform_self_checks2(gnutls_fips140_context_t test_fips_context
 	/* ciphers - one test per cipher */
 	ret = gnutls_cipher_self_test(0, GNUTLS_CIPHER_AES_192_CBC);
 	if (ret < 0) {
-		return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+		goto fail_out;
 	}
 
 	ret = gnutls_cipher_self_test(0, GNUTLS_CIPHER_AES_256_CBC);
 	if (ret < 0) {
-		return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+		goto fail_out;
 	}
 
 	ret = gnutls_cipher_self_test(0, GNUTLS_CIPHER_AES_128_GCM);
 	if (ret < 0) {
-		return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+		goto fail_out;
 	}
 
 	ret = gnutls_cipher_self_test(0, GNUTLS_CIPHER_AES_192_GCM);
 	if (ret < 0) {
-		return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+		goto fail_out;
 	}
 
 	ret = gnutls_cipher_self_test(0, GNUTLS_CIPHER_AES_256_GCM);
 	if (ret < 0) {
-		return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+		goto fail_out;
 	}
 
 	ret = gnutls_cipher_self_test(0, GNUTLS_CIPHER_AES_256_XTS);
 	if (ret < 0) {
-		return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+		goto fail_out;
 	}
 
 	ret = gnutls_cipher_self_test(0, GNUTLS_CIPHER_AES_256_CFB8);
 	if (ret < 0) {
-		return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+		goto fail_out;
 	}
 
 	/* Digest tests */
 	ret = gnutls_digest_self_test(0, GNUTLS_DIG_SHA3_224);
 	if (ret < 0) {
-		return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+		goto fail_out;
 	}
 
 	ret = gnutls_digest_self_test(0, GNUTLS_DIG_SHA3_256);
 	if (ret < 0) {
-		return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+		goto fail_out;
 	}
 
 	ret = gnutls_digest_self_test(0, GNUTLS_DIG_SHA3_384);
 	if (ret < 0) {
-		return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+		goto fail_out;
 	}
 
 	ret = gnutls_digest_self_test(0, GNUTLS_DIG_SHA3_512);
 	if (ret < 0) {
-		return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+		goto fail_out;
 	}
 
 	/* MAC (includes message digest test) */
 	ret = gnutls_mac_self_test(0, GNUTLS_MAC_SHA1);
 	if (ret < 0) {
-		return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+		goto fail_out;
 	}
 
 	ret = gnutls_mac_self_test(0, GNUTLS_MAC_SHA224);
 	if (ret < 0) {
-		return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+		goto fail_out;
 	}
 
 	ret = gnutls_mac_self_test(0, GNUTLS_MAC_SHA256);
 	if (ret < 0) {
-		return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+		goto fail_out;
 	}
 
 	ret = gnutls_mac_self_test(0, GNUTLS_MAC_SHA384);
 	if (ret < 0) {
-		return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+		goto fail_out;
 	}
 
 	ret = gnutls_mac_self_test(0, GNUTLS_MAC_SHA512);
 	if (ret < 0) {
-		return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+		goto fail_out;
 	}
 
 	ret = gnutls_mac_self_test(0, GNUTLS_MAC_AES_CMAC_256);
 	if (ret < 0) {
-		return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+		goto fail_out;
 	}
 
 	/* PK */
 	ret = gnutls_pk_self_test(0, GNUTLS_PK_RSA);
 	if (ret < 0) {
-		return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+		goto fail_out;
 	}
 
 	ret = gnutls_pk_self_test(0, GNUTLS_PK_EC);
 	if (ret < 0) {
-		return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+		goto fail_out;
 	}
 
 	ret = gnutls_pk_self_test(0, GNUTLS_PK_DH);
 	if (ret < 0) {
-		return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+		goto fail_out;
 	}
 
 	/* HKDF */
 	ret = gnutls_hkdf_self_test(0, GNUTLS_MAC_SHA256);
 	if (ret < 0) {
-		return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+		goto fail_out;
 	}
 
 	/* PBKDF2 */
 	ret = gnutls_pbkdf2_self_test(0, GNUTLS_MAC_SHA256);
 	if (ret < 0) {
-		return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+		goto fail_out;
 	}
 
 	/* TLS-PRF */
 	ret = gnutls_tlsprf_self_test(0, GNUTLS_MAC_SHA256);
 	if (ret < 0) {
-		return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+		goto fail_out;
 	}
 
 	/* TLS1_3-PRF */
 	ret = gnutls_tlsprf13_self_test();
 	if (ret < 0) {
-		return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+		goto fail_out;
 	}
 
 	if (_gnutls_rnd_ops.self_test == NULL) {
-		return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+		goto fail_out;
 	}
 
 	/* this does not require rng initialization */
 	ret = _gnutls_rnd_ops.self_test();
 	if (ret < 0) {
-		return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+		goto fail_out;
 	}
 
 	if (_skip_integrity_checks == 0) {
 		ret = check_binary_integrity();
 		if (ret < 0) {
-			return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+			goto fail_out;
 		}
 	}
 
 	return 0;
+
+    fail_out:
+
+	return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
 }
 #endif
 
