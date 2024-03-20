@@ -42,6 +42,8 @@
 #include "global.h"
 #include "fipslog.h"
 
+#include "fipslog.h"
+
 /* Minimum library versions we accept. */
 #define GNUTLS_MIN_LIBTASN1_VERSION "0.3.4"
 
@@ -417,6 +419,8 @@ static int _gnutls_global_init(unsigned constructor)
 	 * res == not in fips140 mode
 	 */
 	if (res != 0) {
+		FIPSLOG_SUCCESS("POST", "init", "%s", "Starting FIPS140 self-test");
+
 		_gnutls_debug_log("FIPS140-2 mode: %d\n", res);
 		_gnutls_priority_update_fips();
 
@@ -427,6 +431,7 @@ static int _gnutls_global_init(unsigned constructor)
 		if (ret < 0) {
 			_gnutls_switch_lib_state(LIB_STATE_ERROR);
 			_gnutls_audit_log(NULL, "FIPS140-2 self testing part1 failed\n");
+			FIPSLOG_FAILED("POST", "init", "%s", "FIPS140 self-test part1");
 			if (res != 2) {
 				gnutls_assert();
 				goto out;
@@ -449,12 +454,14 @@ static int _gnutls_global_init(unsigned constructor)
 		if (ret < 0) {
 			_gnutls_switch_lib_state(LIB_STATE_ERROR);
 			_gnutls_audit_log(NULL, "FIPS140-2 self testing part 2 failed\n");
+			FIPSLOG_FAILED("POST", "init", "%s", "FIPS140 self-test part2");
 			if (res != 2) {
 				gnutls_assert();
 				goto out;
 			}
 		}
 		_gnutls_fips_mode_reset_zombie();
+		FIPSLOG_SUCCESS("POST", "init", "%s", "Finished FIPS140 self-test");
 	}
 #endif
 	_gnutls_prepare_to_load_system_priorities();
