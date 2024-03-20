@@ -772,19 +772,46 @@ int _gnutls_fips_perform_self_checks2(gnutls_fips140_context_t test_fips_context
 	}
 	CHECK_FIPS_OP_STATE(test_fips_context, GNUTLS_FIPS140_OP_APPROVED);
 
-	ret = gnutls_cipher_self_test(0, GNUTLS_CIPHER_AES_128_GCM);
-	if (ret < 0) {
-		goto fail_out;
+	/*
+	 * Test inside sub-context as GNUTLS_CIPHER_AES_128_GCM is
+	 * only approved when doing TLS operations.
+	 */
+	{
+		PUSH_FIPS_SUBCONTEXT(sub_fips_context);
+		ret = gnutls_cipher_self_test(0, GNUTLS_CIPHER_AES_128_GCM);
+		if (ret < 0) {
+			gnutls_fips140_pop_context();
+			goto fail_out;
+		}
+		POP_FIPS_SUBCONTEXT(sub_fips_context, GNUTLS_FIPS140_OP_NOT_APPROVED);
 	}
 
-	ret = gnutls_cipher_self_test(0, GNUTLS_CIPHER_AES_192_GCM);
-	if (ret < 0) {
-		goto fail_out;
+	/*
+	 * Test inside sub-context as GNUTLS_CIPHER_AES_192_GCM is
+	 * only approved when doing TLS operations.
+	 */
+	{
+		PUSH_FIPS_SUBCONTEXT(sub_fips_context);
+		ret = gnutls_cipher_self_test(0, GNUTLS_CIPHER_AES_192_GCM);
+		if (ret < 0) {
+			gnutls_fips140_pop_context();
+			goto fail_out;
+		}
+		POP_FIPS_SUBCONTEXT(sub_fips_context, GNUTLS_FIPS140_OP_NOT_APPROVED);
 	}
 
-	ret = gnutls_cipher_self_test(0, GNUTLS_CIPHER_AES_256_GCM);
-	if (ret < 0) {
-		goto fail_out;
+	/*
+	 * Test inside sub-context as GNUTLS_CIPHER_AES_256_GCM is
+	 * only approved when doing TLS operations.
+	 */
+	{
+		PUSH_FIPS_SUBCONTEXT(sub_fips_context);
+		ret = gnutls_cipher_self_test(0, GNUTLS_CIPHER_AES_256_GCM);
+		if (ret < 0) {
+			gnutls_fips140_pop_context();
+			goto fail_out;
+		}
+		POP_FIPS_SUBCONTEXT(sub_fips_context, GNUTLS_FIPS140_OP_NOT_APPROVED);
 	}
 
 	ret = gnutls_cipher_self_test(0, GNUTLS_CIPHER_AES_256_XTS);
@@ -880,16 +907,36 @@ int _gnutls_fips_perform_self_checks2(gnutls_fips140_context_t test_fips_context
 	}
 	CHECK_FIPS_OP_STATE(test_fips_context, GNUTLS_FIPS140_OP_APPROVED);
 
-	/* HKDF */
-	ret = gnutls_hkdf_self_test(0, GNUTLS_MAC_SHA256);
-	if (ret < 0) {
-		goto fail_out;
+	/*
+	 * Test inside sub-context as HKDF is
+	 * only approved when doing TLS operations.
+	 */
+	{
+		/* HKDF */
+		PUSH_FIPS_SUBCONTEXT(sub_fips_context);
+		ret = gnutls_hkdf_self_test(0, GNUTLS_MAC_SHA256);
+		if (ret < 0) {
+			gnutls_fips140_pop_context();
+			goto fail_out;
+		}
+		POP_FIPS_SUBCONTEXT(sub_fips_context, GNUTLS_FIPS140_OP_NOT_APPROVED);
 	}
 
-	/* PBKDF2 */
-	ret = gnutls_pbkdf2_self_test(0, GNUTLS_MAC_SHA256);
-	if (ret < 0) {
-		goto fail_out;
+	/*
+	 * Test inside sub-context as some of the
+	 * test pbkdf2_sha256_vectors have short keys.
+	 * FIXME ! Should I just remove the test vectors
+	 * that have short keys ? jallison@ciq.com.
+	 */
+	{
+		/* PBKDF2 */
+		PUSH_FIPS_SUBCONTEXT(sub_fips_context);
+		ret = gnutls_pbkdf2_self_test(0, GNUTLS_MAC_SHA256);
+		if (ret < 0) {
+			gnutls_fips140_pop_context();
+			goto fail_out;
+		}
+		POP_FIPS_SUBCONTEXT(sub_fips_context, GNUTLS_FIPS140_OP_NOT_APPROVED);
 	}
 
 	/* TLS-PRF */
@@ -899,10 +946,20 @@ int _gnutls_fips_perform_self_checks2(gnutls_fips140_context_t test_fips_context
 	}
 	CHECK_FIPS_OP_STATE(test_fips_context, GNUTLS_FIPS140_OP_APPROVED);
 
-	/* TLS1_3-PRF */
-	ret = gnutls_tlsprf13_self_test();
-	if (ret < 0) {
-		goto fail_out;
+	/*
+	 * Test inside sub-context as gnutls_tlsprf13_self_test
+	 * uses a hash to derive a key, so the keysize passed to
+	 * gnutls_hmac_fast() is zero.
+	 */
+	{
+		/* TLS1_3-PRF */
+		PUSH_FIPS_SUBCONTEXT(sub_fips_context);
+		ret = gnutls_tlsprf13_self_test();
+		if (ret < 0) {
+			gnutls_fips140_pop_context();
+			goto fail_out;
+		}
+		POP_FIPS_SUBCONTEXT(sub_fips_context, GNUTLS_FIPS140_OP_NOT_APPROVED);
 	}
 
 	if (_gnutls_rnd_ops.self_test == NULL) {
