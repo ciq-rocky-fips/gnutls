@@ -68,6 +68,8 @@
 #include <fips.h>
 #include "dh.h"
 
+#include "fipslog.h"
+
 static inline const struct ecc_curve *get_supported_nist_curve(int curve);
 static inline const struct ecc_curve *get_supported_gost_curve(int curve);
 
