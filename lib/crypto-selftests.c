@@ -3156,17 +3156,37 @@ static int test_mac(gnutls_mac_algorithm_t mac,
 }
 
 #define CASE(x, func, vectors) case x: \
+		do { \
+			FIPSLOG_SUCCESS(_specific_op_name, "POST", _op_name, "test started"); \
 			ret = func(x, V(vectors), flags); \
-			if (!(flags & GNUTLS_SELF_TEST_FLAG_ALL) || ret < 0) \
-				return ret
+			if (!(flags & GNUTLS_SELF_TEST_FLAG_ALL) || ret < 0) { \
+				if (ret < 0) { \
+					FIPSLOG_FAILED(_specific_op_name, "POST", _op_name, "test ended"); \
+				} else { \
+					FIPSLOG_SUCCESS(_specific_op_name, "POST", _op_name, "test ended"); \
+				} \
+				return ret; \
+			} \
+		} while(0)
 
 #define CASE2(x, func, func2, vectors) case x:	  \
+		do { \
+			FIPSLOG_SUCCESS(_specific_op_name, "POST", _op_name, "test started"); \
 			ret = func(x, V(vectors), flags); \
-			if (ret < 0) \
+			if (ret < 0) { \
+				FIPSLOG_FAILED(_specific_op_name, "POST", _op_name, "test ended"); \
 				return ret; \
+			} \
 			ret = func2(x, V(vectors), flags); \
-			if (!(flags & GNUTLS_SELF_TEST_FLAG_ALL) || ret < 0) \
-				return ret
+			if (!(flags & GNUTLS_SELF_TEST_FLAG_ALL) || ret < 0) { \
+				if (ret < 0) { \
+					FIPSLOG_FAILED(_specific_op_name, "POST", _op_name, "test ended"); \
+				} else { \
+					FIPSLOG_SUCCESS(_specific_op_name, "POST", _op_name, "test ended"); \
+				} \
+				return ret; \
+			} \
+		} while(0)
 
 #define NON_FIPS_CASE(x, func, vectors) case x: \
 			if (_gnutls_fips_mode_enabled() == 0) { \
@@ -3190,9 +3210,14 @@ static int test_mac(gnutls_mac_algorithm_t mac,
 int gnutls_cipher_self_test(unsigned flags, gnutls_cipher_algorithm_t cipher)
 {
 	int ret;
+	const char *_specific_op_name = NULL;
 
 	if (flags & GNUTLS_SELF_TEST_FLAG_ALL)
 		cipher = GNUTLS_CIPHER_UNKNOWN;
+
+	_specific_op_name = gnutls_cipher_get_name(cipher);
+#undef _op_name
+#define _op_name "cipher %s"
 
 	switch (cipher) {
 	case GNUTLS_CIPHER_UNKNOWN:
@@ -3307,9 +3332,14 @@ int gnutls_cipher_self_test(unsigned flags, gnutls_cipher_algorithm_t cipher)
 int gnutls_mac_self_test(unsigned flags, gnutls_mac_algorithm_t mac)
 {
 	int ret;
+	const char *_specific_op_name = NULL;
 
 	if (flags & GNUTLS_SELF_TEST_FLAG_ALL)
 		mac = GNUTLS_MAC_UNKNOWN;
+
+	_specific_op_name = gnutls_mac_get_name(mac);
+#undef _op_name
+#define _op_name "mac %s"
 
 	switch (mac) {
 	case GNUTLS_MAC_UNKNOWN:
@@ -3371,9 +3401,14 @@ int gnutls_mac_self_test(unsigned flags, gnutls_mac_algorithm_t mac)
 int gnutls_digest_self_test(unsigned flags, gnutls_digest_algorithm_t digest)
 {
 	int ret;
+	const char *_specific_op_name = NULL;
 
 	if (flags & GNUTLS_SELF_TEST_FLAG_ALL)
 		digest = GNUTLS_DIG_UNKNOWN;
+
+	_specific_op_name = gnutls_digest_get_name(digest);
+#undef _op_name
+#define _op_name "digest %s"
 
 	switch (digest) {
 	case GNUTLS_DIG_UNKNOWN:
@@ -3590,9 +3625,14 @@ static int test_hkdf(gnutls_mac_algorithm_t mac,
 int gnutls_hkdf_self_test(unsigned flags, gnutls_mac_algorithm_t mac)
 {
 	int ret;
+	const char *_specific_op_name = NULL;
 
 	if (flags & GNUTLS_SELF_TEST_FLAG_ALL)
 		mac = GNUTLS_MAC_UNKNOWN;
+
+	_specific_op_name = gnutls_mac_get_name(mac);
+#undef _op_name
+#define _op_name "hkdf %s"
 
 	switch (mac) {
 	case GNUTLS_MAC_UNKNOWN:
@@ -3725,9 +3765,14 @@ static int test_pbkdf2(gnutls_mac_algorithm_t mac,
 int gnutls_pbkdf2_self_test(unsigned flags, gnutls_mac_algorithm_t mac)
 {
 	int ret;
+	const char *_specific_op_name = NULL;
 
 	if (flags & GNUTLS_SELF_TEST_FLAG_ALL)
 		mac = GNUTLS_MAC_UNKNOWN;
+
+	_specific_op_name = gnutls_mac_get_name(mac);
+#undef _op_name
+#define _op_name "pbkdf2 %s"
 
 	switch (mac) {
 	case GNUTLS_MAC_UNKNOWN:
@@ -3986,9 +4031,14 @@ int gnutls_tlsprf13_self_test(void)
 int gnutls_tlsprf_self_test(unsigned flags, gnutls_mac_algorithm_t mac)
 {
 	int ret;
+	const char *_specific_op_name = NULL;
 
 	if (flags & GNUTLS_SELF_TEST_FLAG_ALL)
 		mac = GNUTLS_MAC_UNKNOWN;
+
+	_specific_op_name = gnutls_mac_get_name(mac);
+#undef _op_name
+#define _op_name "tlsprf %s"
 
 	switch (mac) {
 	case GNUTLS_MAC_UNKNOWN:
