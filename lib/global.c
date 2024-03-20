@@ -533,7 +533,10 @@ static int _gnutls_global_init(unsigned constructor)
 			}
 		}
 		_gnutls_fips_mode_reset_zombie();
-		FIPSLOG_SUCCESS("POST", "init", "%s", "Finished FIPS140 self-test");
+		FIPSLOG_SUCCESS("POST",
+				"init",
+				"Finished FIPS140 self-test version:%s",
+				gnutls_FIPS_show_version_service());
 	}
 #endif
 	_gnutls_prepare_to_load_system_priorities();
