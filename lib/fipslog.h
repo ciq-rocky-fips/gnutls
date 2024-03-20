@@ -38,6 +38,11 @@ enum fips_logging_type {
 
 enum fips_logging_type fips_logging_enabled(const char *name, const char *subname);
 
+#define GNUTLS_FAILURE_PROBES 1
+#if defined(GNUTLS_FAILURE_PROBES)
+bool fips_request_failure(const char *name, const char *subname);
+#endif /* GNUTLS_FAILURE_PROBES */
+
 #define FIPSLOG_SUCCESS(name, subname, fmt, ...) \
 	do { \
 		enum fips_logging_type flt = fips_logging_enabled((name), (subname)); \
@@ -95,6 +100,10 @@ enum fips_logging_type fips_logging_enabled(const char *name, const char *subnam
 inline enum fips_logging_type fips_logging_enabled(const char *name, const char *subname);
 {
 	return FIPS_NO_LOGGING;
+}
+inline bool fips_request_failure(const char *name, const char *subname)
+{
+	return false;
 }
 #endif /* GNUTLS_SUCCESS_AUDIT_WITH_SYSLOG */
 
