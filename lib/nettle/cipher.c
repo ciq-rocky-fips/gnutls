@@ -65,6 +65,8 @@
 #include <fips.h>
 #include <intprops.h>
 
+#include "fipslog.h"
+
 struct nettle_cipher_ctx;
 
 /* Functions that refer to the nettle library.
@@ -1105,13 +1107,21 @@ wrap_nettle_cipher_setkey(void *_ctx, const void *key, size_t keysize)
 	switch (ctx->cipher->algo) {
 	case GNUTLS_CIPHER_AES_128_XTS:
 		if (_gnutls_fips_mode_enabled() &&
-		    gnutls_memcmp(key, (char *)key + AES128_KEY_SIZE, AES128_KEY_SIZE) == 0)
+		    gnutls_memcmp(key, (char *)key + AES128_KEY_SIZE, AES128_KEY_SIZE) == 0) {
+			FIPSLOG_FAILED(gnutls_cipher_get_name(ctx->cipher->algo), "cipher", "%s", "duplicate_aes_key");
 			return gnutls_assert_val(GNUTLS_E_INVALID_REQUEST);
+		} else {
+			FIPSLOG_SUCCESS(gnutls_cipher_get_name(ctx->cipher->algo), "cipher", "%s", "no duplicate_aes_key");
+		}
 		break;
 	case GNUTLS_CIPHER_AES_256_XTS:
 		if (_gnutls_fips_mode_enabled() &&
-		    gnutls_memcmp(key, (char *)key + AES256_KEY_SIZE, AES256_KEY_SIZE) == 0)
+		    gnutls_memcmp(key, (char *)key + AES256_KEY_SIZE, AES256_KEY_SIZE) == 0) {
+			FIPSLOG_FAILED(gnutls_cipher_get_name(ctx->cipher->algo), "cipher", "%s", "duplicate_aes_key");
 			return gnutls_assert_val(GNUTLS_E_INVALID_REQUEST);
+		} else {
+			FIPSLOG_SUCCESS(gnutls_cipher_get_name(ctx->cipher->algo), "cipher", "%s", "no duplicate_aes_key");
+		}
 		break;
 	default:
 		break;
