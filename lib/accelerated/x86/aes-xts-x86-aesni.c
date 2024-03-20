@@ -33,6 +33,8 @@
 #include <aes-x86.h>
 #include <x86-common.h>
 
+#include "fipslog.h"
+
 struct x86_aes_xts_ctx {
 	AES_KEY block_key;
 	AES_KEY tweak_key;
@@ -66,14 +68,24 @@ x86_aes_xts_cipher_setkey(void *_ctx, const void *userkey, size_t keysize)
 	int ret;
 	size_t keybits;
 	const uint8_t *key = userkey;
+	const char *ciphername = NULL;
 
 	if ((keysize != 32) && (keysize != 64))
 		return gnutls_assert_val(GNUTLS_E_INVALID_REQUEST);
 
+	if (keysize == 32) {
+		ciphername = "AES-128-XTS";
+	} else {
+		ciphername = "AES-256-XTS";
+	}
+
 	/* Check key block according to FIPS-140-2 IG A.9 */
 	if (_gnutls_fips_mode_enabled()){
 		if (gnutls_memcmp(key, key + (keysize / 2), keysize / 2) == 0) {
+			FIPSLOG_FAILED(ciphername, "cipher", "%s", "duplicate_aes_key");
 			return gnutls_assert_val(GNUTLS_E_INVALID_REQUEST);
+		} else {
+			FIPSLOG_SUCCESS(ciphername, "cipher", "%s", "no duplicate_aes_key");
 		}
 	}
 
