@@ -969,6 +969,8 @@ static int test_ecdh(void)
 	
 	priv.algo = pub.algo = GNUTLS_PK_EC;
 	
+	FIPSLOG_SUCCESS("ECDH", "POST", "%s", "KAT test started");
+
 	if (fips_request_failure("ECDH", "ecdh_derive")) {
 		if (sizeof(test_k) > sizeof(fail_tmp)) {
 			ret = GNUTLS_E_SELF_TEST_ERROR;
@@ -1027,10 +1029,10 @@ static int test_ecdh(void)
 	if (memcmp(out.data, known_key, out.size) != 0) {
 		ret = GNUTLS_E_SELF_TEST_ERROR;
 		gnutls_assert();
-		FIPSLOG_FAILED(gnutls_pk_get_name(GNUTLS_PK_EC), "verify", "%s", "out != known_key");
+		FIPSLOG_FAILED("ECDH", "verify", "%s", "out != known_key");
 		goto cleanup;
 	} else {
-		FIPSLOG_SUCCESS(gnutls_pk_get_name(GNUTLS_PK_EC), "verify", "%s", "out == known_key");
+		FIPSLOG_SUCCESS("ECDH", "verify", "%s", "out == known_key");
 	}
 	
 	ret = 0;
@@ -1044,8 +1046,10 @@ cleanup:
 
 	if (ret < 0) {
 		_gnutls_debug_log("ECDH self test failed\n");
+		FIPSLOG_FAILED("ECDH", "POST", "%s", "KAT test ended");
 	} else {
 		_gnutls_debug_log("ECDH self test succeeded\n");
+		FIPSLOG_SUCCESS("ECDH", "POST", "%s", "KAT test ended");
 	}
 
 	return ret;
@@ -1142,14 +1146,11 @@ int gnutls_pk_self_test(unsigned flags, gnutls_pk_algorithm_t pk)
 		FALLTHROUGH;
 	case GNUTLS_PK_EC:
 		/* Test ECDH and ECDSA */
-		FIPSLOG_SUCCESS(_specific_op_name, "POST", "%s", "KAT test started");
 		ret = test_ecdh();
 		if (ret < 0) {
-			FIPSLOG_FAILED(_specific_op_name, "POST", "%s", "KAT test ended");
 			gnutls_assert();
 			goto cleanup;
 		}
-		FIPSLOG_SUCCESS(_specific_op_name, "POST", "%s", "KAT test ended");
 
 		/* Test ECDSA */
 		if (is_post || !is_fips140_mode_enabled) {
