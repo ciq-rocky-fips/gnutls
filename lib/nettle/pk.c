@@ -2469,6 +2469,7 @@ static int pct_test(gnutls_pk_algorithm_t algo, const gnutls_pk_params_st* param
 	gnutls_datum_t ddata, tmp = {NULL,0};
 	char* gen_data = NULL;
 	gnutls_x509_spki_st spki;
+	const char *log_algo_name = gnutls_pk_get_name(algo);
 #if 0
 	/* Only used in RSA encrypt/decrypt. */
 	gnutls_fips140_context_t context;
@@ -2487,6 +2488,16 @@ static int pct_test(gnutls_pk_algorithm_t algo, const gnutls_pk_params_st* param
 
 		ddata.data = (void*)gen_data;
 		ddata.size = hash_len;
+
+		/*
+		 * test_ecdh uses GNUTLS_PK_EC with a curve of
+		 * GNUTLS_ECC_CURVE_SECP256R1 to mean "ECDH".
+		 * Use the same mapping here for the logging
+		 * and failure probe reporting.
+		 */
+		if (algo == GNUTLS_PK_EC && params->curve == GNUTLS_ECC_CURVE_SECP256R1) {
+			log_algo_name = "ECDH";
+		}
 	} else if (algo == GNUTLS_PK_GOST_01 || algo == GNUTLS_PK_GOST_12_256) {
 		ddata.data = (void*)const_data_sha256;
 		ddata.size = sizeof(const_data_sha256);
@@ -2576,8 +2587,8 @@ static int pct_test(gnutls_pk_algorithm_t algo, const gnutls_pk_params_st* param
 	case GNUTLS_PK_GOST_01:
 	case GNUTLS_PK_GOST_12_256:
 	case GNUTLS_PK_GOST_12_512:
-		FIPSLOG_SUCCESS(gnutls_pk_get_name(algo), "PCT", "%s", "pct_test sign/verify started");
-		if (fips_request_failure(gnutls_pk_get_name(algo), "pct-verify")) {
+		FIPSLOG_SUCCESS(log_algo_name, "PCT", "%s", "pct_test sign/verify started");
+		if (fips_request_failure(log_algo_name, "pct-verify")) {
 			uint8_t fail_tmp[1024];
 			if (ddata.size > sizeof(fail_tmp)) {
 				ret = gnutls_assert_val(GNUTLS_E_PK_GENERATION_ERROR);
@@ -2600,18 +2611,18 @@ static int pct_test(gnutls_pk_algorithm_t algo, const gnutls_pk_params_st* param
 
 		ret = _gnutls_pk_verify(algo, &ddata, &sig, params, &spki);
 		if (ret < 0) {
-			FIPSLOG_FAILED(gnutls_pk_get_name(algo), "PCT", "%s", "pct_test sign/verify ended");
+			FIPSLOG_FAILED(log_algo_name, "PCT", "%s", "pct_test sign/verify ended");
 			ret = gnutls_assert_val(GNUTLS_E_PK_GENERATION_ERROR);
 			gnutls_assert();
 			goto cleanup;
 		}
-		FIPSLOG_SUCCESS(gnutls_pk_get_name(algo), "PCT", "%s", "pct_test sign/verify ended");
+		FIPSLOG_SUCCESS(log_algo_name, "PCT", "%s", "pct_test sign/verify ended");
 		break;
 	case GNUTLS_PK_DH:
 		{
 			mpz_t y;
 
-			FIPSLOG_SUCCESS(gnutls_pk_get_name(algo), "PCT", "%s", "pct_test generation started");
+			FIPSLOG_SUCCESS(log_algo_name, "PCT", "%s", "pct_test generation started");
 
 			/* Perform SP800 56A (rev 3) 5.6.2.1.4 Owner Assurance
 			 * of Pair-wise Consistency check, even if we only
@@ -2624,7 +2635,7 @@ static int pct_test(gnutls_pk_algorithm_t algo, const gnutls_pk_params_st* param
 			 * g^x mod p. Compare the result to the public key, y.
 			 */
 			mpz_init(y);
-			if (fips_request_failure(gnutls_pk_get_name(algo), "pct-generation")) {
+			if (fips_request_failure(log_algo_name, "pct-generation")) {
 				bigint_t fail_bigint = params->params[DSA_X];
 				/* Add 1 to corrupt the private key. */
 				ret = _gnutls_mpi_add_ui(fail_bigint, fail_bigint, 1);
@@ -2645,7 +2656,7 @@ static int pct_test(gnutls_pk_algorithm_t algo, const gnutls_pk_params_st* param
 			}
 			if (unlikely
 			    (mpz_cmp(y, TOMPZ(params->params[DSA_Y])) != 0)) {
-				FIPSLOG_FAILED(gnutls_pk_get_name(algo), "PCT", "%s", "pct_test generation ended");
+				FIPSLOG_FAILED(log_algo_name, "PCT", "%s", "pct_test generation ended");
 				ret =
 				    gnutls_assert_val
 				    (GNUTLS_E_PK_GENERATION_ERROR);
@@ -2653,7 +2664,7 @@ static int pct_test(gnutls_pk_algorithm_t algo, const gnutls_pk_params_st* param
 				goto cleanup;
 			}
 			mpz_clear(y);
-			FIPSLOG_SUCCESS(gnutls_pk_get_name(algo), "PCT", "%s", "pct_test generation ended");
+			FIPSLOG_SUCCESS(log_algo_name, "PCT", "%s", "pct_test generation ended");
 			break;
 		}
 	case GNUTLS_PK_ECDH_X25519:
@@ -2770,6 +2781,7 @@ wrap_nettle_pk_generate_keys(gnutls_pk_algorithm_t algo,
 	unsigned rnd_level;
 	nettle_random_func *rnd_func;
 	bool not_approved = false;
+	const char *log_algo_name = gnutls_pk_get_name(algo);
 
 	FAIL_IF_LIB_ERROR;
 
@@ -3136,6 +3148,16 @@ wrap_nettle_pk_generate_keys(gnutls_pk_algorithm_t algo,
 				not_approved = true;
 			}
 
+			/*
+			 * test_ecdh uses GNUTLS_PK_EC with a curve of
+			 * GNUTLS_ECC_CURVE_SECP256R1 to mean "ECDH".
+			 * Use the same mapping here for the logging
+			 * and failure probe reporting.
+			 */
+			if (level == GNUTLS_ECC_CURVE_SECP256R1) {
+				log_algo_name = "ECDH";
+			}
+
 			mpz_init(x);
 			mpz_init(y);
 			mpz_init(xx);
@@ -3383,14 +3405,14 @@ wrap_nettle_pk_generate_keys(gnutls_pk_algorithm_t algo,
 	params->algo = algo;
 
 #ifdef ENABLE_FIPS140
-	FIPSLOG_SUCCESS(gnutls_pk_get_name(algo), "PCT", "%s", "Starting pct_test");
+	FIPSLOG_SUCCESS(log_algo_name, "PCT", "%s", "Starting pct_test");
 	ret = pct_test(algo, params);
 	if (ret < 0) {
 		gnutls_assert();
-		FIPSLOG_FAILED(gnutls_pk_get_name(algo), "PCT", "%s", "Finished pct_test");
+		FIPSLOG_FAILED(log_algo_name, "PCT", "%s", "Finished pct_test");
 		goto cleanup;
 	}
-	FIPSLOG_SUCCESS(gnutls_pk_get_name(algo), "PCT", "%s", "Finished pct_test");
+	FIPSLOG_SUCCESS(log_algo_name, "PCT", "%s", "Finished pct_test");
 #endif
 
  cleanup:
