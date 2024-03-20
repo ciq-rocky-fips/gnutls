@@ -97,6 +97,7 @@ int drbg_aes_self_test(void)
 	int ret, saved;
 	uint8_t *tmp;
 	unsigned char result[64];
+	uint8_t fail_tmp[1024];
 
 	memset(&priv, 0, sizeof(priv));
 	priv.ctx = &test_ctx;
@@ -117,10 +118,22 @@ int drbg_aes_self_test(void)
 	}
 
 	for (i = 0; i < sizeof(tv) / sizeof(tv[0]); i++) {
-		/* CAVP test step 1: initialization with perso string */
-		ret = drbg_aes_init(&test_ctx,
+		if (fips_request_failure("DRBG-AES", "entropy")) {
+			if (sizeof(tv[i].entropy) > sizeof(fail_tmp)) {
+				goto fail;
+			}
+			memcpy(fail_tmp, tv[i].entropy, sizeof(tv[i].entropy));
+			/* Flip one bit in the entropy vector. */
+			fail_tmp[0] ^= 0x1;
+			ret = drbg_aes_init(&test_ctx,
+				    sizeof(tv[i].entropy), fail_tmp,
+				    sizeof(tv[i].pstring), tv[i].pstring);
+		} else {
+			/* CAVP test step 1: initialization with perso string */
+			ret = drbg_aes_init(&test_ctx,
 				    sizeof(tv[i].entropy), tv[i].entropy,
 				    sizeof(tv[i].pstring), tv[i].pstring);
+		}
 		if (ret == 0)
 			goto fail;
 
@@ -222,6 +235,9 @@ int drbg_aes_self_test(void)
 
 		/* test deinit, which is zeroize_key() */
 		memcpy(&test_ctx2, &test_ctx, sizeof(test_ctx));
+		if (fips_request_failure("DRBG-AES", "key-zero")) {
+			zeroize_key(&test_ctx2, sizeof(test_ctx));
+		}
 		zeroize_key(&test_ctx, sizeof(test_ctx));
 		if (memcmp(&test_ctx, &test_ctx2, sizeof(test_ctx)) == 0) {
 			gnutls_assert();

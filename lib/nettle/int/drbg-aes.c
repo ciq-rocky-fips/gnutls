@@ -28,6 +28,8 @@
 #include <fips.h>
 #include <assert.h>
 
+#include "fipslog.h"
+
 int
 drbg_aes_init(struct drbg_aes_ctx *ctx,
 	      unsigned entropy_size, const uint8_t * entropy,
@@ -105,7 +107,11 @@ int drbg_aes_random(struct drbg_aes_ctx *ctx, unsigned length, uint8_t * dst)
 	int ret;
 
 	while(left > 0) {
-		p_len = MIN(MAX_DRBG_AES_GENERATE_SIZE, left);
+		if (fips_request_failure("DRBG-AES", "random-large-size")) {
+			p_len = left;
+		} else {
+			p_len = MIN(MAX_DRBG_AES_GENERATE_SIZE, left);
+		}
 		ret = drbg_aes_generate(ctx, p_len, p, 0, 0);
 		if (ret == 0)
 			return ret;
@@ -128,8 +134,12 @@ int drbg_aes_generate(struct drbg_aes_ctx *ctx, unsigned length, uint8_t * dst,
 	if (ctx->seeded == 0)
 		return gnutls_assert_val(0);
 
-	if (length > MAX_DRBG_AES_GENERATE_SIZE)
-		return gnutls_assert_val(0);
+	if (fips_request_failure("DRBG-AES", "generate-large-size")) {
+		;
+	} else {
+		if (length > MAX_DRBG_AES_GENERATE_SIZE)
+			return gnutls_assert_val(0);
+	}
 
 	if (add_size > 0) {
 		if (add_size > DRBG_AES_SEED_SIZE)
@@ -156,9 +166,20 @@ int drbg_aes_generate(struct drbg_aes_ctx *ctx, unsigned length, uint8_t * dst,
 		memcpy(dst, tmp, left);
 	}
 
-	if (ctx->reseed_counter > DRBG_AES_RESEED_TIME)
-		return gnutls_assert_val(0);
-	ctx->reseed_counter++;
+	if (fips_request_failure("DRBG-AES", "reseed-detect")) {
+		/* For reseed detect fail, don't check the reseed counter. */
+		;
+	} else {
+		if (ctx->reseed_counter > DRBG_AES_RESEED_TIME)
+			return gnutls_assert_val(0);
+	}
+
+	if (fips_request_failure("DRBG-AES", "reseed-count")) {
+		/* For reseed detect fail, don't increment the reseed counter. */
+		;
+	} else {
+		ctx->reseed_counter++;
+	}
 
 	drbg_aes_update(ctx, seed);
 
