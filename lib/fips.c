@@ -550,7 +550,33 @@ static int check_binary_integrity(void)
 
 	FIPSLOG_SUCCESS("POST", "lib-mac-gnutls", "%s",
 		"test started - library integrity using SHA256 mac");
-	ret = check_lib_hmac(&hmac.gnutls, paths.gnutls);
+	if (fips_request_failure("CHECK_LIB_HMAC", "GNUTLS")) {
+		/* Flip one bit in the first byte of the file. */
+		int err = xor_path_byte("POST", "lib-mac-gnutls", paths.gnutls);
+		if (err != 0) {
+			FIPSLOG_FAILED("POST",
+				"lib-mac-gnutls",
+				"test ended - failed to modify library %s: %s",
+				paths.gnutls,
+				strerror(err));
+			/* We must abort here. Library may be corrupt. */
+			abort();
+		}
+		ret = check_lib_hmac(&hmac.gnutls, paths.gnutls);
+		/* Return the library to known state. */
+		err = xor_path_byte("POST", "lib-mac-gnutls", paths.gnutls);
+		if (err != 0) {
+			FIPSLOG_FAILED("POST",
+				"lib-mac-gnutls",
+				"test ended - failed to restore library %s: %s",
+				paths.gnutls,
+				strerror(err));
+			/* We must abort here. Library may be corrupt. */
+			abort();
+		}
+	} else {
+		ret = check_lib_hmac(&hmac.gnutls, paths.gnutls);
+	}
 	if (ret < 0) {
 		FIPSLOG_FAILED("POST", "lib-mac-gnutls", "%s",
 			"test ended - library integrity using SHA256 mac");
@@ -561,7 +587,33 @@ static int check_binary_integrity(void)
 
 	FIPSLOG_SUCCESS("POST", "lib-mac-nettle", "%s",
 		"test started - library integrity using SHA256 mac");
-	ret = check_lib_hmac(&hmac.nettle, paths.nettle);
+	if (fips_request_failure("CHECK_LIB_HMAC", "NETTLE")) {
+		/* Flip one bit in the first byte of the file. */
+		int err = xor_path_byte("POST", "lib-mac-nettle", paths.nettle);
+		if (err != 0) {
+			FIPSLOG_FAILED("POST",
+				"lib-mac-nettle",
+				"test ended - failed to modify library %s: %s",
+				paths.nettle,
+				strerror(err));
+			/* We must abort here. Library may be corrupt. */
+			abort();
+		}
+		ret = check_lib_hmac(&hmac.gnutls, paths.nettle);
+		/* Return the library to known state. */
+		err = xor_path_byte("POST", "lib-mac-nettle", paths.nettle);
+		if (err != 0) {
+			FIPSLOG_FAILED("POST",
+				"lib-mac-nettle",
+				"test ended - failed to restore library %s: %s",
+				paths.nettle,
+				strerror(err));
+			/* We must abort here. Library may be corrupt. */
+			abort();
+		}
+	} else {
+		ret = check_lib_hmac(&hmac.nettle, paths.nettle);
+	}
 	if (ret < 0) {
 		FIPSLOG_FAILED("POST", "lib-mac-nettle", "%s",
 			"test ended - library integrity using SHA256 mac");
@@ -572,7 +624,33 @@ static int check_binary_integrity(void)
 
 	FIPSLOG_SUCCESS("POST", "lib-mac-hogweed", "%s",
 		"test started - library integrity using SHA256 mac");
-	ret = check_lib_hmac(&hmac.hogweed, paths.hogweed);
+	if (fips_request_failure("CHECK_LIB_HMAC", "HOGWEED")) {
+		/* Flip one bit in the first byte of the file. */
+		int err = xor_path_byte("POST", "lib-mac-hogweed", paths.hogweed);
+		if (err != 0) {
+			FIPSLOG_FAILED("POST",
+				"lib-mac-hogweed",
+				"test ended - failed to modify library %s: %s",
+				paths.hogweed,
+				strerror(err));
+				/* We must abort here. Library may be corrupt. */
+			abort();
+		}
+		ret = check_lib_hmac(&hmac.gnutls, paths.hogweed);
+		/* Return the library to known state. */
+		err = xor_path_byte("POST", "lib-mac-hogweed", paths.hogweed);
+		if (err != 0) {
+			FIPSLOG_FAILED("POST",
+				"lib-mac-hogweed",
+				"test ended - failed to restore library %s: %s",
+				paths.hogweed,
+				strerror(err));
+			/* We must abort here. Library may be corrupt. */
+			abort();
+		}
+	} else {
+		ret = check_lib_hmac(&hmac.hogweed, paths.hogweed);
+	}
 	if (ret < 0) {
 		FIPSLOG_FAILED("POST", "lib-mac-hogweed", "%s",
 			"test ended - library integrity using SHA256 mac");
@@ -584,7 +662,33 @@ static int check_binary_integrity(void)
 #ifdef GMP_LIBRARY_SONAME
 	FIPSLOG_SUCCESS("POST", "lib-mac-gmp", "%s",
 		"test started - library integrity using SHA256 mac");
-	ret = check_lib_hmac(&hmac.gmp, paths.gmp);
+	if (fips_request_failure("CHECK_LIB_HMAC", "GMP")) {
+		/* Flip one bit in the first byte of the file. */
+		int err = xor_path_byte("POST", "lib-mac-gmp", paths.gmp);
+		if (err != 0) {
+			FIPSLOG_FAILED("POST",
+				"lib-mac-gmp",
+				"test ended - failed to modify library %s: %s",
+				paths.gmp,
+				strerror(err));
+			/* We must abort here. Library may be corrupt. */
+			abort();
+		}
+		ret = check_lib_hmac(&hmac.gnutls, paths.gmp);
+		/* Return the library to known state. */
+		err = xor_path_byte("POST", "lib-mac-gmp", paths.gmp);
+		if (err != 0) {
+			FIPSLOG_FAILED("POST",
+				"lib-mac-gmp",
+				"test ended - failed to restore library %s: %s",
+				paths.gmp,
+				strerror(err));
+			/* We must abort here. Library may be corrupt. */
+			abort();
+		}
+	} else {
+		ret = check_lib_hmac(&hmac.gmp, paths.gmp);
+	}
 	if (ret < 0) {
 		FIPSLOG_FAILED("POST", "lib-mac-gmp", "%s",
 			"test ended - library integrity using SHA256 mac");
