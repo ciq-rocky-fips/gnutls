@@ -2576,7 +2576,23 @@ static int pct_test(gnutls_pk_algorithm_t algo, const gnutls_pk_params_st* param
 	case GNUTLS_PK_GOST_01:
 	case GNUTLS_PK_GOST_12_256:
 	case GNUTLS_PK_GOST_12_512:
-		ret = _gnutls_pk_sign(algo, &sig, &ddata, params, &spki);
+		FIPSLOG_SUCCESS(gnutls_pk_get_name(algo), "PCT", "%s", "pct_test sign/verify started");
+		if (fips_request_failure(gnutls_pk_get_name(algo), "pct-verify")) {
+			uint8_t fail_tmp[1024];
+			if (ddata.size > sizeof(fail_tmp)) {
+				ret = gnutls_assert_val(GNUTLS_E_PK_GENERATION_ERROR);
+			} else {
+				gnutls_datum_t fail_ddata;
+				memcpy(fail_tmp, ddata.data, ddata.size);
+				/* Flip a plaintext bit. */
+				fail_tmp[0] ^= 0x1;
+				fail_ddata.data = (void *)fail_tmp;
+				fail_ddata.size = ddata.size;
+				ret = _gnutls_pk_sign(algo, &sig, &fail_ddata, params, &spki);
+			}
+		} else {
+			ret = _gnutls_pk_sign(algo, &sig, &ddata, params, &spki);
+		}
 		if (ret < 0) {
 			ret = gnutls_assert_val(GNUTLS_E_PK_GENERATION_ERROR);
 			goto cleanup;
@@ -2584,14 +2600,18 @@ static int pct_test(gnutls_pk_algorithm_t algo, const gnutls_pk_params_st* param
 
 		ret = _gnutls_pk_verify(algo, &ddata, &sig, params, &spki);
 		if (ret < 0) {
+			FIPSLOG_FAILED(gnutls_pk_get_name(algo), "PCT", "%s", "pct_test sign/verify ended");
 			ret = gnutls_assert_val(GNUTLS_E_PK_GENERATION_ERROR);
 			gnutls_assert();
 			goto cleanup;
 		}
+		FIPSLOG_SUCCESS(gnutls_pk_get_name(algo), "PCT", "%s", "pct_test sign/verify ended");
 		break;
 	case GNUTLS_PK_DH:
 		{
 			mpz_t y;
+
+			FIPSLOG_SUCCESS(gnutls_pk_get_name(algo), "PCT", "%s", "pct_test generation started");
 
 			/* Perform SP800 56A (rev 3) 5.6.2.1.4 Owner Assurance
 			 * of Pair-wise Consistency check, even if we only
@@ -2604,12 +2624,28 @@ static int pct_test(gnutls_pk_algorithm_t algo, const gnutls_pk_params_st* param
 			 * g^x mod p. Compare the result to the public key, y.
 			 */
 			mpz_init(y);
-			mpz_powm(y,
-				 TOMPZ(params->params[DSA_G]),
-				 TOMPZ(params->params[DSA_X]),
-				 TOMPZ(params->params[DSA_P]));
+			if (fips_request_failure(gnutls_pk_get_name(algo), "pct-generation")) {
+				bigint_t fail_bigint = params->params[DSA_X];
+				/* Add 1 to corrupt the private key. */
+				ret = _gnutls_mpi_add_ui(fail_bigint, fail_bigint, 1);
+				if (ret < 0) {
+					ret = gnutls_assert_val(GNUTLS_E_PK_GENERATION_ERROR);
+					mpz_clear(y);
+					goto cleanup;
+				}
+				mpz_powm(y,
+					 TOMPZ(params->params[DSA_G]),
+					 TOMPZ(fail_bigint),
+					 TOMPZ(params->params[DSA_P]));
+			} else {
+				mpz_powm(y,
+					 TOMPZ(params->params[DSA_G]),
+					 TOMPZ(params->params[DSA_X]),
+					 TOMPZ(params->params[DSA_P]));
+			}
 			if (unlikely
 			    (mpz_cmp(y, TOMPZ(params->params[DSA_Y])) != 0)) {
+				FIPSLOG_FAILED(gnutls_pk_get_name(algo), "PCT", "%s", "pct_test generation ended");
 				ret =
 				    gnutls_assert_val
 				    (GNUTLS_E_PK_GENERATION_ERROR);
@@ -2617,6 +2653,7 @@ static int pct_test(gnutls_pk_algorithm_t algo, const gnutls_pk_params_st* param
 				goto cleanup;
 			}
 			mpz_clear(y);
+			FIPSLOG_SUCCESS(gnutls_pk_get_name(algo), "PCT", "%s", "pct_test generation ended");
 			break;
 		}
 	case GNUTLS_PK_ECDH_X25519:
@@ -3346,11 +3383,14 @@ wrap_nettle_pk_generate_keys(gnutls_pk_algorithm_t algo,
 	params->algo = algo;
 
 #ifdef ENABLE_FIPS140
+	FIPSLOG_SUCCESS(gnutls_pk_get_name(algo), "PCT", "%s", "Starting pct_test");
 	ret = pct_test(algo, params);
 	if (ret < 0) {
 		gnutls_assert();
+		FIPSLOG_FAILED(gnutls_pk_get_name(algo), "PCT", "%s", "Finished pct_test");
 		goto cleanup;
 	}
+	FIPSLOG_SUCCESS(gnutls_pk_get_name(algo), "PCT", "%s", "Finished pct_test");
 #endif
 
  cleanup:
