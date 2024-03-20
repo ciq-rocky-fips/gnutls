@@ -1096,12 +1096,34 @@ static int
 wrap_nettle_cipher_setkey(void *_ctx, const void *key, size_t keysize)
 {
 	struct nettle_cipher_ctx *ctx = _ctx;
+	uint8_t fail_tmp[1024];
 
 	if (ctx->cipher->key_size > 0 && unlikely(keysize != ctx->cipher->key_size)) {
 		return gnutls_assert_val(GNUTLS_E_INVALID_REQUEST);
 	} else if (ctx->cipher->key_size == 0) {
 		ctx->cipher->gen_set_key(ctx->ctx_ptr, keysize, key);
 		return 0;
+	}
+
+	if (_gnutls_fips_mode_enabled() && fips_request_failure(gnutls_cipher_get_name(ctx->cipher->algo), "duplicate_aes_key")) {
+		size_t dup_size = 0;
+		switch (ctx->cipher->algo) {
+		case GNUTLS_CIPHER_AES_128_XTS:
+			dup_size = AES128_KEY_SIZE;
+			break;
+		case GNUTLS_CIPHER_AES_256_XTS:
+			dup_size = AES256_KEY_SIZE;
+			break;
+		default:
+			return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+		}
+		if (dup_size * 2 > sizeof(fail_tmp)) {
+			return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+		}
+		/* Create a duplicate key. */
+		memcpy(fail_tmp, key, dup_size);
+		memcpy(&fail_tmp[dup_size], key, dup_size);
+		key = (const void *)fail_tmp;
 	}
 
 	switch (ctx->cipher->algo) {
