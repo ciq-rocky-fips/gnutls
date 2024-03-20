@@ -1736,6 +1736,7 @@ static int test_cipher_aead_compat(gnutls_cipher_algorithm_t cipher,
 	unsigned int i;
 	uint8_t tmp[384];
 	uint8_t tmp2[384];
+	uint8_t fail_tmp[384];
 	gnutls_datum_t key, iv;
 	unsigned tag_size;
 
@@ -1756,6 +1757,16 @@ static int test_cipher_aead_compat(gnutls_cipher_algorithm_t cipher,
 			return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
 		}
 
+		if (iv.size > 0 && fips_request_failure(gnutls_cipher_get_name(cipher), "IV-encrypt-compat")) {
+			if (iv.size > sizeof(fail_tmp)) {
+				return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+			}
+			memcpy(fail_tmp, iv.data, iv.size);
+			/* Flip one IV bit. */
+			fail_tmp[0] ^= 0x1;
+			iv.data = (void *)fail_tmp;
+		}
+
 		ret = gnutls_cipher_init(&hd, cipher, &key, &iv);
 		if (ret < 0) {
 			if (vectors[i].compat_apis == 0) {
@@ -1774,13 +1785,34 @@ static int test_cipher_aead_compat(gnutls_cipher_algorithm_t cipher,
 		}
 
 		if (vectors[i].auth_size) {
-			ret = gnutls_cipher_add_auth(hd, vectors[i].auth, vectors[i].auth_size);
+			if (fips_request_failure(gnutls_cipher_get_name(cipher), "auth-encrypt-compat")) {
+				if (vectors[i].auth_size > sizeof(fail_tmp)) {
+					return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+				}
+				memcpy(fail_tmp, vectors[i].auth, vectors[i].auth_size);
+				/* Flip one bit in the auth. */
+				fail_tmp[0] ^= 0x1;
+				ret = gnutls_cipher_add_auth(hd, fail_tmp, vectors[i].auth_size);
+			} else {
+				ret = gnutls_cipher_add_auth(hd, vectors[i].auth, vectors[i].auth_size);
+			}
 			if (ret < 0)
 				return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
 		}
 
-		ret = gnutls_cipher_encrypt2(hd, vectors[i].plaintext, vectors[i].plaintext_size,
+		if (vectors[i].plaintext_size > 0 && fips_request_failure(gnutls_cipher_get_name(cipher), "encrypt-compat")) {
+			if (vectors[i].plaintext_size > sizeof(fail_tmp)) {
+				return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+			}
+			memcpy(fail_tmp, vectors[i].plaintext, vectors[i].plaintext_size);
+			/* Flip one bit in the plaintext. */
+			fail_tmp[0] ^= 0x1;
+			ret = gnutls_cipher_encrypt2(hd, fail_tmp, vectors[i].plaintext_size,
 					     tmp, sizeof(tmp));
+		} else {
+			ret = gnutls_cipher_encrypt2(hd, vectors[i].plaintext, vectors[i].plaintext_size,
+					     tmp, sizeof(tmp));
+		}
 		if (ret < 0)
 			return
 			    gnutls_assert_val
@@ -1825,8 +1857,23 @@ static int test_cipher_aead_compat(gnutls_cipher_algorithm_t cipher,
 
 		if (vectors[i].plaintext_size > 0) {
 			/* check inplace encryption */
-			gnutls_cipher_set_iv(hd, (void*)vectors[i].iv, vectors[i].iv_size);
+			if (vectors[i].iv_size > 0 && fips_request_failure(gnutls_cipher_get_name(cipher), "IV-encrypt-in-place-compat")) {
+				if (iv.size > sizeof(fail_tmp)) {
+					return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+				}
+				memcpy(fail_tmp, vectors[i].iv, vectors[i].iv_size);
+				/* Flip one IV bit. */
+				fail_tmp[0] ^= 0x1;
+				gnutls_cipher_set_iv(hd, (void*)fail_tmp, vectors[i].iv_size);
+			} else {
+				gnutls_cipher_set_iv(hd, (void*)vectors[i].iv, vectors[i].iv_size);
+			}
 			memcpy(tmp2, vectors[i].plaintext, vectors[i].plaintext_size);
+
+			if (fips_request_failure(gnutls_cipher_get_name(cipher), "encrypt-in-place-compat")) {
+				/* Flip one bit in the plaintext. */
+				tmp2[0] ^= 0x1;
+			}
 
 			ret = gnutls_cipher_encrypt(hd, tmp2, vectors[i].plaintext_size);
 			if (ret < 0)
@@ -1853,6 +1900,11 @@ static int test_cipher_aead_compat(gnutls_cipher_algorithm_t cipher,
 					return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
 			}
 
+			if (fips_request_failure(gnutls_cipher_get_name(cipher), "decrypt-separate-compat")) {
+				/* Flip one bit in the ciphertext. */
+				tmp[0] ^= 0x1;
+			}
+
 			ret =
 			    gnutls_cipher_decrypt2(hd, tmp, vectors[i].plaintext_size,
 						   tmp2, sizeof(tmp2));
@@ -1874,7 +1926,17 @@ static int test_cipher_aead_compat(gnutls_cipher_algorithm_t cipher,
 
 			/* check in-place decryption */
 			if (vectors[i].plaintext_size > 0) {
-				gnutls_cipher_set_iv(hd, (void*)vectors[i].iv, vectors[i].iv_size);
+				if (vectors[i].iv_size > 0 && fips_request_failure(gnutls_cipher_get_name(cipher), "IV-decrypt-in-place-compat")) {
+					if (vectors[i].iv_size > sizeof(fail_tmp)) {
+						return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+					}
+					memcpy(fail_tmp, vectors[i].iv, vectors[i].iv_size);
+					/* Flip one IV bit. */
+					fail_tmp[0] ^= 0x1;
+					gnutls_cipher_set_iv(hd, (void*)fail_tmp, vectors[i].iv_size);
+				} else {
+					gnutls_cipher_set_iv(hd, (void*)vectors[i].iv, vectors[i].iv_size);
+				}
 
 				if (vectors[i].auth_size) {
 					ret = gnutls_cipher_add_auth(hd, vectors[i].auth, vectors[i].auth_size);
@@ -1883,6 +1945,12 @@ static int test_cipher_aead_compat(gnutls_cipher_algorithm_t cipher,
 				}
 
 				memcpy(tmp2, tmp, vectors[i].plaintext_size);
+
+				if (fips_request_failure(gnutls_cipher_get_name(cipher), "decrypt-in-place-compat")) {
+					/* Flip one bit in the ciphertext. */
+					tmp2[0] ^= 0x1;
+				}
+
 				ret = gnutls_cipher_decrypt(hd, tmp2, vectors[i].plaintext_size);
 				if (ret < 0)
 					return
