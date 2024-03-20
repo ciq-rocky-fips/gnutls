@@ -33,6 +33,11 @@
 #include <stdio.h>
 #include <extras/hex.h>
 #include <random.h>
+#include <unistd.h>
+#include <errno.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 #include "gthreads.h"
 
@@ -453,6 +458,67 @@ static int load_lib_paths(struct lib_paths *paths)
 }
 
 #endif /* HAVE_DL_ITERATE_PHDR */
+
+/*
+ * xor_path_byte:
+ * @path: path to the library which should have the first bit of the first byte
+ * XORed.
+ *
+ * Does an XOR 1 on the first byte read from a file, writes it back to the file.
+ *
+ * Returns: 0 on successful file modification, a negative error code otherwise
+ */
+static int xor_path_byte(const char *name, const char *subname, const char *path)
+{
+	uint8_t b = 0;
+	ssize_t len = 0;
+	int err = 0;
+	int fd = open(path, O_RDWR);
+
+	if (fd == -1) {
+		err = errno;
+		FIPSLOG_FAILED(name,
+			subname,
+			"Could not open library path %s: %s",
+			path,
+			strerror(err));
+		return err;
+	}
+	len = pread(fd, &b, 1, 0);
+	if (len != 1) {
+		err = errno;
+		(void)close(fd);
+		if (len == 0) {
+			FIPSLOG_FAILED(name,
+				subname,
+				"pread returned zero on path %s",
+				path);
+			/* Just map to EINVAL. */
+			err = EINVAL;
+		} else {
+			FIPSLOG_FAILED(name,
+				subname,
+				"pread failed on path %s: %s",
+				path,
+				strerror(err));
+		}
+		return err;
+	}
+	b ^= 0x1;
+	len = pwrite(fd, &b, 1, 0);
+	if (len != 1) {
+		err = errno;
+		(void)close(fd);
+		FIPSLOG_FAILED(name,
+			subname,
+			"pwrite failed on path %s: %s",
+			path,
+			strerror(err));
+		return err;
+	}
+	(void)close(fd);
+	return 0;
+}
 
 static int check_binary_integrity(void)
 {
