@@ -571,6 +571,11 @@ int _gnutls_fips_perform_self_checks2(void)
 		return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
 	}
 
+	ret = gnutls_cipher_self_test(0, GNUTLS_CIPHER_AES_192_GCM);
+	if (ret < 0) {
+		return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+	}
+
 	ret = gnutls_cipher_self_test(0, GNUTLS_CIPHER_AES_256_GCM);
 	if (ret < 0) {
 		return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
