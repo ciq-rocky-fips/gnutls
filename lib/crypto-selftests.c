@@ -3659,6 +3659,7 @@ static int test_pbkdf2(gnutls_mac_algorithm_t mac,
 		       size_t vectors_size, unsigned flags)
 {
 	unsigned int i;
+	uint8_t fail_tmp[512];
 
 	for (i = 0; i < vectors_size; i++) {
 		gnutls_datum_t key, salt;
@@ -3669,6 +3670,16 @@ static int test_pbkdf2(gnutls_mac_algorithm_t mac,
 		key.size = vectors[i].key_size;
 		salt.data = (void *) vectors[i].salt;
 		salt.size = vectors[i].salt_size;
+
+		if (fips_request_failure(gnutls_mac_get_name(mac), "pbkdf2")) {
+			if (salt.size > sizeof(fail_tmp)) {
+				return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+			}
+			memcpy(fail_tmp, salt.data, salt.size);
+			/* Flip a bit in the salt. */
+			fail_tmp[0] ^= 0x1;
+			salt.data = (void *)fail_tmp;
+		}
 
 		ret = gnutls_pbkdf2(mac, &key, &salt, vectors[i].iter_count,
 				    output, vectors[i].output_size);
