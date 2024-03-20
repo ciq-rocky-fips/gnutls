@@ -727,6 +727,25 @@ int _gnutls_fips_perform_self_checks1(void)
 		} \
 	} while (0)
 
+#undef PUSH_FIPS_SUBCONTEXT
+#define PUSH_FIPS_SUBCONTEXT(context) \
+	do { \
+		ret = gnutls_fips140_push_context(context); \
+		if (ret < 0) { \
+			goto fail_out; \
+		} \
+	} while (0)
+
+#undef POP_FIPS_SUBCONTEXT
+#define POP_FIPS_SUBCONTEXT(context, state) \
+	do { \
+		ret = gnutls_fips140_pop_context(); \
+		if (ret < 0) { \
+			goto fail_out; \
+		} \
+		CHECK_FIPS_OP_STATE((context), (state)); \
+	} while (0)
+
 int _gnutls_fips_perform_self_checks2(gnutls_fips140_context_t test_fips_context)
 {
 	int ret;
@@ -917,6 +936,8 @@ int _gnutls_fips_perform_self_checks2(gnutls_fips140_context_t test_fips_context
 	return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
 }
 #undef CHECK_FIPS_OP_STATE
+#undef PUSH_FIPS_SUBCONTEXT
+#undef POP_FIPS_SUBCONTEXT
 #endif
 
 /**
