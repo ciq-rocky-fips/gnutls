@@ -3557,12 +3557,12 @@ static int test_hkdf(gnutls_mac_algorithm_t mac,
 			    ("HKDF extract: MAC-%s test vector failed!\n",
 			     gnutls_mac_get_name(mac));
 
-			FIPSLOG_FAILED(gnutls_mac_get_name(mac), "kdf",
+			FIPSLOG_FAILED(gnutls_mac_get_name(mac), "hkdf",
 				"HKDF extract - MAC test vector %d", i);
 
 			return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
 		} else {
-			FIPSLOG_SUCCESS(gnutls_mac_get_name(mac), "kdf",
+			FIPSLOG_SUCCESS(gnutls_mac_get_name(mac), "hkdf",
 				"HKDF extract - MAC test vector %d", i);
 		}
 
@@ -3594,12 +3594,12 @@ static int test_hkdf(gnutls_mac_algorithm_t mac,
 			    ("HKDF expand: MAC-%s test vector failed!\n",
 			     gnutls_mac_get_name(mac));
 
-			FIPSLOG_FAILED(gnutls_mac_get_name(mac), "kdf",
+			FIPSLOG_FAILED(gnutls_mac_get_name(mac), "hkdf",
 				"HKDF expand - MAC test vector %d", i);
 
 			return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
 		} else {
-			FIPSLOG_SUCCESS(gnutls_mac_get_name(mac), "kdf",
+			FIPSLOG_SUCCESS(gnutls_mac_get_name(mac), "hkdf",
 				"HKDF expand - MAC test vector %d", i);
 		}
 	}
@@ -3734,12 +3734,12 @@ static int test_pbkdf2(gnutls_mac_algorithm_t mac,
 			    ("PBKDF2: MAC-%s test vector failed!\n",
 			     gnutls_mac_get_name(mac));
 
-			FIPSLOG_FAILED(gnutls_mac_get_name(mac), "kdf",
+			FIPSLOG_FAILED(gnutls_mac_get_name(mac), "pbkdf2",
 				"PBKDF2 - MAC test vector %d", i);
 
 			return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
 		} else {
-			FIPSLOG_SUCCESS(gnutls_mac_get_name(mac), "kdf",
+			FIPSLOG_SUCCESS(gnutls_mac_get_name(mac), "pbkdf2",
 				"PBKDF2 - MAC test vector %d", i);
 		}
 	}
