@@ -535,7 +535,7 @@ static int _gnutls_global_init(unsigned constructor)
 			gnutls_assert();
 			goto out;
 		}
-		ret = _gnutls_fips_perform_self_checks2();
+		ret = _gnutls_fips_perform_self_checks2(test_fips_context);
 		if (ret < 0) {
 			_gnutls_switch_lib_state(LIB_STATE_ERROR);
 			_gnutls_audit_log(NULL, "FIPS140-2 self testing part 2 failed\n");

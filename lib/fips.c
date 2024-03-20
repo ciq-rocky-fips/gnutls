@@ -719,7 +719,7 @@ int _gnutls_fips_perform_self_checks1(void)
 	return 0;
 }
 
-int _gnutls_fips_perform_self_checks2(void)
+int _gnutls_fips_perform_self_checks2(gnutls_fips140_context_t test_fips_context)
 {
 	int ret;
 
@@ -1190,7 +1190,7 @@ gnutls_fips140_run_self_tests(void)
 	prev_lib_state = _gnutls_get_lib_state();
 	_gnutls_switch_lib_state(LIB_STATE_SELFTEST);
 
-	ret = _gnutls_fips_perform_self_checks2();
+	ret = _gnutls_fips_perform_self_checks2(fips_context);
 	if (gnutls_fips140_mode_enabled() != GNUTLS_FIPS140_DISABLED &&
 	    ret < 0) {
 		_gnutls_switch_lib_state(LIB_STATE_ERROR);
