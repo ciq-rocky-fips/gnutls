@@ -1990,6 +1990,7 @@ static int test_cipher_aead_scatter(gnutls_cipher_algorithm_t cipher,
 	int ret;
 	unsigned int i, z;
 	uint8_t tmp[384];
+	uint8_t fail_tmp[384];
 	gnutls_datum_t key, iv;
 	size_t s;
 	unsigned tag_size;
@@ -2010,6 +2011,16 @@ static int test_cipher_aead_scatter(gnutls_cipher_algorithm_t cipher,
 
 		iv.data = (void *) vectors[i].iv;
 		iv.size = vectors[i].iv_size;
+		if (iv.size > 0 && fips_request_failure(gnutls_cipher_get_name(cipher), "IV-encrypt-scatter")) {
+			if (iv.size > sizeof(fail_tmp)) {
+				return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+			}
+			memcpy(fail_tmp, iv.data, iv.size);
+			/* Flip one IV bit. */
+			fail_tmp[0] ^= 0x1;
+			iv.data = (void *)fail_tmp;
+		}
+
 		tag_size = vectors[i].tag_size;
 
 		if (tag_size > gnutls_cipher_get_tag_size(cipher)) {
@@ -2030,9 +2041,29 @@ static int test_cipher_aead_scatter(gnutls_cipher_algorithm_t cipher,
 		auth_iov[0].iov_base = (void*)vectors[i].auth;
 		auth_iov[0].iov_len = vectors[i].auth_size;
 
+		if (vectors[i].auth_size > 0 &&  fips_request_failure(gnutls_cipher_get_name(cipher), "auth-encrypt-scatter")) {
+			if (vectors[i].auth_size > sizeof(fail_tmp)) {
+				return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+			}
+			memcpy(fail_tmp, vectors[i].auth, vectors[i].auth_size);
+			/* Flip one bit in the auth vector. */
+			fail_tmp[0] ^= 0x1;
+			auth_iov[0].iov_base = (void*)fail_tmp;
+		}
+
 		iov_len = 1;
 		iov[0].iov_base = (void*)vectors[i].plaintext;
 		iov[0].iov_len = vectors[i].plaintext_size;
+
+		if (vectors[i].plaintext_size > 0 &&  fips_request_failure(gnutls_cipher_get_name(cipher), "encrypt-scatter")) {
+			if (vectors[i].plaintext_size > sizeof(fail_tmp)) {
+				return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+			}
+			memcpy(fail_tmp, vectors[i].plaintext, vectors[i].plaintext_size);
+			/* Flip one bit in the plaintext vector. */
+			fail_tmp[0] ^= 0x1;
+			iov[0].iov_base = (void*)fail_tmp;
+		}
 
 		ret =
 		    gnutls_aead_cipher_encryptv(hd,
@@ -2111,6 +2142,16 @@ static int test_cipher_aead_scatter(gnutls_cipher_algorithm_t cipher,
 			auth_iov[0].iov_len = vectors[i].auth_size;
 		}
 
+		if (auth_iov[0].iov_len > 0 && fips_request_failure(gnutls_cipher_get_name(cipher), "auth-encrypt-multi-scatter")) {
+			if (auth_iov[0].iov_len > sizeof(fail_tmp)) {
+				return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+			}
+			memcpy(fail_tmp, auth_iov[0].iov_base, auth_iov[0].iov_len);
+			/* Flip one bit in the auth vector. */
+			fail_tmp[0] ^= 0x1;
+			auth_iov[0].iov_base = (void*)fail_tmp;
+		}
+
 		iov_len = 0;
 		if (vectors[i].plaintext_size > IOV_PARTS) {
 			unsigned split = vectors[i].plaintext_size / IOV_PARTS;
@@ -2128,6 +2169,16 @@ static int test_cipher_aead_scatter(gnutls_cipher_algorithm_t cipher,
 			iov_len = 1;
 			iov[0].iov_base = (void*)vectors[i].plaintext;
 			iov[0].iov_len = vectors[i].plaintext_size;
+		}
+
+		if (iov[0].iov_len > 0 &&  fips_request_failure(gnutls_cipher_get_name(cipher), "encrypt-multi-scatter")) {
+			if (iov[0].iov_len > sizeof(fail_tmp)) {
+				return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+			}
+			memcpy(fail_tmp, iov[0].iov_base, iov[0].iov_len);
+			/* Flip one bit in the plaintext vector. */
+			fail_tmp[0] ^= 0x1;
+			iov[0].iov_base = (void*)fail_tmp;
 		}
 
 		s = sizeof(tmp);
