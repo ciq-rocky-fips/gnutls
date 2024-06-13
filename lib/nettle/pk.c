@@ -2068,6 +2068,15 @@ wrap_nettle_pk_generate_params(gnutls_pk_algorithm_t algo,
 
 	switch (algo) {
 	case GNUTLS_PK_DSA:
+#ifdef ENABLE_FIPS140
+		{
+			if ((_gnutls_get_lib_state() != LIB_STATE_SELFTEST) &&
+					(_gnutls_fips_mode_enabled() == GNUTLS_FIPS140_STRICT)) {
+				return gnutls_assert_val(GNUTLS_E_UNWANTED_ALGORITHM);
+			}
+		}
+		FALLTHROUGH;
+#endif
 	case GNUTLS_PK_DH:
 		{
 			struct dsa_params pub;
