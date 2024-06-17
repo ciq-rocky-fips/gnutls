@@ -34,7 +34,7 @@ $ make install
 
 Copy the created .hmac file into the installed library directory:
 
-$ cp ./lib/.libs/.libgnutls.so.30.hmac /usr/lib64/
+$ cp ./lib/.libs/.libgnutls.so.30.hmac INSTALLED/usr/lib64/
 
 Run the functional tests:
 
