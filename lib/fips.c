@@ -52,7 +52,6 @@ struct gnutls_fips140_context_st {
 #include <dlfcn.h>
 
 #define FIPS_KERNEL_FILE "/proc/sys/crypto/fips_enabled"
-#define FIPS_SYSTEM_FILE "/etc/system-fips"
 
 /* We provide a per-thread FIPS-mode so that an application
  * can use gnutls_fips140_set_mode() to override a specific
@@ -69,7 +68,7 @@ static int _skip_integrity_checks = 0;
  */
 unsigned _gnutls_fips_mode_enabled(void)
 {
-	unsigned f1p = 0, f2p;
+	unsigned f1p = 0;
 	FILE* fd;
 	const char *p;
 	unsigned ret;
@@ -121,15 +120,6 @@ unsigned _gnutls_fips_mode_enabled(void)
 	if (f1p != 0) {
 		_gnutls_debug_log("FIPS140-2 mode enabled\n");
 		ret = GNUTLS_FIPS140_STRICT;
-		goto exit;
-	}
-
-	f2p = !access(FIPS_SYSTEM_FILE, F_OK);
-	if (f2p != 0) {
-		/* a funny state where self tests are performed
-		 * and ignored */
-		_gnutls_debug_log("FIPS140-2 ZOMBIE mode enabled\n");
-		ret = GNUTLS_FIPS140_SELFTESTS;
 		goto exit;
 	}
 
