@@ -594,8 +594,9 @@ void doit(void)
 
 	/* Verify a signature created with 2432-bit RSA and SHA-1; approved */
 	FIPS_PUSH_CONTEXT();
-	ret = gnutls_pubkey_verify_data2(pubkey, GNUTLS_SIGN_RSA_SHA1, 0,
-	                                 &data, &rsa2342_sha1_sig);
+	ret = gnutls_pubkey_verify_data2(pubkey, GNUTLS_SIGN_RSA_SHA1,
+					 GNUTLS_VERIFY_ALLOW_SIGN_WITH_SHA1, &data,
+					 &rsa2342_sha1_sig);
 	if (ret < 0) {
 		fail("gnutls_pubkey_verify_data2 failed\n");
 	}
