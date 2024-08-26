@@ -193,6 +193,21 @@ doit(void)
 		    /* Key sizes and output sizes less than 112-bit are not approved.  */
 		    GNUTLS_FIPS140_OP_NOT_APPROVED);
 
+       /* Test vector extracted from:
+	* https://dev.gnupg.org/source/libgcrypt/browse/master/cipher/kdf.c */
+	test_pbkdf2(GNUTLS_MAC_SHA256,
+		    "70617373776f726450415353"
+		    "574f524470617373776f7264", /* "passwordPASSWORDpassword" */
+		    "73616c7453414c5473616c74"
+		    "53414c5473616c7453414c54"
+		    "73616c7453414c5473616c74", /* "saltSALTsaltSALTsaltSALTsaltSALTsalt" */
+		    4096,
+		    40,
+		    "348c89dbcbd32b2f32d814b8"
+		    "116e84cf2b17347ebc180018"
+		    "1c4e2a1fb8dd53e1c635518c7dac47e9",
+		    GNUTLS_FIPS140_OP_APPROVED);
+
 	test_pbkdf2(GNUTLS_MAC_AES_CMAC_128,
 		    "70617373776f726470617373776f7264", /* "passwordpassword" */
 		    "73616c74",		/* "salt" */

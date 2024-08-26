@@ -118,6 +118,25 @@ is_mac_algo_approved_in_fips(gnutls_mac_algorithm_t algo)
 }
 
 inline static bool
+is_mac_algo_approved_for_pbkdf2_in_fips(gnutls_mac_algorithm_t algo)
+{
+	switch (algo) {
+	case GNUTLS_MAC_SHA1:
+	case GNUTLS_MAC_SHA256:
+	case GNUTLS_MAC_SHA384:
+	case GNUTLS_MAC_SHA512:
+	case GNUTLS_MAC_SHA224:
+	case GNUTLS_MAC_SHA3_224:
+	case GNUTLS_MAC_SHA3_256:
+	case GNUTLS_MAC_SHA3_384:
+	case GNUTLS_MAC_SHA3_512:
+		return true;
+	default:
+		return false;
+	}
+}
+
+inline static bool
 is_mac_algo_allowed_in_fips(gnutls_mac_algorithm_t algo)
 {
 	return is_mac_algo_approved_in_fips(algo);
