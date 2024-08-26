@@ -1282,9 +1282,23 @@ privkey_sign_and_hash_data(gnutls_privkey_t signer,
 	int ret;
 	gnutls_datum_t digest;
 	const mac_entry_st *me;
+	bool not_approved = false;
 
 	if (unlikely(se == NULL))
 		return gnutls_assert_val(GNUTLS_E_INVALID_REQUEST);
+
+	if (se->pk == GNUTLS_PK_ECDSA && !is_digest_algo_allowed_for_sign(se->hash)) {
+		_gnutls_switch_fips_state(GNUTLS_FIPS140_OP_ERROR);
+		return gnutls_assert_val(GNUTLS_E_UNWANTED_ALGORITHM);
+	} else if (se->pk == GNUTLS_PK_ECDSA && !is_digest_algo_approved_for_sign_in_fips(se->hash)) {
+		not_approved = true;
+	}
+
+	if (not_approved) {
+		_gnutls_switch_fips_state(GNUTLS_FIPS140_OP_NOT_APPROVED);
+	} else {
+		_gnutls_switch_fips_state(GNUTLS_FIPS140_OP_APPROVED);
+	}
 
 	if (_gnutls_pk_is_not_prehashed(se->pk)) {
 		return privkey_sign_raw_data(signer, se, data, signature, params);
