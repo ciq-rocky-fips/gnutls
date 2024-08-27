@@ -554,19 +554,19 @@ LT_INIT([disable-static,win32-dll,shared])
 AC_LIB_HAVE_LINKFLAGS(dl,, [#include <dlfcn.h>], [dladdr (0, 0);])
 
 AC_ARG_ENABLE(fips140-mode,
-  AS_HELP_STRING([--enable-fips140-mode], [enable FIPS140-2 mode]),
+  AS_HELP_STRING([--enable-fips140-mode], [enable FIPS140-3 mode]),
     enable_fips=$enableval, enable_fips=no)
 AM_CONDITIONAL(ENABLE_FIPS140, test "$enable_fips" = "yes")
 if [ test "$enable_fips" = "yes" ];then
   if test "x$HAVE_LIBDL" = "xyes";then
-    AC_DEFINE([ENABLE_FIPS140], 1, [Enable FIPS140-2 mode])
+    AC_DEFINE([ENABLE_FIPS140], 1, [Enable FIPS140-3 mode])
     AC_SUBST([FIPS140_LIBS], $LIBDL)
     AC_ARG_WITH(fips140-key, AS_HELP_STRING([--with-fips140-key],
                                  [specify the FIPS140 HMAC key for integrity]),
             fips_key="$withval", 
             fips_key="orboDeJITITejsirpADONivirpUkvarP")
 
-    AC_DEFINE_UNQUOTED([FIPS_KEY], ["$fips_key"], [The FIPS140-2 integrity key])
+    AC_DEFINE_UNQUOTED([FIPS_KEY], ["$fips_key"], [The FIPS140-3 integrity key])
 
     AC_ARG_WITH(fips140-module-name, AS_HELP_STRING([--with-fips140-module-name],
                                  [specify the FIPS140 module name]),

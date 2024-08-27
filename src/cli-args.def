@@ -446,7 +446,7 @@ flag = {
 
 flag = {
     name      = fips140-mode;
-    descrip   = "Reports the status of the FIPS140-2 mode in gnutls library";
+    descrip   = "Reports the status of the FIPS140-3 mode in gnutls library";
     doc      = "";
 };
 

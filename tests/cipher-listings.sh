@@ -64,7 +64,7 @@ check()
 
 ${CLI} --fips140-mode
 if test $? = 0;then
-	echo "Cannot run this test in FIPS140-2 mode"
+	echo "Cannot run this test in FIPS140-3 mode"
 	exit 77
 fi
 

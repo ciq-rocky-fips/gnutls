@@ -3028,7 +3028,7 @@ the global value is returned.
 @subheading gnutls_fips140_set_mode
 @anchor{gnutls_fips140_set_mode}
 @deftypefun {void} {gnutls_fips140_set_mode} (gnutls_fips_mode_t @var{mode}, unsigned @var{flags})
-@var{mode}: the FIPS140-2 mode to switch to
+@var{mode}: the FIPS140-3 mode to switch to
 
 @var{flags}: should be zero or @code{GNUTLS_FIPS140_SET_MODE_THREAD} 
 
@@ -3037,13 +3037,13 @@ That function is not thread-safe when changing the mode with no flags
 behavior with no flags after threads are created is undefined.
 
 When the flag @code{GNUTLS_FIPS140_SET_MODE_THREAD}  is specified
-then this call will change the FIPS140-2 mode for this particular
+then this call will change the FIPS140-3 mode for this particular
 thread and not for the whole process. That way an application
 can utilize this function to set and reset mode for specific
 operations.
 
 This function never fails but will be a no-op if used when
-the library is not in FIPS140-2 mode. When asked to switch to unknown
+the library is not in FIPS140-3 mode. When asked to switch to unknown
 values for  @code{mode} or to @code{GNUTLS_FIPS140_SELFTESTS}  mode, the library
 switches to @code{GNUTLS_FIPS140_STRICT}  mode.
 

@@ -3085,7 +3085,7 @@ Optional Features:
   --enable-fast-install[=PKGS]
                           optimize for fast installation [default=yes]
   --disable-libtool-lock  avoid locking (might break parallel builds)
-  --enable-fips140-mode   enable FIPS140-2 mode
+  --enable-fips140-mode   enable FIPS140-3 mode
   --disable-non-suiteb-curves
                           disable curves not in SuiteB
   --disable-libdane       disable the built of libdane

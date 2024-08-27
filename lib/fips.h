@@ -207,16 +207,16 @@ is_digest_algo_allowed_for_sign_in_fips(gnutls_digest_algorithm_t algo)
 }
 
 #ifdef ENABLE_FIPS140
-/* This will test the condition when in FIPS140-2 mode
+/* This will test the condition when in FIPS140-3 mode
  * and return an error if necessary or ignore */
 # define FIPS_RULE(condition, ret_error, ...) { \
 	gnutls_fips_mode_t _mode = _gnutls_fips_mode_enabled(); \
 	if (_mode != GNUTLS_FIPS140_DISABLED) { \
 		if (condition) { \
 			if (_mode == GNUTLS_FIPS140_LOG) { \
-				_gnutls_audit_log(NULL, "fips140-2: allowing "__VA_ARGS__); \
+				_gnutls_audit_log(NULL, "fips140-3: allowing "__VA_ARGS__); \
 			} else if (_mode != GNUTLS_FIPS140_LAX) { \
-				_gnutls_debug_log("fips140-2: disallowing "__VA_ARGS__); \
+				_gnutls_debug_log("fips140-3: disallowing "__VA_ARGS__); \
 				return ret_error; \
 			} \
 		} \
@@ -231,7 +231,7 @@ is_mac_algo_allowed(gnutls_mac_algorithm_t algo)
 		switch (mode) {
 		case GNUTLS_FIPS140_LOG:
 			_gnutls_audit_log(NULL,
-					  "fips140-2: allowing access to %s\n",
+					  "fips140-3: allowing access to %s\n",
 					  gnutls_mac_get_name(algo));
 			FALLTHROUGH;
 		case GNUTLS_FIPS140_DISABLED:
@@ -253,7 +253,7 @@ is_cipher_algo_allowed(gnutls_cipher_algorithm_t algo)
 	    !is_cipher_algo_allowed_in_fips(algo)) {
 		switch (mode) {
 		case GNUTLS_FIPS140_LOG:
-			_gnutls_audit_log(NULL, "fips140-2: allowing access to %s\n",
+			_gnutls_audit_log(NULL, "fips140-3: allowing access to %s\n",
 					  gnutls_cipher_get_name(algo));
 			FALLTHROUGH;
 		case GNUTLS_FIPS140_DISABLED:
@@ -275,7 +275,7 @@ is_digest_algo_allowed_for_sign(gnutls_digest_algorithm_t algo)
 	    !is_digest_algo_allowed_for_sign_in_fips(algo)) {
 		switch (mode) {
 		case GNUTLS_FIPS140_LOG:
-			_gnutls_audit_log(NULL, "fips140-2: allowing access to %s\n",
+			_gnutls_audit_log(NULL, "fips140-3: allowing access to %s\n",
 					  gnutls_digest_get_name(algo));
 			FALLTHROUGH;
 		case GNUTLS_FIPS140_DISABLED:

@@ -81,7 +81,7 @@
 /* enable DHE */
 #undef ENABLE_ECDHE
 
-/* Enable FIPS140-2 mode */
+/* Enable FIPS140-3 mode */
 #undef ENABLE_FIPS140
 
 /* enable GOST */
@@ -120,7 +120,7 @@
 /* Define this to 1 if F_DUPFD behavior does not match POSIX */
 #undef FCNTL_DUPFD_BUGGY
 
-/* The FIPS140-2 integrity key */
+/* The FIPS140-3 integrity key */
 #undef FIPS_KEY
 
 /* Define to nothing if C supports flexible array members, and to 1 if it does
