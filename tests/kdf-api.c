@@ -193,5 +193,21 @@ void doit(void)
 		    /* Use of AES-CMAC in PBKDF2 is not supported in ACVP.  */
 		    GNUTLS_FIPS140_OP_NOT_APPROVED);
 
+	/* Test vector extracted from:
+	 * https://dev.gnupg.org/source/libgcrypt/browse/master/cipher/kdf.c */
+	test_pbkdf2(GNUTLS_MAC_SHA256,
+		    "70617373776f726450415353"
+		    "574f524470617373776f7264", /* "passwordPASSWORDpassword" */
+		    "73616c7453414c5473616c74"
+		    "53414c5473616c7453414c54"
+		    "73616c7453414c5473616c74", /* "saltSALTsaltSALTsaltSALTsaltSALTsalt" */
+		    4096,
+		    40,
+		    "348c89dbcbd32b2f32d814b8"
+		    "116e84cf2b17347ebc180018"
+		    "1c4e2a1fb8dd53e1c635518c7dac47e9",
+		    /* FIPS approved */
+		    GNUTLS_FIPS140_OP_APPROVED);
+
 	gnutls_fips140_context_deinit(fips_context);
 }
