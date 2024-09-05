@@ -539,7 +539,7 @@ int gnutls_session_ticket_key_generate(gnutls_datum_t * key)
 {
 	if (_gnutls_fips_mode_enabled()) {
 		int ret;
-		/* in FIPS140-2 mode gnutls_key_generate imposes
+		/* in FIPS140-3 mode gnutls_key_generate imposes
 		 * some limits on allowed key size, thus it is not
 		 * used. These limits do not affect this function as
 		 * it does not generate a "key" but rather key material

@@ -1420,7 +1420,7 @@ GNUTLS_FIPS140_3_4 {
 	gnutls_pbkdf2_self_test;
 	gnutls_tlsprf_self_test;
 	gnutls_tlsprf13_self_test;
-	#for FIPS140-2 validation
+	#for FIPS140-3 validation
 	drbg_aes_reseed;
 	drbg_aes_init;
 	drbg_aes_generate;

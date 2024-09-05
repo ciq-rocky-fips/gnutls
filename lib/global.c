@@ -326,12 +326,12 @@ static int _gnutls_global_init(unsigned constructor)
 
 #ifdef ENABLE_FIPS140
 	res = _gnutls_fips_mode_enabled();
-	/* res == 1 -> fips140-2 mode enabled
+	/* res == 1 -> fips140-3 mode enabled
 	 * res == 2 -> only self checks performed - but no failure
 	 * res == not in fips140 mode
 	 */
 	if (res != 0) {
-		_gnutls_debug_log("FIPS140-2 mode: %d\n", res);
+		_gnutls_debug_log("FIPS140-3 mode: %d\n", res);
 		_gnutls_priority_update_fips();
 
 		/* first round of self checks, these are done on the
@@ -340,7 +340,7 @@ static int _gnutls_global_init(unsigned constructor)
 		ret = _gnutls_fips_perform_self_checks1();
 		if (ret < 0) {
 			_gnutls_switch_lib_state(LIB_STATE_ERROR);
-			_gnutls_audit_log(NULL, "FIPS140-2 self testing part1 failed\n");
+			_gnutls_audit_log(NULL, "FIPS140-3 self testing part1 failed\n");
 			if (res != 2) {
 				gnutls_assert();
 				goto out;
@@ -362,7 +362,7 @@ static int _gnutls_global_init(unsigned constructor)
 		ret = _gnutls_fips_perform_self_checks2();
 		if (ret < 0) {
 			_gnutls_switch_lib_state(LIB_STATE_ERROR);
-			_gnutls_audit_log(NULL, "FIPS140-2 self testing part 2 failed\n");
+			_gnutls_audit_log(NULL, "FIPS140-3 self testing part 2 failed\n");
 			if (res != 2) {
 				gnutls_assert();
 				goto out;

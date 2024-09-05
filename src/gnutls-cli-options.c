@@ -785,7 +785,7 @@ usage (FILE *out, int status)
     "       --inline-commands-prefix=str Change the default delimiter for inline commands\n"
     "       --provider=file        Specify the PKCS #11 provider library\n"
     "				- file must pre-exist\n"
-    "       --fips140-mode         Reports the status of the FIPS140-2 mode in gnutls library\n"
+    "       --fips140-mode         Reports the status of the FIPS140-3 mode in gnutls library\n"
     "       --list-config          Reports the configuration of the library\n"
     "       --logfile=str          Redirect informational messages to a specific file\n"
     "       --keymatexport=str     Label used for exporting keying material\n"

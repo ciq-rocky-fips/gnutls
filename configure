@@ -3542,7 +3542,7 @@ Optional Features:
   --enable-fast-install[=PKGS]
                           optimize for fast installation [default=yes]
   --disable-libtool-lock  avoid locking (might break parallel builds)
-  --enable-fips140-mode   enable FIPS140-2 mode
+  --enable-fips140-mode   enable FIPS140-3 mode
   --enable-strict-x509    enable stricter sanity checks for x509 certificates
   --disable-non-suiteb-curves
                           disable curves not in SuiteB

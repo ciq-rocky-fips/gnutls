@@ -70,7 +70,7 @@ x86_aes_xts_cipher_setkey(void *_ctx, const void *userkey, size_t keysize)
 	if ((keysize != 32) && (keysize != 64))
 		return gnutls_assert_val(GNUTLS_E_INVALID_REQUEST);
 
-	/* Check key block according to FIPS-140-2 IG A.9 */
+	/* Check key block according to FIPS-140-3 IG A.9 */
 	if (_gnutls_fips_mode_enabled()){
 		if (gnutls_memcmp(key, key + (keysize / 2), keysize / 2) == 0) {
 			return gnutls_assert_val(GNUTLS_E_INVALID_REQUEST);

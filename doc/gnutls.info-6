@@ -8776,7 +8776,7 @@ Function and Data Index
 * gnutls_fingerprint:                    Core TLS API.       (line 3512)
 * gnutls_fips140_context_deinit:         Core TLS API.       (line 3539)
 * gnutls_fips140_context_init:           Core TLS API.       (line 3550)
-* gnutls_fips140_get_operation_state:    FIPS140-2 mode.     (line  138)
+* gnutls_fips140_get_operation_state:    FIPS140-3 mode.     (line  138)
 * gnutls_fips140_get_operation_state <1>: Core TLS API.      (line 3563)
 * gnutls_fips140_mode_enabled:           Core TLS API.       (line 3577)
 * gnutls_fips140_pop_context:            Core TLS API.       (line 3595)

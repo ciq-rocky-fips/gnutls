@@ -1641,10 +1641,10 @@ static void cmd_parser(int argc, char **argv)
 
 	if (HAVE_OPT(FIPS140_MODE)) {
 		if (gnutls_fips140_mode_enabled() != 0) {
-			fprintf(stderr, "library is in FIPS140-2 mode\n");
+			fprintf(stderr, "library is in FIPS140-3 mode\n");
 			exit(0);
 		}
-		fprintf(stderr, "library is NOT in FIPS140-2 mode\n");
+		fprintf(stderr, "library is NOT in FIPS140-3 mode\n");
 		exit(1);
 	}
 

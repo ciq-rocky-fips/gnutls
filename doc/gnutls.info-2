@@ -672,7 +672,7 @@ Variable               Purpose
                           * 0x400000: Enable VIA PHE SHA512
                        
 'GNUTLS_FORCE_FIPS_MODE'In setups where GnuTLS is compiled with support
-                       for FIPS140-2 (see *note FIPS140-2 mode::) if
+                       for FIPS140-3 (see *note FIPS140-3 mode::) if
                        set to one it will force the FIPS mode
                        enablement.
                        
