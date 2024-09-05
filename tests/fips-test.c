@@ -22,6 +22,7 @@ static void tls_log_func(int level, const char *str)
 
 static uint8_t key13[13];
 static uint8_t key16[16];
+static uint8_t key20[20];
 static uint8_t iv16[16];
 static uint8_t key_data[64];
 static uint8_t iv_data[16];
@@ -350,6 +351,7 @@ void doit(void)
 	gnutls_privkey_t privkey;
 	gnutls_datum_t key_invalid = { key13, sizeof(key13) };
 	gnutls_datum_t key = { key16, sizeof(key16) };
+	gnutls_datum_t pbkdfkey = { key20, sizeof(key20) };
 	gnutls_datum_t iv = { iv16, sizeof(iv16) };
 	gnutls_datum_t signature;
 	unsigned int bits;
@@ -427,7 +429,7 @@ void doit(void)
 		fail("gnutls_hmac_init succeeded for md5\n");
 	}
 
-	/* HMAC with key equal to or longer than 112 bits: approved */
+	/* HMAC with key equal to or longer than 160 bits: approved */
 	FIPS_PUSH_CONTEXT();
 	ret = gnutls_hmac_init(&mh, GNUTLS_MAC_SHA256, key.data, key.size);
 	if (ret < 0) {
@@ -463,29 +465,29 @@ void doit(void)
 	}
 	FIPS_POP_CONTEXT(NOT_APPROVED);
 
-	/* PBKDF2 with key equal to or longer than 112 bits: approved */
+	/* PBKDF2 with key equal to or longer than 160 bits: approved */
 	FIPS_PUSH_CONTEXT();
-	ret = gnutls_pbkdf2(GNUTLS_MAC_SHA256, &key, &iv, 100,
+	ret = gnutls_pbkdf2(GNUTLS_MAC_SHA256, &pbkdfkey, &iv, 1000,
 			    &pbkdf2, sizeof(pbkdf2));
 	if (ret < 0) {
 		fail("gnutls_pbkdf2 failed\n");
 	}
 	FIPS_POP_CONTEXT(APPROVED);
 
-	/* PBKDF2 with key shorter than 112 bits: not approved */
+	/* PBKDF2 with key shorter than 160 bits: not approved */
 	FIPS_PUSH_CONTEXT();
-	key.size = 13;
-	ret = gnutls_pbkdf2(GNUTLS_MAC_SHA256, &key, &iv, 100,
+	pbkdfkey.size = 16;
+	ret = gnutls_pbkdf2(GNUTLS_MAC_SHA256, &pbkdfkey, &iv, 1000,
 			    &pbkdf2, sizeof(pbkdf2));
 	if (ret < 0) {
 		fail("gnutls_pbkdf2 failed\n");
 	}
-	key.size = sizeof(key16);
+	pbkdfkey.size = sizeof(key20);
 	FIPS_POP_CONTEXT(NOT_APPROVED);
 
 	/* PBKDF2 with output shorter than 112 bits: not approved */
 	FIPS_PUSH_CONTEXT();
-	ret = gnutls_pbkdf2(GNUTLS_MAC_SHA256, &key, &iv, 100,
+	ret = gnutls_pbkdf2(GNUTLS_MAC_SHA256, &pbkdfkey, &iv, 1000,
 			    &pbkdf2, 13);
 	if (ret < 0) {
 		fail("gnutls_pbkdf2 failed\n");
@@ -701,10 +703,10 @@ void doit(void)
 	FIPS_PUSH_CONTEXT();
 	ret = gnutls_privkey_sign_data2(privkey, GNUTLS_SIGN_ECDSA_SHA1, 0,
 					&data, &signature);
-	if (ret < 0) {
-		fail("gnutls_privkey_sign_data2 failed\n");
+	if (ret == 0) {
+		fail("gnutls_privkey_sign_data2 succeeded - should fail\n");
 	}
-	FIPS_POP_CONTEXT(NOT_APPROVED);
+	FIPS_POP_CONTEXT(ERROR);
 
 	/* Verify a signature created with ECDSA and SHA-1; not approved */
 	FIPS_PUSH_CONTEXT();
@@ -721,10 +723,10 @@ void doit(void)
 	FIPS_PUSH_CONTEXT();
 	ret = gnutls_privkey_sign_data(privkey, GNUTLS_DIG_SHA1, 0,
 					&data, &signature);
-	if (ret < 0) {
-		fail("gnutls_privkey_sign_data failed\n");
+	if (ret == 0) {
+		fail("gnutls_privkey_sign_data succeeded - should fail\n");
 	}
-	FIPS_POP_CONTEXT(NOT_APPROVED);
+	FIPS_POP_CONTEXT(ERROR);
 	gnutls_free(signature.data);
 
 	/* Create a SHA1 hashed data for 2-pass signature API; not a
