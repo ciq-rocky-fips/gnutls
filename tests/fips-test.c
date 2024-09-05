@@ -20,6 +20,7 @@ static void tls_log_func(int level, const char *str)
 	fprintf(stderr, "<%d>| %s", level, str);
 }
 
+static uint8_t key13[13];
 static uint8_t key16[16];
 static uint8_t iv16[16];
 static uint8_t key_data[64];
@@ -347,6 +348,7 @@ void doit(void)
 	gnutls_pubkey_t pubkey;
 	gnutls_x509_privkey_t xprivkey;
 	gnutls_privkey_t privkey;
+	gnutls_datum_t key_invalid = { key13, sizeof(key13) };
 	gnutls_datum_t key = { key16, sizeof(key16) };
 	gnutls_datum_t iv = { iv16, sizeof(iv16) };
 	gnutls_datum_t signature;
@@ -390,6 +392,14 @@ void doit(void)
 
 	/* Try crypto.h functionality */
 	test_ciphers();
+
+	/* Try creating key with less than 112 bits: not approved */
+	FIPS_PUSH_CONTEXT();
+	ret = gnutls_key_generate(&key_invalid, 13);
+	if (ret < 0) {
+		fail("gnutls_generate_key failed\n");
+	}
+	FIPS_POP_CONTEXT(NOT_APPROVED);
 
 	FIPS_PUSH_CONTEXT();
 	ret = gnutls_cipher_init(&ch, GNUTLS_CIPHER_AES_128_CBC, &key, &iv);

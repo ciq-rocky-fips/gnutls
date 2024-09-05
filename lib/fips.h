@@ -163,6 +163,30 @@ is_cipher_algo_allowed_in_fips(gnutls_cipher_algorithm_t algo)
 	}
 }
 
+inline static bool
+is_digest_algo_approved_for_sign_in_fips(gnutls_digest_algorithm_t algo)
+{
+	switch (algo) {
+	case GNUTLS_DIG_SHA224:
+	case GNUTLS_DIG_SHA256:
+	case GNUTLS_DIG_SHA384:
+	case GNUTLS_DIG_SHA512:
+	case GNUTLS_DIG_SHA3_224:
+	case GNUTLS_DIG_SHA3_256:
+	case GNUTLS_DIG_SHA3_384:
+	case GNUTLS_DIG_SHA3_512:
+		return true;
+	default:
+		return false;
+	}
+}
+
+inline static bool
+is_digest_algo_allowed_for_sign_in_fips(gnutls_digest_algorithm_t algo)
+{
+	return is_digest_algo_approved_for_sign_in_fips(algo);
+}
+
 #ifdef ENABLE_FIPS140
 /* This will test the condition when in FIPS140-2 mode
  * and return an error if necessary or ignore */
@@ -223,9 +247,33 @@ is_cipher_algo_allowed(gnutls_cipher_algorithm_t algo)
 
 	return true;
 }
+
+inline static bool
+is_digest_algo_allowed_for_sign(gnutls_digest_algorithm_t algo)
+{
+	gnutls_fips_mode_t mode = _gnutls_fips_mode_enabled();
+	if (_gnutls_get_lib_state() != LIB_STATE_SELFTEST &&
+	    !is_digest_algo_allowed_for_sign_in_fips(algo)) {
+		switch (mode) {
+		case GNUTLS_FIPS140_LOG:
+			_gnutls_audit_log(NULL, "fips140-2: allowing access to %s\n",
+					  gnutls_digest_get_name(algo));
+			FALLTHROUGH;
+		case GNUTLS_FIPS140_DISABLED:
+		case GNUTLS_FIPS140_LAX:
+			return true;
+		default:
+			return false;
+		}
+	}
+
+	return true;
+}
+
 #else
 # define is_mac_algo_allowed(x) true
 # define is_cipher_algo_allowed(x) true
+# define is_digest_algo_allowed_for_sign(x) true
 # define FIPS_RULE(condition, ret_error, ...)
 #endif
 
