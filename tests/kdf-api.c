@@ -33,6 +33,9 @@
 
 #define MAX_BUF 1024
 
+#define GNUTLS_PBKDF2_FIPS_NOT_APPROVED 0
+#define GNUTLS_PBKDF2_FIPS_APPROVED 1
+
 static gnutls_fips140_context_t fips_context;
 
 
@@ -128,7 +131,8 @@ test_pbkdf2(gnutls_mac_algorithm_t mac,
 	    const char *salt_hex,
 	    unsigned iter_count,
 	    size_t length,
-	    const char *okm_hex)
+	    const char *okm_hex,
+	    gnutls_fips140_operation_state_t expected_state)
 {
 	gnutls_datum_t hex;
 	gnutls_datum_t ikm;
@@ -146,15 +150,9 @@ test_pbkdf2(gnutls_mac_algorithm_t mac,
 	hex.size = strlen(salt_hex);
 	assert(gnutls_hex_decode2(&hex, &salt) >= 0);
 
-	FIPS_PUSH_CONTEXT();
+	fips_push_context(fips_context);
 	assert(gnutls_pbkdf2(mac, &ikm, &salt, iter_count, buf, length) >= 0);
-	/* Key sizes and output sizes less than 112-bit are not approved.  */
-	if (ikm.size < 14 || length < 14 ||
-	    !is_mac_algo_hmac_approved_in_fips(mac)) {
-		FIPS_POP_CONTEXT(NOT_APPROVED);
-	} else {
-		FIPS_POP_CONTEXT(APPROVED);
-	}
+	fips_pop_context(fips_context, expected_state);
 	gnutls_free(ikm.data);
 	gnutls_free(salt.data);
 
@@ -188,6 +186,26 @@ doit(void)
 		  "2d2d0a90cf1a5a4c5db02d56ecc4c5bf"
 		  "34007208d5b887185865");
 
+	/* Test vector from RFC 6070.  More thorough testing is done
+	 * in nettle. */
+	test_pbkdf2(GNUTLS_MAC_SHA1,
+		    "70617373776f7264", /* "password" */
+		    "73616c74",	/* "salt" */
+		    4096,
+		    20,
+		    "4b007901b765489abead49d926f721d065a429c1",
+		    /* Key sizes and output sizes less than 112-bit are not approved.  */
+		    GNUTLS_PBKDF2_FIPS_NOT_APPROVED);
+
+	test_pbkdf2(GNUTLS_MAC_AES_CMAC_128,
+		    "70617373776f726470617373776f7264", /* "passwordpassword" */
+		    "73616c74",	/* "salt" */
+		    4096,
+		    20,
+		    "c4c112c6e1e3b8757640603dec78825ff87605a7",
+		    /* Use of AES-CMAC in PBKDF2 is not supported in ACVP.  */
+		    GNUTLS_PBKDF2_FIPS_NOT_APPROVED);
+
 	/* Test vector extracted from:
 	 * https://dev.gnupg.org/source/libgcrypt/browse/master/cipher/kdf.c */
 	test_pbkdf2(GNUTLS_MAC_SHA256,
@@ -200,14 +218,9 @@ doit(void)
 		    40,
 		    "348c89dbcbd32b2f32d814b8"
 		    "116e84cf2b17347ebc180018"
-		    "1c4e2a1fb8dd53e1c635518c7dac47e9");
-
-	test_pbkdf2(GNUTLS_MAC_AES_CMAC_128,
-		    "70617373776f726470617373776f7264", /* "passwordpassword" */
-		    "73616c74",		/* "salt" */
-		    4096,
-		    20,
-		    "c4c112c6e1e3b8757640603dec78825ff87605a7");
+		    "1c4e2a1fb8dd53e1c635518c7dac47e9",
+		    /* FIPS approved */
+		    GNUTLS_PBKDF2_FIPS_APPROVED);
 
 	gnutls_fips140_context_deinit(fips_context);
 }
