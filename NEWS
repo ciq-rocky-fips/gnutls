@@ -23,6 +23,9 @@ See the end for copying conditions.
 ** certtool: Certtool can now generate, manipulate, and evaluate x25519 and
    x448 public keys, private keys, and certificates.
 
+** libgnutls: AES-GCM encryption function now limits plaintext
+   length to 2^39-256 bits, according to SP800-38D 5.2.1.1.
+
 ** API and ABI modifications:
 No changes since last version.
 
