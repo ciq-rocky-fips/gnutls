@@ -261,7 +261,7 @@ seed_length_for_modulus_size(unsigned modulus_size)
 	case 3072:      /* SP 800-56B rev 2 Appendix D and FIPS 140-2 IG 7.5 */
 		return 16 * 2;
 	case 4096:      /* SP 800-56B rev 2 Appendix D */
-		return 20 * 2;
+		return 19 * 2;
 	case 6144:      /* SP 800-56B rev 2 Appendix D */
 		return 22 * 2;
 	case 7680:      /* FIPS 140-2 IG 7.5 */
