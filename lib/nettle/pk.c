@@ -2575,6 +2575,10 @@ static int pct_test(gnutls_pk_algorithm_t algo, const gnutls_pk_params_st* param
 	gnutls_datum_t ddata, tmp = {NULL,0};
 	char* gen_data = NULL;
 	gnutls_x509_spki_st spki;
+	struct gnutls_pubkey_st actual_pubkey = { 0 };
+	struct gnutls_privkey_st actual_privkey = { 0 };
+	gnutls_privkey_t privkey = &actual_privkey;
+	gnutls_pubkey_t pubkey = &actual_pubkey;
 #if 0
 	/* Only used in RSA encrypt/decrypt. */
 	gnutls_fips140_context_t context;
@@ -2625,60 +2629,126 @@ static int pct_test(gnutls_pk_algorithm_t algo, const gnutls_pk_params_st* param
 		ddata.size = sizeof(const_data);
 	}
 
+	memset(privkey, 0x0, sizeof(struct gnutls_privkey_st));
+	memset(pubkey, 0x0, sizeof(struct gnutls_pubkey_st));
+
 	switch (algo) {
 	case GNUTLS_PK_RSA:
-#if 0
-		/* Push a temporary FIPS context because _gnutls_pk_encrypt and
-		 * _gnutls_pk_decrypt below will mark RSAES-PKCS1-v1_5 operation
-		 * non-approved */
-		if (gnutls_fips140_context_init(&context) < 0) {
-			ret = gnutls_assert_val(GNUTLS_E_PK_GENERATION_ERROR);
-			goto cleanup;
-		}
-		if (gnutls_fips140_push_context(context) < 0) {
-			ret = gnutls_assert_val(GNUTLS_E_PK_GENERATION_ERROR);
-			gnutls_fips140_context_deinit(context);
-			goto cleanup;
-		}
+	case GNUTLS_PK_RSA_PSS:
+	{
+		gnutls_digest_algorithm_t rsa_hash;
+		gnutls_datum_t mod,pub_exp, priv_exp,p,q,coeff,a,b;
+		_gnutls_mpi_dprint(params->params[RSA_MODULUS],&mod);
+		_gnutls_mpi_dprint(params->params[RSA_PUB],&pub_exp);
+		_gnutls_mpi_dprint(params->params[RSA_PRIV],&priv_exp);
+		_gnutls_mpi_dprint(params->params[RSA_PRIME1],&p);
+		_gnutls_mpi_dprint(params->params[RSA_PRIME2],&q);
+		_gnutls_mpi_dprint(params->params[RSA_COEF],&coeff);
+		_gnutls_mpi_dprint(params->params[RSA_E1],&a);
+		_gnutls_mpi_dprint(params->params[RSA_E2],&b);
 
-		ret = _gnutls_pk_encrypt(algo, &sig, &ddata, params);
+		ret = gnutls_privkey_import_rsa_raw(privkey, &mod, &pub_exp, &priv_exp, &p,&q, &coeff, &a,&b);
 		if (ret < 0) {
 			ret = gnutls_assert_val(GNUTLS_E_PK_GENERATION_ERROR);
+			goto cleanup;
 		}
-		if (ret == 0 &&
-		    ddata.size == sig.size &&
-		    memcmp(ddata.data, sig.data, sig.size) == 0) {
-			ret = gnutls_assert_val(GNUTLS_E_PK_GENERATION_ERROR);
-		}
-		if (ret == 0 &&
-		    _gnutls_pk_decrypt(algo, &tmp, &sig, params) < 0) {
-			ret = gnutls_assert_val(GNUTLS_E_PK_GENERATION_ERROR);
-		}
-		if (ret == 0 &&
-		    !(tmp.size == ddata.size &&
-		      memcmp(tmp.data, ddata.data, tmp.size) == 0)) {
-			ret = gnutls_assert_val(GNUTLS_E_PK_GENERATION_ERROR);
-		}
-
-		if (unlikely(gnutls_fips140_pop_context() < 0)) {
-			ret = gnutls_assert_val(GNUTLS_E_PK_GENERATION_ERROR);
-		}
-		gnutls_fips140_context_deinit(context);
-
+		ret = gnutls_pubkey_import_rsa_raw(pubkey, &mod, &pub_exp);
 		if (ret < 0) {
+			ret = gnutls_assert_val(GNUTLS_E_PK_GENERATION_ERROR);
 			goto cleanup;
 		}
 
-		free(sig.data);
-		sig.data = NULL;
+		ret = gnutls_pubkey_get_preferred_hash_algorithm(pubkey,&rsa_hash, 0);
+		if (ret < 0) {
+			ret = gnutls_assert_val(GNUTLS_E_PK_GENERATION_ERROR);
+			goto cleanup;
+		}
+		gnutls_sign_algorithm_t sign_algo = gnutls_pk_to_sign(algo, rsa_hash);
+		ret = gnutls_privkey_sign_data2(privkey, sign_algo, 0, &ddata, &sig);
+		if (ret < 0) {
+			ret = gnutls_assert_val(GNUTLS_E_PK_GENERATION_ERROR);
+			goto cleanup;
+		}
+		ret = gnutls_pubkey_verify_data2(pubkey,sign_algo, 0, &ddata , &sig);
+		if (ret < 0) {
+			ret = gnutls_assert_val(GNUTLS_E_PK_GENERATION_ERROR);
+			gnutls_assert();
+			goto cleanup;
+		}
+		break;
+	}
+	case GNUTLS_PK_EC:
+	{
+		/* we only do keys for ECDSA */
+		gnutls_sign_algorithm_t sign_algo = gnutls_pk_to_sign(algo,  spki.dsa_dig);
+		gnutls_datum_t x = { .data = NULL, .size = 0 };
+		gnutls_datum_t y = { .data = NULL, .size = 0 };
+		gnutls_datum_t k = { .data = NULL, .size = 0 };
+		_gnutls_mpi_dprint(params->params[ECC_X],&x);
+		_gnutls_mpi_dprint(params->params[ECC_Y],&y);
+		_gnutls_mpi_dprint(params->params[ECC_K],&k);
 
-		FALLTHROUGH;
-#endif
-	case GNUTLS_PK_EC: /* we only do keys for ECDSA */
+		ret = gnutls_privkey_import_ecc_raw(privkey,params->curve,&x,&y,&k);
+		if (ret < 0) {
+			ret = gnutls_assert_val(GNUTLS_E_PK_GENERATION_ERROR);
+			goto cleanup;
+		}
+		ret = gnutls_pubkey_import_ecc_raw(pubkey, params->curve, &x, &y);
+		if (ret < 0) {
+			ret = gnutls_assert_val(GNUTLS_E_PK_GENERATION_ERROR);
+			goto cleanup;
+		}
+		ret = gnutls_privkey_sign_data2(privkey, sign_algo, 0, &ddata, &sig);
+		if (ret < 0) {
+			ret = gnutls_assert_val(GNUTLS_E_PK_GENERATION_ERROR);
+			goto cleanup;
+		}
+		ret = gnutls_pubkey_verify_data2(pubkey,sign_algo, 0, &ddata , &sig);
+		if (ret < 0) {
+			ret = gnutls_assert_val(GNUTLS_E_PK_GENERATION_ERROR);
+			gnutls_assert();
+			goto cleanup;
+		}
+		break;
+	}
 	case GNUTLS_PK_EDDSA_ED25519:
 	case GNUTLS_PK_EDDSA_ED448:
+	{
+		gnutls_digest_algorithm_t eddsa_hash;
+		ret = gnutls_privkey_import_ecc_raw(privkey,params->curve,&params->raw_pub,NULL,&params->raw_priv);
+		if (ret < 0) {
+			ret = gnutls_assert_val(GNUTLS_E_PK_GENERATION_ERROR);
+			goto cleanup;
+		}
+		ret = gnutls_pubkey_import_ecc_raw(pubkey, params->curve, &params->raw_pub, NULL);
+		if (ret < 0) {
+			ret = gnutls_assert_val(GNUTLS_E_PK_GENERATION_ERROR);
+			goto cleanup;
+		}
+		ret = gnutls_pubkey_get_preferred_hash_algorithm(pubkey,&eddsa_hash, 0);
+		if (ret < 0) {
+			ret = gnutls_assert_val(GNUTLS_E_PK_GENERATION_ERROR);
+			goto cleanup;
+		}
+		gnutls_sign_algorithm_t sign_algo = gnutls_pk_to_sign(algo, eddsa_hash);
+		if (ret < 0) {
+			ret = gnutls_assert_val(GNUTLS_E_PK_GENERATION_ERROR);
+			goto cleanup;
+		}
+		ret = gnutls_privkey_sign_data2(privkey, sign_algo, 0, &ddata, &sig);
+		if (ret < 0) {
+			ret = gnutls_assert_val(GNUTLS_E_PK_GENERATION_ERROR);
+			goto cleanup;
+		}
+		ret = gnutls_pubkey_verify_data2(pubkey,sign_algo, 0, &ddata , &sig);
+		if (ret < 0) {
+			ret = gnutls_assert_val(GNUTLS_E_PK_GENERATION_ERROR);
+			gnutls_assert();
+			goto cleanup;
+		}
+		break;
+	}
 	case GNUTLS_PK_DSA:
-	case GNUTLS_PK_RSA_PSS:
 	case GNUTLS_PK_GOST_01:
 	case GNUTLS_PK_GOST_12_256:
 	case GNUTLS_PK_GOST_12_512:
