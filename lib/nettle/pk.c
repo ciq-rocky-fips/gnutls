@@ -1756,8 +1756,7 @@ static int _wrap_nettle_pk_verify(gnutls_pk_algorithm_t algo,
 			 * SigVer; it is checked in _pkcs1_rsa_verify_sig in
 			 * lib/pubkey.c.
 			 */
-		if (unlikely(bits < 2048 && bits != 1024 && bits != 1280 &&
-			     bits != 1536 && bits != 1792)) {
+		if (unlikely(bits < 2048)) {
 			not_approved = true;
 		}
 
