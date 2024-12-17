@@ -677,7 +677,7 @@ void doit(void)
 	}
 	hashed_data.data = hash;
 	hashed_data.size = 32;
-	FIPS_POP_CONTEXT(INITIAL);
+	FIPS_POP_CONTEXT(APPROVED);
 
 	/* Create a signature with ECDSA and SHA256 (2-pass API); not-approved */
 	FIPS_PUSH_CONTEXT();
@@ -738,7 +738,7 @@ void doit(void)
 	}
 	hashed_data.data = hash;
 	hashed_data.size = 20;
-	FIPS_POP_CONTEXT(INITIAL);
+	FIPS_POP_CONTEXT(APPROVED);
 
 	/* Create a signature with ECDSA and SHA1 (2-pass API); not-approved */
 	FIPS_PUSH_CONTEXT();
