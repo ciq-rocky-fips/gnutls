@@ -245,3 +245,4 @@ L(q_incr_loop):
 	lea	8(U1), U1
 	jmp	L(q_incr_loop)
 EPILOGUE()
+ASM_END()

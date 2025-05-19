@@ -156,3 +156,4 @@ L(one):	shr	R8(%rcx), %rax
 	ret
 
 EPILOGUE()
+ASM_END()

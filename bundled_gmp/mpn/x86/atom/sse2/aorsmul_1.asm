@@ -172,3 +172,4 @@ PROLOGUE(func_1c)
 	mov	20(%esp), %edx		C carry
 	jmp	L(ent)
 EPILOGUE()
+ASM_END()

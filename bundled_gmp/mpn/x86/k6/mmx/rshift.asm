@@ -128,3 +128,4 @@ Zdisp(	movd,	%mm0, 0,(%ecx,%eax,4))
 	ret
 
 EPILOGUE()
+ASM_END()

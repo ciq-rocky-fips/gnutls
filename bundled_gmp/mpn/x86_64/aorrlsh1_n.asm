@@ -168,3 +168,4 @@ ifdef(`OPERATION_rsblsh1_n',`
 	FUNC_EXIT()
 	ret
 EPILOGUE()
+ASM_END()

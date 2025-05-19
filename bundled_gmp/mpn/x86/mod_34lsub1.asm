@@ -181,3 +181,4 @@ L(combine):
 	ret
 
 EPILOGUE()
+ASM_END()

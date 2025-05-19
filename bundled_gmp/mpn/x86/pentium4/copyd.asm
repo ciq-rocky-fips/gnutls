@@ -69,3 +69,4 @@ L(end):
 	ret
 
 EPILOGUE()
+ASM_END()

@@ -123,6 +123,7 @@ m4_assert_defined(`WANT_PROFILING')
 	TYPE($1,`function')
 	COFF_TYPE($1)
 $1:
+	X86_ENDBR
 ifelse(WANT_PROFILING,`prof',      `	call_mcount')
 ifelse(WANT_PROFILING,`gprof',     `	call_mcount')
 ifelse(WANT_PROFILING,`instrument',`	call_instrument(enter)')
@@ -992,7 +993,11 @@ L(movl_eip_`'substr($2,1)):
 
 dnl ASM_END
 
-define(`ASM_END',`load_eip')
+define(`ASM_END',
+`load_eip
+X86_GNU_PROPERTY
+')
+
 
 define(`load_eip', `')		dnl updated in LEA/LEAL
 

@@ -168,3 +168,4 @@ L(end):	cmp	$1, R32(n)
 	pop	%r12
 	ret
 EPILOGUE()
+ASM_END()

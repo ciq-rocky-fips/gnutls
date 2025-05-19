@@ -610,3 +610,4 @@ Zdisp(	addl,	%ecx, disp0,(%edi))
 	ret
 
 EPILOGUE()
+ASM_END()

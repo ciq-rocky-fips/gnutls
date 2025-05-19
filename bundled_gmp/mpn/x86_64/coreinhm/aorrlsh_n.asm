@@ -198,3 +198,4 @@ IFDOS(`	mov	64(%rsp), %r9	')	C cy
 	sbb	R32(%rbx), R32(%rbx)	C initialise CF save register
 	jmp	L(ent)
 EPILOGUE()
+ASM_END()

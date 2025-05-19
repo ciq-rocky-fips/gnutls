@@ -632,3 +632,4 @@ L(one):	pmuludq	%mm7, %mm7
 	pop	%edi
 	ret
 EPILOGUE()
+ASM_END()

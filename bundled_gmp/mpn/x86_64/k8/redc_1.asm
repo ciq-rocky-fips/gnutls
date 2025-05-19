@@ -125,7 +125,8 @@ L(tab):	JMPENT(	L(0), L(tab))
 	TEXT
 
 	ALIGN(16)
-L(1):	mov	(mp_param), %rax
+L(1):	X86_ENDBR
+	mov	(mp_param), %rax
 	mul	q0
 	add	8(up), %rax
 	adc	16(up), %rdx
@@ -136,7 +137,8 @@ L(1):	mov	(mp_param), %rax
 
 
 	ALIGN(16)
-L(2):	mov	(mp_param), %rax
+L(2):	X86_ENDBR
+	mov	(mp_param), %rax
 	mul	q0
 	xor	R32(%r14), R32(%r14)
 	mov	%rax, %r10
@@ -171,7 +173,8 @@ L(2):	mov	(mp_param), %rax
 	jmp	L(ret)
 
 
-L(3):	mov	(mp_param), %rax
+L(3):	X86_ENDBR
+	mov	(mp_param), %rax
 	mul	q0
 	mov	%rax, %rbx
 	mov	%rdx, %r10
@@ -248,7 +251,7 @@ L(3):	mov	(mp_param), %rax
 
 
 	ALIGN(16)
-L(2m4):
+L(2m4):	X86_ENDBR
 L(lo2):	mov	(mp,nneg,8), %rax
 	mul	q0
 	xor	R32(%r14), R32(%r14)
@@ -324,7 +327,7 @@ L(le2):	add	%r10, (up)
 
 
 	ALIGN(16)
-L(1m4):
+L(1m4):	X86_ENDBR
 L(lo1):	mov	(mp,nneg,8), %rax
 	xor	%r9, %r9
 	xor	R32(%rbx), R32(%rbx)
@@ -398,7 +401,7 @@ L(le1):	add	%r10, (up)
 
 	ALIGN(16)
 L(0):
-L(0m4):
+L(0m4):	X86_ENDBR
 L(lo0):	mov	(mp,nneg,8), %rax
 	mov	nneg, i
 	mul	q0
@@ -463,7 +466,7 @@ L(le0):	add	%r10, (up)
 
 
 	ALIGN(16)
-L(3m4):
+L(3m4):	X86_ENDBR
 L(lo3):	mov	(mp,nneg,8), %rax
 	mul	q0
 	mov	%rax, %rbx
@@ -589,3 +592,4 @@ L(ret):	pop	%r15
 	FUNC_EXIT()
 	ret
 EPILOGUE()
+ASM_END()

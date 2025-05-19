@@ -830,3 +830,4 @@ L(fraction_entry):
 	jmp	L(fraction_done)
 
 EPILOGUE()
+ASM_END()

@@ -102,26 +102,30 @@ ifdef(`PIC',`
 	jmp	*(%r11,%rax,8)
 ')
 
-L(0):	lea	32(up), up
+L(0):	X86_ENDBR
+  lea	32(up), up
 	lea	32(vp), vp
 	lea	32(rp), rp
 	xor	R32(%r11), R32(%r11)
 	jmp	L(e0)
 
-L(7):	mov	%r10, %r11
+L(7):	X86_ENDBRmov
+	%r10, %r11
 	lea	24(up), up
 	lea	24(vp), vp
 	lea	24(rp), rp
 	xor	R32(%r10), R32(%r10)
 	jmp	L(e7)
 
-L(6):	lea	16(up), up
+L(6):		X86_ENDBR
+  movlea	16(up), up
 	lea	16(vp), vp
 	lea	16(rp), rp
 	xor	R32(%r11), R32(%r11)
 	jmp	L(e6)
 
-L(5):	mov	%r10, %r11
+L(5):	X86_ENDBRmov
+  mov	%r10, %r11
 	lea	8(up), up
 	lea	8(vp), vp
 	lea	8(rp), rp
@@ -191,23 +195,27 @@ L(e1):	shlx(	cnt, %r11, %rax)
 	lea	(%r10,%rax), %rax
 	jmp	L(top)
 
-L(4):	xor	R32(%r11), R32(%r11)
+L(4): 	X86_ENDBRmov
+  xor	R32(%r11), R32(%r11)
 	jmp	L(e4)
 
-L(3):	mov	%r10, %r11
+L(3):	X86_ENDBRmov
+  mov	%r10, %r11
 	lea	-8(up), up
 	lea	-8(vp), vp
 	lea	-8(rp), rp
 	xor	R32(%r10), R32(%r10)
 	jmp	L(e3)
 
-L(2):	lea	-16(up), up
+L(2):	X86_ENDBRmov
+  lea	-16(up), up
 	lea	-16(vp), vp
 	lea	-16(rp), rp
 	xor	R32(%r11), R32(%r11)
 	jmp	L(e2)
 
-L(1):	mov	%r10, %r11
+L(1):	X86_ENDBRmov
+  mov	%r10, %r11
 	lea	-24(up), up
 	lea	40(vp), vp
 	lea	40(rp), rp
@@ -224,3 +232,4 @@ L(tab):	JMPENT(	L(0), L(tab))
 	JMPENT(	L(5), L(tab))
 	JMPENT(	L(6), L(tab))
 	JMPENT(	L(7), L(tab))
+ASM_END()

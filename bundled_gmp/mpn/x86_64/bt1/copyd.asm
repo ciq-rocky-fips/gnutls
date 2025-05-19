@@ -89,3 +89,4 @@ L(end):	cmp	$-4, R32(n)
 L(ret):	FUNC_EXIT()
 	ret
 EPILOGUE()
+ASM_END()

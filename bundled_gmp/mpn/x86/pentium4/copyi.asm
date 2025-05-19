@@ -91,3 +91,4 @@ L(replmovs):
 	ret
 
 EPILOGUE()
+ASM_END()

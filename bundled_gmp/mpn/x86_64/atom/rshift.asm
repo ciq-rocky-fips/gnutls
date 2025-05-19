@@ -119,3 +119,4 @@ L(end):	shr	R8(cnt), %r10
 	FUNC_EXIT()
 	ret
 EPILOGUE()
+ASM_END()

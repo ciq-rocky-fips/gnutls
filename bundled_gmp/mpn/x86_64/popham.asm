@@ -161,3 +161,4 @@ L(end):
 	FUNC_EXIT()
 	ret
 EPILOGUE()
+ASM_END()

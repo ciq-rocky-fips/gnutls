@@ -181,14 +181,16 @@ ifdef(`PIC',
 	jmp	*(%r10,%rax,8)
 ')
 
-L(mf0):	mulx(	u0, w0, w1)		C up[0]^2
+L(mf0):	X86_ENDBR
+  mulx(	u0, w0, w1)		C up[0]^2
 	add	u0, u0
 	mulx(	8,(up), w2, w3)
 	lea	64(up), up
 	add	w1, w2
 	jmp	L(mb0)
 
-L(mf3):	mulx(	u0, w2, w3)		C up[0]^2
+L(mf3): X86_ENDBR
+  mulx(	u0, w2, w3)		C up[0]^2
 	add	u0, u0
 	mov	w2, (rp)
 	mulx(	8,(up), w0, w1)
@@ -197,7 +199,8 @@ L(mf3):	mulx(	u0, w2, w3)		C up[0]^2
 	add	w3, w0
 	jmp	L(mb3)
 
-L(mf4):	mulx(	u0, w0, w1)		C up[0]^2
+L(mf4): X86_ENDBR
+  mulx(	u0, w0, w1)		C up[0]^2
 	add	u0, u0
 	mulx(	8,(up), w2, w3)
 	mov	w0, (rp)
@@ -206,7 +209,8 @@ L(mf4):	mulx(	u0, w0, w1)		C up[0]^2
 	add	w1, w2
 	jmp	L(mb4)
 
-L(mf5):	mulx(	u0, w2, w3)		C up[0]^2
+L(mf5): X86_ENDBR
+  mulx(	u0, w2, w3)		C up[0]^2
 	add	u0, u0
 	mulx(	8,(up), w0, w1)
 	mov	w2, (rp)
@@ -215,7 +219,8 @@ L(mf5):	mulx(	u0, w2, w3)		C up[0]^2
 	add	w3, w0
 	jmp	L(mb5)
 
-L(mf6):	mulx(	u0, w0, w1)		C up[0]^2
+L(mf6): X86_ENDBR
+  mulx(	u0, w0, w1)		C up[0]^2
 	add	u0, u0
 	mulx(	8,(up), w2, w3)
 	mov	w0, (rp)
@@ -224,7 +229,8 @@ L(mf6):	mulx(	u0, w0, w1)		C up[0]^2
 	add	w1, w2
 	jmp	L(mb6)
 
-L(mf7):	mulx(	u0, w2, w3)		C up[0]^2
+L(mf7): X86_ENDBR
+  mulx(	u0, w2, w3)		C up[0]^2
 	add	u0, u0
 	mulx(	8,(up), w0, w1)
 	mov	w2, (rp)
@@ -233,7 +239,8 @@ L(mf7):	mulx(	u0, w2, w3)		C up[0]^2
 	add	w3, w0
 	jmp	L(mb7)
 
-L(mf1):	mulx(	u0, w2, w3)		C up[0]^2
+L(mf1): X86_ENDBR
+  mulx(	u0, w2, w3)		C up[0]^2
 	add	u0, u0
 	mulx(	8,(up), w0, w1)
 	mov	w2, (rp)
@@ -242,7 +249,8 @@ L(mf1):	mulx(	u0, w2, w3)		C up[0]^2
 	add	w3, w0
 	jmp	L(mb1)
 
-L(mf2):	mulx(	u0, w0, w1)		C up[0]^2
+L(mf2): X86_ENDBR
+  mulx(	u0, w0, w1)		C up[0]^2
 	add	u0, u0
 	mulx(	8,(up), w2, w3)
 	mov	w0, (rp)
@@ -300,7 +308,8 @@ ifdef(`PIC',
 
 L(ed0):	adox(	(rp), w0)
 	adox(	%rcx, w1)		C relies on rcx = 0
-L(f7):	mov	w0, (rp)
+L(f7): X86_ENDBR
+  mov	w0, (rp)
 	adc	%rcx, w1		C relies on rcx = 0
 	mov	w1, 8(rp)
 	lea	-64(up,un_save,8), up
@@ -356,7 +365,8 @@ L(b0):	mov	w0, (rp)
 
 L(ed1):	adox(	(rp), w0)
 	adox(	%rcx, w1)		C relies on rcx = 0
-L(f0):	mov	w0, (rp)
+L(f0): X86_ENDBR
+  mov	w0, (rp)
 	adc	%rcx, w1		C relies on rcx = 0
 	mov	w1, 8(rp)
 	lea	-64(up,un_save,8), up
@@ -415,7 +425,8 @@ L(b1):	mulx(	8,(up), w2, w3)
 
 L(ed2):	adox(	(rp), w0)
 	adox(	%rcx, w1)		C relies on rcx = 0
-L(f1):	mov	w0, (rp)
+L(f1): X86_ENDBR
+  mov	w0, (rp)
 	adc	%rcx, w1		C relies on rcx = 0
 	mov	w1, 8(rp)
 	lea	(up,un_save,8), up
@@ -477,7 +488,8 @@ L(b2):	adox(	48,(rp), w0)
 
 L(ed3):	adox(	(rp), w0)
 	adox(	%rcx, w1)		C relies on rcx = 0
-L(f2):	mov	w0, (rp)
+L(f2):  X86_ENDBR
+  mov	w0, (rp)
 	adc	%rcx, w1		C relies on rcx = 0
 	mov	w1, 8(rp)
 	lea	(up,un_save,8), up
@@ -535,7 +547,8 @@ L(b3):	mulx(	-16,(up), w0, w1)
 
 L(ed4):	adox(	(rp), w0)
 	adox(	%rcx, w1)		C relies on rcx = 0
-L(f3):	mov	w0, (rp)
+L(f3): X86_ENDBR
+  mov	w0, (rp)
 	adc	%rcx, w1		C relies on rcx = 0
 	mov	w1, 8(rp)
 	lea	(up,un_save,8), up
@@ -592,7 +605,8 @@ L(b4):	mulx(	-24,(up), w2, w3)
 
 L(ed5):	adox(	(rp), w0)
 	adox(	%rcx, w1)		C relies on rcx = 0
-L(f4):	mov	w0, (rp)
+L(f4): X86_ENDBR
+  mov	w0, (rp)
 	adc	%rcx, w1		C relies on rcx = 0
 	mov	w1, 8(rp)
 	lea	(up,un_save,8), up
@@ -649,7 +663,8 @@ L(b5):	mulx(	-32,(up), w0, w1)
 
 L(ed6):	adox(	(rp), w0)
 	adox(	%rcx, w1)		C relies on rcx = 0
-L(f5):	mov	w0, (rp)
+L(f5): X86_ENDBR
+  mov	w0, (rp)
 	adc	%rcx, w1		C relies on rcx = 0
 	mov	w1, 8(rp)
 	lea	(up,un_save,8), up
@@ -706,7 +721,8 @@ L(b6):	adcx(	w1, w2)
 
 L(ed7):	adox(	(rp), w0)
 	adox(	%rcx, w1)		C relies on rcx = 0
-L(f6):	mov	w0, (rp)
+L(f6): X86_ENDBR
+  mov	w0, (rp)
 	adc	%rcx, w1		C relies on rcx = 0
 	mov	w1, 8(rp)
 	lea	(up,un_save,8), up
@@ -837,3 +853,4 @@ L(atab):JMPENT(	L(f6), L(atab))
 	JMPENT(	L(f5), L(atab))
 	TEXT
 EPILOGUE()
+ASM_END()

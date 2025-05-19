@@ -128,3 +128,4 @@ PROLOGUE(__gmp_adcx)
 	ret
 EPILOGUE()
 PROTECT(__gmp_adcx)
+ASM_END()

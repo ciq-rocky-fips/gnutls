@@ -484,3 +484,4 @@ L(ret):	pop	%r13
 	FUNC_EXIT()
 	ret
 EPILOGUE()
+ASM_END()

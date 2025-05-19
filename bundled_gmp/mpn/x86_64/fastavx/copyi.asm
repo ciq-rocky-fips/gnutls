@@ -167,3 +167,4 @@ L(bc):	test	$4, R8(n)
 	FUNC_EXIT()
 	ret
 EPILOGUE()
+ASM_END()

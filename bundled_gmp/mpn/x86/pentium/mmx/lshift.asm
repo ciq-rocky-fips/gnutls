@@ -461,3 +461,4 @@ L(finish_zero_unaligned):
 	ret
 
 EPILOGUE()
+ASM_END()

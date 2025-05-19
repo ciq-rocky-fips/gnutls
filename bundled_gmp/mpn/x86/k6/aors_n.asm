@@ -335,3 +335,4 @@ L(inplace_done):
 	ret
 
 EPILOGUE()
+ASM_END()

@@ -110,33 +110,39 @@ L(tab):	JMPENT(	L(f0), L(tab))
 	JMPENT(	L(f7), L(tab))
 	TEXT
 
-L(f0):	mulx(	(up), %r10, %r8)
+L(f0):	X86_ENDBR
+	mulx(	(up), %r10, %r8)
 	lea	-8(up), up
 	lea	-8(rp), rp
 	lea	-1(n), n
 	jmp	L(b0)
 
-L(f3):	mulx(	(up), %r9, %rax)
+L(f3):	X86_ENDBR
+	mulx(	(up), %r9, %rax)
 	lea	16(up), up
 	lea	-48(rp), rp
 	jmp	L(b3)
 
-L(f4):	mulx(	(up), %r10, %r8)
+L(f4):	X86_ENDBR
+	mulx(	(up), %r10, %r8)
 	lea	24(up), up
 	lea	-40(rp), rp
 	jmp	L(b4)
 
-L(f5):	mulx(	(up), %r9, %rax)
+L(f5):	X86_ENDBR
+	mulx(	(up), %r9, %rax)
 	lea	32(up), up
 	lea	-32(rp), rp
 	jmp	L(b5)
 
-L(f6):	mulx(	(up), %r10, %r8)
+L(f6):	X86_ENDBR
+	mulx(	(up), %r10, %r8)
 	lea	40(up), up
 	lea	-24(rp), rp
 	jmp	L(b6)
 
-L(f1):	mulx(	(up), %r9, %rax)
+L(f1):	X86_ENDBR
+	mulx(	(up), %r9, %rax)
 	jrcxz	L(1)
 	jmp	L(b1)
 L(1):	add	(rp), %r9
@@ -156,7 +162,8 @@ ifdef(`PIC',
 `	nop;nop;nop;nop',
 `	nop;nop;nop;nop;nop;nop;nop;nop;nop;nop;nop')
 
-L(f2):	mulx(	(up), %r10, %r8)
+L(f2):	X86_ENDBR
+	mulx(	(up), %r10, %r8)
 	lea	8(up), up
 	lea	8(rp), rp
 	mulx(	(up), %r9, %rax)
@@ -200,7 +207,8 @@ L(b3):	adox(	48,(rp), %r9)
 	mulx(	(up), %r9, %rax)
 	jmp	L(top)
 
-L(f7):	mulx(	(up), %r9, %rax)
+L(f7):	X86_ENDBR
+	mulx(	(up), %r9, %rax)
 	lea	-16(up), up
 	lea	-16(rp), rp
 	jmp	L(b7)

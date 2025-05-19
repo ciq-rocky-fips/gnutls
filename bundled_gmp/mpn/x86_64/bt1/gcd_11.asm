@@ -117,3 +117,4 @@ L(count_better):
 	bsf	u0, cnt
 	jmp	L(shr)
 EPILOGUE()
+ASM_END()

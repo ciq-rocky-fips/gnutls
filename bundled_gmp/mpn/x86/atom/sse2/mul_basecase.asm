@@ -499,3 +499,4 @@ L(done):
 	pop	%edi
 	ret
 EPILOGUE()
+ASM_END()

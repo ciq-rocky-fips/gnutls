@@ -234,3 +234,4 @@ HAM(`	nop			C code alignment')
 	ret
 
 EPILOGUE()
+ASM_END()

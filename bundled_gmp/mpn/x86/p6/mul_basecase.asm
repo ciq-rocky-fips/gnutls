@@ -524,7 +524,7 @@ L(unroll_outer_entry):
 	xorl	%eax, %ebx		C carries other way for odd index
 	xorl	%eax, %ecx
 
-	jmp	*%edx
+	X86_NOTRACK jmp	*%edx
 
 
 C -----------------------------------------------------------------------------
@@ -605,3 +605,4 @@ deflit(`disp1', eval(disp0 + 4))
 	ret
 
 EPILOGUE()
+ASM_END()

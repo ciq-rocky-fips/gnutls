@@ -97,3 +97,4 @@ PROLOGUE(mpn_copyi)
 	ret
 
 EPILOGUE()
+ASM_END()

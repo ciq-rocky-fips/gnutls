@@ -309,3 +309,4 @@ L(end):	test	$1, R8(n)
 1:	FUNC_EXIT()
 	ret
 EPILOGUE()
+ASM_END()

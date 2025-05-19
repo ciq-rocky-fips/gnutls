@@ -600,3 +600,4 @@ deflit(`disp1', eval(disp0-0 + 4))
 	ret
 
 EPILOGUE()
+ASM_END()

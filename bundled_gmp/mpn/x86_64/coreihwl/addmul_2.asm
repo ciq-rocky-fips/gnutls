@@ -239,3 +239,4 @@ L(end):	mulx(	v0, %rax, w3)
 	FUNC_EXIT()
 	ret
 EPILOGUE()
+ASM_END()

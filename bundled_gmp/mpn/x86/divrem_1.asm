@@ -231,3 +231,4 @@ deflit(`FRAME',8)
 	popl	%edi
 	ret
 EPILOGUE()
+ASM_END()

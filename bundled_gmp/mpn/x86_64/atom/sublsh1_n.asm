@@ -240,3 +240,4 @@ IFDOS(`	mov	56(%rsp), %r8	')
 	sbb	R32(%rbp), R32(%rbp)	C save acy
 	jmp	L(ent)
 EPILOGUE()
+ASM_END()

@@ -161,3 +161,4 @@ L(b00):	pop	%ebp
 	emms
 	ret
 EPILOGUE()
+ASM_END()

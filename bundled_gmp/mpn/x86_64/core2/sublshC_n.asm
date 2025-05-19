@@ -156,3 +156,4 @@ L(end):	shr	$RSH, %r11
 	FUNC_EXIT()
 	ret
 EPILOGUE()
+ASM_END()

@@ -194,3 +194,4 @@ L(ret):	mov	R32(%rbx), R32(%rax)
 	FUNC_EXIT()
 	ret
 EPILOGUE()
+ASM_END()

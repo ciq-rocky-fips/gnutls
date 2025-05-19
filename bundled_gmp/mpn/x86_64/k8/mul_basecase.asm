@@ -335,8 +335,10 @@ C     addmul_2 for remaining vp's
 	C adjusted value of n that is reloaded on each iteration
 
 L(addmul_outer_0):
+	X86_ENDBR
 	add	$3, un
 	lea	0(%rip), outer_addr
+	X86_ENDBR
 
 	mov	un, n
 	mov	-24(up,un,8), %rax
@@ -348,6 +350,7 @@ L(addmul_outer_0):
 	jmp	L(addmul_entry_0)
 
 L(addmul_outer_1):
+	X86_ENDBR
 	mov	un, n
 	mov	(up,un,8), %rax
 	mul	v0
@@ -358,8 +361,10 @@ L(addmul_outer_1):
 	jmp	L(addmul_entry_1)
 
 L(addmul_outer_2):
+	X86_ENDBR
 	add	$1, un
 	lea	0(%rip), outer_addr
+	X86_ENDBR
 
 	mov	un, n
 	mov	-8(up,un,8), %rax
@@ -372,8 +377,10 @@ L(addmul_outer_2):
 	jmp	L(addmul_entry_2)
 
 L(addmul_outer_3):
+	X86_ENDBR
 	add	$2, un
 	lea	0(%rip), outer_addr
+	X86_ENDBR
 
 	mov	un, n
 	mov	-16(up,un,8), %rax
@@ -467,3 +474,4 @@ L(ret):	pop	%r15
 	ret
 
 EPILOGUE()
+ASM_END()

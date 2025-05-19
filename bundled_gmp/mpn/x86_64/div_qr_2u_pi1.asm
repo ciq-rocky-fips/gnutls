@@ -198,3 +198,4 @@ L(fix_qh):	C Unlikely update. u2 >= d1
 	sbb	d1, u2
 	jmp	L(bck_qh)
 EPILOGUE()
+ASM_END()

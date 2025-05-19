@@ -95,6 +95,7 @@ m4_assert_numargs(1)
 	TYPE($1,`function')
 	COFF_TYPE($1)
 $1:
+	X86_ENDBR
 ')
 
 
@@ -166,6 +167,10 @@ ifdef(`PIC',
 ,
 	`lea	$1(%rip), $2')
 ')
+
+dnl ASM_END
+
+define(`ASM_END', `X86_GNU_PROPERTY')
 
 
 define(`DEF_OBJECT',

@@ -191,3 +191,4 @@ L(end):	shrd	$1, %rbx, %rbp
 	FUNC_EXIT()
 	ret
 EPILOGUE()
+ASM_END()

@@ -90,3 +90,4 @@ L(end):	shr	R32(n)
 	mov	%r9, 16(rp)
 1:	ret
 EPILOGUE()
+ASM_END()

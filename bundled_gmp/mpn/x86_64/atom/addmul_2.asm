@@ -184,3 +184,4 @@ L(end):	mul	v1
 	FUNC_EXIT()
 	ret
 EPILOGUE()
+ASM_END()

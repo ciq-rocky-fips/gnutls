@@ -202,3 +202,4 @@ IFDOS(`	add	$88, %rsp	')
 	FUNC_EXIT()
 	ret
 EPILOGUE()
+ASM_END()

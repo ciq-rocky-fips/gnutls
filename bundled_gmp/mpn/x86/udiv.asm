@@ -50,3 +50,4 @@ deflit(`FRAME',0)
 	movl	%edx, (%ecx)
 	ret
 EPILOGUE()
+ASM_END()

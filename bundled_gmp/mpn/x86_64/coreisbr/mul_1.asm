@@ -197,3 +197,4 @@ L(00c):	add	cin, %r10
 	mov	8(up,n,8), %rax
 	jmp	L(L0c)
 EPILOGUE()
+ASM_END()

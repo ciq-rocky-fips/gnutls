@@ -239,3 +239,4 @@ ifdef(`SHLD_SLOW',`
 	FUNC_EXIT()
 	ret
 EPILOGUE()
+ASM_END()

@@ -414,3 +414,4 @@ L(ret2):pop	%rbp
 	FUNC_EXIT()
 	ret
 EPILOGUE()
+ASM_END()

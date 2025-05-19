@@ -382,3 +382,4 @@ L(n3):	mov	(vp_param), %r9
 	FUNC_EXIT()
 	ret
 EPILOGUE()
+ASM_END()

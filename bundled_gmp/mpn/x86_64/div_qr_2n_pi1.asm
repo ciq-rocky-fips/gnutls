@@ -156,3 +156,4 @@ L(fix):	C Unlikely update. u2 >= d1
 	sbb	d1, u2
 	jmp	L(bck)
 EPILOGUE()
+ASM_END()

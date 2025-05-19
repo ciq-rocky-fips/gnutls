@@ -114,3 +114,4 @@ L(end):	add	%r10, %r8
 	FUNC_EXIT()
 	ret
 EPILOGUE()
+ASM_END()

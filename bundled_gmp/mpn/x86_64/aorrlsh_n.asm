@@ -174,3 +174,4 @@ L(end):	add	R32(%rbx), R32(%rbx)
 	FUNC_EXIT()
 	ret
 EPILOGUE()
+ASM_END()

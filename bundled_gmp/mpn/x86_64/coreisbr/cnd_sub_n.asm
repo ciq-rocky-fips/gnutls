@@ -198,3 +198,4 @@ L(end):	neg	R32(%rax)
 	FUNC_EXIT()
 	ret
 EPILOGUE()
+ASM_END()

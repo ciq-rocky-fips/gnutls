@@ -180,3 +180,4 @@ L(eod):	paddq	%mm6, %mm4		C add 0xFFFFFFFE00000001
 	movd	%mm0, 8(%edx)		C result
 	jmp	L(rt)
 EPILOGUE()
+ASM_END()

@@ -765,3 +765,4 @@ L(fraction_top):
 	jmp	L(fraction_done)
 
 EPILOGUE()
+ASM_END()

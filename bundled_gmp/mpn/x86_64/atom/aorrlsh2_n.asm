@@ -189,3 +189,4 @@ ifdef(`OPERATION_rsblsh2_n',`
 	FUNC_EXIT()
 	ret
 EPILOGUE()
+ASM_END()

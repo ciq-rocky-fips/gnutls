@@ -256,3 +256,4 @@ L(even):
 	ret
 
 EPILOGUE()
+ASM_END()

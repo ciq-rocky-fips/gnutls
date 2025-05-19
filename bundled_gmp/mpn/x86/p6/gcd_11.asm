@@ -81,3 +81,4 @@ L(end):	mov	%edx, %eax
 	pop	%edi
 	ret
 EPILOGUE()
+ASM_END()

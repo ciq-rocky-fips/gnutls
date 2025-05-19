@@ -125,3 +125,4 @@ L(end):	shl	R8(%rcx), %r10
 	FUNC_EXIT()
 	ret
 EPILOGUE()
+ASM_END()

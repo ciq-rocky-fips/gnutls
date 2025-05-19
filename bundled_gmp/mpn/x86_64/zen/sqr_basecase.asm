@@ -480,3 +480,4 @@ C	pop	%r14
 	FUNC_EXIT()
 	ret
 EPILOGUE()
+ASM_END()

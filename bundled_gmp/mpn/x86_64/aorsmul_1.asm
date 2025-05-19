@@ -188,3 +188,4 @@ IFDOS(``pop	%rdi		'')
 IFDOS(``pop	%rsi		'')
 	ret
 EPILOGUE()
+ASM_END()

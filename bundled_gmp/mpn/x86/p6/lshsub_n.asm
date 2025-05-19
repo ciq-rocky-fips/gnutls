@@ -82,7 +82,7 @@ L(here):
 	pxor	%mm1, %mm1
 	pxor	%mm0, %mm0
 
-	jmp	*%eax
+	X86_NOTRACK jmp	*%eax
 
 ifdef(`PIC',`
 L(pic_calc):
@@ -167,3 +167,4 @@ L(ent):	mov	   0(up,n,4), %eax
 	jmp	   L(top)
 
 EPILOGUE()
+ASM_END()

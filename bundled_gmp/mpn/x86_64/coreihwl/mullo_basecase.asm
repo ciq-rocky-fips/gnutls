@@ -420,3 +420,4 @@ L(n3):	mov	(vp), %r9
 	FUNC_EXIT()
 	ret
 EPILOGUE()
+ASM_END()

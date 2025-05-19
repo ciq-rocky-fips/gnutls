@@ -174,3 +174,4 @@ L(ast):	mov	(up), %r10
 	FUNC_EXIT()
 	ret
 EPILOGUE()
+ASM_END()

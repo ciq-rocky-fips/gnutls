@@ -167,3 +167,4 @@ L(ast):	movq	(up), %mm2
 	FUNC_EXIT()
 	ret
 EPILOGUE()
+ASM_END()

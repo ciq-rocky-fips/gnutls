@@ -104,3 +104,4 @@ L(end):	shll	%cl,%ebx		C compute least significant limb
 	ret
 
 EPILOGUE()
+ASM_END()

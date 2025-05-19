@@ -215,3 +215,4 @@ L(cj1):	mov	%r9, 8(rp,n,8)
 	FUNC_EXIT()
 	ret
 EPILOGUE()
+ASM_END()

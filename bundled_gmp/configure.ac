@@ -3813,6 +3813,7 @@ yes
 	  esac
           ;;
       esac
+      GMP_ASM_X86_CET_MACROS($ABI)
       ;;
   esac
 fi

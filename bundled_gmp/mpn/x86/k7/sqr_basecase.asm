@@ -633,3 +633,4 @@ L(diag):
 	ret
 
 EPILOGUE()
+ASM_END()

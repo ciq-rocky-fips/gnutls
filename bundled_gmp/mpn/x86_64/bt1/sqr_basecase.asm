@@ -563,3 +563,4 @@ L(esd):	add	%rbx, w0
 	FUNC_EXIT()
 	ret
 EPILOGUE()
+ASM_END()

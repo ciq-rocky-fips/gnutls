@@ -219,3 +219,4 @@ PROLOGUE(mpn_mod_1_1p_cps)
 	pop	%ebp
 	ret
 EPILOGUE()
+ASM_END()

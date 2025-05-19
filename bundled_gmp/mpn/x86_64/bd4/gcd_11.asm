@@ -94,3 +94,4 @@ L(end):	C rax = result
 	FUNC_EXIT()
 	ret
 EPILOGUE()
+ASM_END()

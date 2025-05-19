@@ -347,6 +347,7 @@ L(m2e0):mul	v1
 	jz	L(ret2)
 
 L(do_am0):
+	X86_ENDBR
 	push	%r15
 	push	vn_param
 
@@ -520,6 +521,7 @@ L(m2e1):mul	v1
 	jz	L(ret2)
 
 L(do_am1):
+	X86_ENDBR
 	push	%r15
 	push	vn_param
 
@@ -693,6 +695,7 @@ L(m2e2):mul	v1
 	jz	L(ret2)
 
 L(do_am2):
+	X86_ENDBR
 	push	%r15
 	push	vn_param
 
@@ -866,6 +869,7 @@ L(m2e3):mul	v1
 	jz	L(ret2)
 
 L(do_am3):
+	X86_ENDBR
 	push	%r15
 	push	vn_param
 
@@ -973,3 +977,4 @@ L(lo3):	mul	v0
 	FUNC_EXIT()
 	ret
 EPILOGUE()
+ASM_END()

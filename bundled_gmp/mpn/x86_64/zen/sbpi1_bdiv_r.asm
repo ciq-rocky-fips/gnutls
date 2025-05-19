@@ -505,3 +505,4 @@ L(ret):	mov	%rbp, %rax
 	pop	%r15
 	ret
 EPILOGUE()
+ASM_END()

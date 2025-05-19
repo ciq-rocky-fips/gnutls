@@ -127,3 +127,4 @@ L(b1):	add	$-4, %ebp
 	pop	%esi
 	ret
 EPILOGUE()
+ASM_END()

@@ -199,3 +199,4 @@ L(bc):	dec	R32(n)
 	FUNC_EXIT()
 	ret
 EPILOGUE()
+ASM_END()

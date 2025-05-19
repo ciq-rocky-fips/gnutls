@@ -93,3 +93,4 @@ L(top):	movd	(%ebx,%ecx,4), %mm2
 	ret
 
 EPILOGUE()
+ASM_END()

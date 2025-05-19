@@ -169,3 +169,4 @@ L(one):
 
 EPILOGUE(mpn_modexact_1c_odd)
 EPILOGUE(mpn_modexact_1_odd)
+ASM_END()

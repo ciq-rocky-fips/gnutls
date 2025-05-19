@@ -207,3 +207,4 @@ PROLOGUE(__gmpn_cpuid)
 	FUNC_EXIT()
 	ret
 EPILOGUE()
+ASM_END()

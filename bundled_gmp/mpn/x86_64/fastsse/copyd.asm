@@ -164,3 +164,4 @@ L(sma):	test	$8, R8(n)
 L(don):	FUNC_EXIT()
 	ret
 EPILOGUE()
+ASM_END()

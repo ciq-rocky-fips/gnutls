@@ -170,3 +170,4 @@ ifelse(ADDSUB,add,`
 	FUNC_EXIT()
 	ret
 EPILOGUE()
+ASM_END()

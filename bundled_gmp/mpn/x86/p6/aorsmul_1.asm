@@ -240,7 +240,7 @@ L(here):
 	cmovnz(	%ebx, %ecx)	C high,low carry other way around
 	cmovnz(	%eax, %ebx)
 
-	jmp	*%edx
+	X86_NOTRACK jmp	*%edx
 
 
 ifdef(`PIC',`
@@ -318,3 +318,4 @@ deflit(`disp0',	eval(UNROLL_BYTES ifelse(UNROLL_BYTES,256,-128)))
 	ret
 
 EPILOGUE()
+ASM_END()

@@ -79,7 +79,7 @@ C	neg	R32(%rcx)
 
 	lea	L(top)(%rip), %rdx
 	lea	(%rdx,%rcx,2), %rdx
-	jmp	*%rdx
+	X86_NOTRACK jmp	*%rdx
 ',`
 	lea	(up,n,8), up
 
@@ -101,7 +101,7 @@ C	lea	(%rcx,%rcx,4), %rcx	C 10x
 
 	lea	L(top)(%rip), %rdx
 	add	%rcx, %rdx
-	jmp	*%rdx
+	X86_NOTRACK jmp	*%rdx
 ')
 
 	ALIGN(32)
@@ -136,3 +136,4 @@ C 1 = n mod 8
 	FUNC_EXIT()
 	ret
 EPILOGUE()
+ASM_END()

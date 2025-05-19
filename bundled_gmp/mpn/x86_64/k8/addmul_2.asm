@@ -193,3 +193,4 @@ L(end):	xor	R32(w1), R32(w1)
 	FUNC_EXIT()
 	ret
 EPILOGUE()
+ASM_END()

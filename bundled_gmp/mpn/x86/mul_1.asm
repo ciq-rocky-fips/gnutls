@@ -138,3 +138,4 @@ L(end):	movl	%ebx,%eax
 	ret
 
 EPILOGUE()
+ASM_END()

@@ -188,3 +188,4 @@ L(done_0):
 	ret
 
 EPILOGUE()
+ASM_END()

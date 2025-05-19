@@ -369,3 +369,4 @@ L(small_done):
 	ret
 
 EPILOGUE()
+ASM_END()

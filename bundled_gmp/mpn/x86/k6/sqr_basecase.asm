@@ -678,3 +678,4 @@ L(pic_calc):
 
 
 EPILOGUE()
+ASM_END()

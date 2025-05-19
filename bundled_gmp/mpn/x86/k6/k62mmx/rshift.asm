@@ -291,3 +291,4 @@ L(finish_even):
 	ret
 
 EPILOGUE()
+ASM_END()

@@ -112,7 +112,7 @@ L(0a):	leal	(%eax,%eax,8),%eax
 	shrl	%ebp			C shift bit 0 into carry
 	popl	%ebp		FRAME_popl()
 
-	jmp	*%eax			C jump into loop
+	X86_NOTRACK jmp	*%eax			C jump into loop
 
 EPILOGUE()
 
@@ -153,7 +153,7 @@ L(0b):	leal	(%eax,%eax,8),%eax
 	C Calculate start address in loop for non-PIC.
 	leal	L(oop)-3(%eax,%eax,8),%eax
 ')
-	jmp	*%eax			C jump into loop
+	X86_NOTRACK jmp	*%eax			C jump into loop
 
 L(oopgo):
 	pushl	%ebp		FRAME_pushl()
@@ -200,3 +200,4 @@ L(oop):	movl	(%esi),%eax
 	ret
 
 EPILOGUE()
+ASM_END()

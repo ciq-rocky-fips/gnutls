@@ -176,3 +176,4 @@ L(end):	lea	32(up), up
 	FUNC_EXIT()
 	ret
 EPILOGUE()
+ASM_END()

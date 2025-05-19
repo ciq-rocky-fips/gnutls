@@ -660,3 +660,4 @@ L(oel3):
 	pop	%esi			C				   3
 	ret				C				   3
 EPILOGUE()
+ASM_END()

@@ -93,3 +93,4 @@ L(e10):	movq	24(up,n,8), %r9
 L(ret):	FUNC_EXIT()
 	ret
 EPILOGUE()
+ASM_END()

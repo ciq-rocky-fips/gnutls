@@ -241,3 +241,4 @@ L(L1):	movl	%edx,(%edi)		C store last limb
 	ret
 
 EPILOGUE()
+ASM_END()

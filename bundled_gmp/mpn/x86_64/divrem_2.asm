@@ -190,3 +190,4 @@ L(fix):	seta	%dl
 	sbb	%r11, %rbx
 	jmp	L(bck)
 EPILOGUE()
+ASM_END()

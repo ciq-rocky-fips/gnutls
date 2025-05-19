@@ -447,7 +447,7 @@ define(cmovX,`ifelse(eval(UNROLL_COUNT%2),1,`cmovz($@)',`cmovnz($@)')')
 	cmovX(	%ebx, %ecx)	C high carry reverse
 	cmovX(	%eax, %ebx)	C low carry reverse
 	movl	%edx, VAR_JMP
-	jmp	*%edx
+	X86_NOTRACK jmp	*%edx
 
 
 	C Must be on an even address here so the low bit of the jump address
@@ -647,3 +647,4 @@ L(pic_calc):
 
 
 EPILOGUE()
+ASM_END()

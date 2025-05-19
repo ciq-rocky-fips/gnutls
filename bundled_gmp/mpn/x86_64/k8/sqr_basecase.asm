@@ -131,7 +131,8 @@ L(tab):	JMPENT(	L(4), L(tab))
 	JMPENT(	L(3m4), L(tab))
 	TEXT
 
-L(1):	mov	(up), %rax
+L(1):	X86_ENDBR
+	mov	(up), %rax
 	mul	%rax
 	add	$40, %rsp
 	mov	%rax, (rp)
@@ -139,7 +140,8 @@ L(1):	mov	(up), %rax
 	FUNC_EXIT()
 	ret
 
-L(2):	mov	(up), %rax
+L(2):	X86_ENDBR
+	mov	(up), %rax
 	mov	%rax, %r8
 	mul	%rax
 	mov	8(up), %r11
@@ -165,7 +167,8 @@ L(2):	mov	(up), %rax
 	FUNC_EXIT()
 	ret
 
-L(3):	mov	(up), %rax
+L(3):	X86_ENDBR
+	mov	(up), %rax
 	mov	%rax, %r10
 	mul	%rax
 	mov	8(up), %r11
@@ -210,7 +213,8 @@ L(3):	mov	(up), %rax
 	FUNC_EXIT()
 	ret
 
-L(4):	mov	(up), %rax
+L(4):	X86_ENDBR
+	mov	(up), %rax
 	mov	%rax, %r11
 	mul	%rax
 	mov	8(up), %rbx
@@ -282,6 +286,7 @@ L(4):	mov	(up), %rax
 
 
 L(0m4):
+	X86_ENDBR
 	lea	-16(rp,n,8), tp		C point tp in middle of result operand
 	mov	(up), v0
 	mov	8(up), %rax
@@ -340,6 +345,7 @@ L(L3):	xor	R32(w1), R32(w1)
 
 
 L(1m4):
+	X86_ENDBR
 	lea	8(rp,n,8), tp		C point tp in middle of result operand
 	mov	(up), v0		C u0
 	mov	8(up), %rax		C u1
@@ -418,6 +424,7 @@ L(m2x):	mov	(up,j,8), %rax
 
 
 L(2m4):
+	X86_ENDBR
 	lea	-16(rp,n,8), tp		C point tp in middle of result operand
 	mov	(up), v0
 	mov	8(up), %rax
@@ -474,7 +481,7 @@ L(L1):	xor	R32(w0), R32(w0)
 	jmp	L(dowhile_mid)
 
 
-L(3m4):
+L(3m4):	X86_ENDBR
 	lea	8(rp,n,8), tp		C point tp in middle of result operand
 	mov	(up), v0		C u0
 	mov	8(up), %rax		C u1
@@ -805,3 +812,4 @@ L(d1):	mov	%r11, 24(rp,j,8)
 	FUNC_EXIT()
 	ret
 EPILOGUE()
+ASM_END()

@@ -223,3 +223,4 @@ L(end):
 	pop	%rbx
 	ret
 EPILOGUE()
+ASM_END()

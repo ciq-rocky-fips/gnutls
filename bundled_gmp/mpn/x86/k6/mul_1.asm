@@ -290,3 +290,4 @@ L(finish_not_one):
 	ret
 
 EPILOGUE()
+ASM_END()

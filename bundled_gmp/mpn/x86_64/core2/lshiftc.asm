@@ -157,3 +157,4 @@ L(1):	shl	R8(cnt), %r9
 	FUNC_EXIT()
 	ret
 EPILOGUE()
+ASM_END()

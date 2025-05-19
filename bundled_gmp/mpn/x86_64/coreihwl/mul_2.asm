@@ -174,3 +174,4 @@ L(end):	mulx(	v1, %rdx, %rax)
 	FUNC_EXIT()
 	ret
 EPILOGUE()
+ASM_END()

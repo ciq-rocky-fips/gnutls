@@ -164,3 +164,4 @@ C CAUTION: This is the same code as in k7/mod_1_1.asm
 	pop	%ebp
 	ret
 EPILOGUE()
+ASM_END()

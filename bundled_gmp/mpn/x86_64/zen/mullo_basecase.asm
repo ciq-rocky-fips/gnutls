@@ -297,3 +297,4 @@ L(lo0):	.byte	0xc4,0xe2,0xe3,0xf6,0x44,0xce,0x18	C mulx 24(up,n,8), %rbx, %rax
 	inc	%r14
 	jmp	L(outer)
 EPILOGUE()
+ASM_END()

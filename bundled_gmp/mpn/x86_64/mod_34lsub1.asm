@@ -145,46 +145,55 @@ L(tab):	JMPENT(	L(0), L(tab))
 	JMPENT(	L(8), L(tab))
 	TEXT
 
-L(6):	add	(ap), %rax
+L(6):	X86_ENDBR
+	add	(ap), %rax
 	adc	8(ap), %rcx
 	adc	16(ap), %rdx
 	adc	$0, %r9
 	add	$24, ap
-L(3):	add	(ap), %rax
+L(3):	X86_ENDBR
+	add	(ap), %rax
 	adc	8(ap), %rcx
 	adc	16(ap), %rdx
 	jmp	L(cj1)
 
-L(7):	add	(ap), %rax
+L(7):	X86_ENDBR
+	add	(ap), %rax
 	adc	8(ap), %rcx
 	adc	16(ap), %rdx
 	adc	$0, %r9
 	add	$24, ap
-L(4):	add	(ap), %rax
+L(4):	X86_ENDBR
+	add	(ap), %rax
 	adc	8(ap), %rcx
 	adc	16(ap), %rdx
 	adc	$0, %r9
 	add	$24, ap
-L(1):	add	(ap), %rax
+L(1):	X86_ENDBR
+	add	(ap), %rax
 	adc	$0, %rcx
 	jmp	L(cj2)
 
-L(8):	add	(ap), %rax
+L(8):	X86_ENDBR
+	add	(ap), %rax
 	adc	8(ap), %rcx
 	adc	16(ap), %rdx
 	adc	$0, %r9
 	add	$24, ap
-L(5):	add	(ap), %rax
+L(5):	X86_ENDBR
+	add	(ap), %rax
 	adc	8(ap), %rcx
 	adc	16(ap), %rdx
 	adc	$0, %r9
 	add	$24, ap
-L(2):	add	(ap), %rax
+L(2):	X86_ENDBR
+	add	(ap), %rax
 	adc	8(ap), %rcx
 
 L(cj2):	adc	$0, %rdx
 L(cj1):	adc	$0, %r9
-L(0):	add	%r9, %rax
+L(0):	X86_ENDBR
+	add	%r9, %rax
 	adc	$0, %rcx
 	adc	$0, %rdx
 	adc	$0, %rax
@@ -213,3 +222,4 @@ L(0):	add	%r9, %rax
 	FUNC_EXIT()
 	ret
 EPILOGUE()
+ASM_END()

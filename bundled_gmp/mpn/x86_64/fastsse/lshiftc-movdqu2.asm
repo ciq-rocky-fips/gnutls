@@ -191,3 +191,4 @@ L(end8):movq	(ap), %xmm0
 	FUNC_EXIT()
 	ret
 EPILOGUE()
+ASM_END()

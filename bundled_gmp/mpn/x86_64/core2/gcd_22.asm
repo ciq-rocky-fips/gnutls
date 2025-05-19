@@ -135,3 +135,4 @@ L(end):	C mov	v0, %rax
 	FUNC_EXIT()
 	ret
 EPILOGUE()
+ASM_END()

@@ -187,3 +187,4 @@ PROLOGUE(mpn_addmul_1c)
 	movd	20(%esp), %mm6
 	jmp	L(ent)
 EPILOGUE()
+ASM_END()

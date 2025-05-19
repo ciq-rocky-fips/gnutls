@@ -187,3 +187,4 @@ L(end):	mov	%rbx, (rp)
 	FUNC_EXIT()
 	ret
 EPILOGUE()
+ASM_END()

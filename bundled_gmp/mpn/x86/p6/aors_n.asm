@@ -90,7 +90,7 @@ L(here):
 ')
 
 	shr	%edx				C set cy flag
-	jmp	*%eax
+	X86_NOTRACK jmp	*%eax
 
 ifdef(`PIC',`
 L(pic_calc):
@@ -154,3 +154,4 @@ PROLOGUE(func_nc)
 	movl	20(%esp), %edx
 	jmp	L(start)
 EPILOGUE()
+ASM_END()

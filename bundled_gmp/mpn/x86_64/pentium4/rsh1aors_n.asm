@@ -332,3 +332,4 @@ L(cj1):	or	%r14, %rbx
 L(c3):	mov	$1, R8(%rax)
 	jmp	L(rc3)
 EPILOGUE()
+ASM_END()

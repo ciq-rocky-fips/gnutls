@@ -112,3 +112,4 @@ L(shift_alot):
 	mov	u0, %rdx
 	jmp	L(mid)
 EPILOGUE()
+ASM_END()

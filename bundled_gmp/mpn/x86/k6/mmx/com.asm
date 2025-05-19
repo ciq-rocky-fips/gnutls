@@ -101,3 +101,4 @@ L(no_extra):
 	ret
 
 EPILOGUE()
+ASM_END()

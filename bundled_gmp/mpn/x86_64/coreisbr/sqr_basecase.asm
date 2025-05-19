@@ -482,3 +482,4 @@ L(dend):add	%r8, %r10
 	FUNC_EXIT()
 	ret
 EPILOGUE()
+ASM_END()

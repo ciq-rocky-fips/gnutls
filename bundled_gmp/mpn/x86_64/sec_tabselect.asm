@@ -174,3 +174,4 @@ L(b00):	pop	%r15
 	FUNC_EXIT()
 	ret
 EPILOGUE()
+ASM_END()

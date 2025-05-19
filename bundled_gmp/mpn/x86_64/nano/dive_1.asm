@@ -164,3 +164,4 @@ L(one):	shr	R8(%rcx), %rax
 	FUNC_EXIT()
 	ret
 EPILOGUE()
+ASM_END()

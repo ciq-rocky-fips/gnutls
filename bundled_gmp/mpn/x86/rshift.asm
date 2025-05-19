@@ -106,3 +106,4 @@ L(end):	shrl	%cl,%ebx		C compute most significant limb
 	ret
 
 EPILOGUE()
+ASM_END()

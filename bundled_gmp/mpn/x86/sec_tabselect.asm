@@ -113,3 +113,4 @@ L(outer_end):
 	pop	%edi
 	ret
 EPILOGUE()
+ASM_END()

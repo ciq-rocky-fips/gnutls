@@ -108,48 +108,56 @@ L(tab):	JMPENT(	L(f0), L(tab))
 	JMPENT(	L(f7), L(tab))
 	TEXT
 
-L(f0):	mulx(	(up), %r10, %r8)
+L(f0):	X86_ENDBR
+	mulx(	(up), %r10, %r8)
 	lea	56(up), up
 	lea	-8(rp), rp
 	jmp	L(b0)
 
-L(f3):	mulx(	(up), %r9, %rax)
+L(f3):	X86_ENDBR
+	mulx(	(up), %r9, %rax)
 	lea	16(up), up
 	lea	16(rp), rp
 	inc	n
 	jmp	L(b3)
 
-L(f4):	mulx(	(up), %r10, %r8)
+L(f4):	X86_ENDBR
+	mulx(	(up), %r10, %r8)
 	lea	24(up), up
 	lea	24(rp), rp
 	inc	n
 	jmp	L(b4)
 
-L(f5):	mulx(	(up), %r9, %rax)
+L(f5):	X86_ENDBR
+	mulx(	(up), %r9, %rax)
 	lea	32(up), up
 	lea	32(rp), rp
 	inc	n
 	jmp	L(b5)
 
-L(f6):	mulx(	(up), %r10, %r8)
+L(f6):	X86_ENDBR
+	mulx(	(up), %r10, %r8)
 	lea	40(up), up
 	lea	40(rp), rp
 	inc	n
 	jmp	L(b6)
 
-L(f7):	mulx(	(up), %r9, %rax)
+L(f7):	X86_ENDBR
+	mulx(	(up), %r9, %rax)
 	lea	48(up), up
 	lea	48(rp), rp
 	inc	n
 	jmp	L(b7)
 
-L(f1):	mulx(	(up), %r9, %rax)
+L(f1):	X86_ENDBR
+	mulx(	(up), %r9, %rax)
 	test	n, n
 	jnz	L(b1)
 L(1):	mov	%r9, (rp)
 	ret
 
-L(f2):	mulx(	(up), %r10, %r8)
+L(f2):	X86_ENDBR
+	mulx(	(up), %r10, %r8)
 	lea	8(up), up
 	lea	8(rp), rp
 	mulx(	(up), %r9, %rax)

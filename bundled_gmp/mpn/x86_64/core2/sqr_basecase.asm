@@ -982,3 +982,4 @@ L(n3):	mov	%rax, %r10
 	FUNC_EXIT()
 	ret
 EPILOGUE()
+ASM_END()

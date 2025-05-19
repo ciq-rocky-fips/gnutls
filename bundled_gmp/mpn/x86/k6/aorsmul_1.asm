@@ -389,3 +389,4 @@ Zdisp(	M4_inst,%ecx, disp0,(%edi))
 	ret
 
 EPILOGUE()
+ASM_END()

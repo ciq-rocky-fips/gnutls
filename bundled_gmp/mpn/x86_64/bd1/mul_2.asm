@@ -193,3 +193,4 @@ L(end):	mov	-8(up), %rax
 	FUNC_EXIT()
 	ret
 EPILOGUE()
+ASM_END()

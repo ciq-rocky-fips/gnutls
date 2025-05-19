@@ -3135,6 +3135,106 @@ __sparc_get_pc_thunk.l7:
 GMP_DEFINE_RAW(["define(<HAVE_SHARED_THUNKS>,<$gmp_cv_asm_sparc_shared_thunks>)"])
 ])
 
+dnl  GMP_ASM_X86_CET_MACROS(ABI)
+dnl  ------------
+dnl  Define
+dnl  1. X86_ENDBR for endbr32/endbr64.
+dnl  2. X86_NOTRACK for notrack prefix.
+dnl  3. X86_GNU_PROPERTY to add a .note.gnu.property section to mark
+dnl  Intel CET support if needed.
+dnl	.section ".note.gnu.property", "a"
+dnl	.p2align POINTER-ALIGN
+dnl	.long 1f - 0f
+dnl	.long 4f - 1f
+dnl	.long 5
+dnl 0:
+dnl	.asciz "GNU"
+dnl 1:
+dnl	.p2align POINTER-ALIGN
+dnl	.long 0xc0000002
+dnl	.long 3f - 2f
+dnl 2:
+dnl	.long 3
+dnl 3:
+dnl	.p2align POINTER-ALIGN
+dnl 4:
+AC_DEFUN([GMP_ASM_X86_CET_MACROS],[
+dnl AC_REQUIRE([AC_PROG_CC]) GMP uses something else
+AC_CACHE_CHECK([if Intel CET is enabled],
+  gmp_cv_asm_x86_intel_cet, [dnl
+  cat > conftest.c <<EOF
+#ifndef __CET__
+#error Intel CET is not enabled
+#endif
+EOF
+  if AC_TRY_COMMAND([${CC} $CFLAGS $CPPFLAGS
+                     -S -o conftest.s conftest.c >/dev/null])
+  then
+    gmp_cv_asm_x86_intel_cet=yes
+  else
+    gmp_cv_asm_x86_intel_cet=no
+  fi
+  rm -f conftest*])
+  if test "$gmp_cv_asm_x86_intel_cet" = yes; then
+    case $1 in
+    32)
+      endbr=endbr32
+      p2align=2
+      ;;
+    64)
+      endbr=endbr64
+      p2align=3
+      ;;
+    x32)
+      endbr=endbr64
+      p2align=2
+      ;;
+    esac
+    AC_CACHE_CHECK([if .note.gnu.property section is needed],
+      gmp_cv_asm_x86_gnu_property, [dnl
+      cat > conftest.c <<EOF
+#if !defined __ELF__ || !defined __CET__
+#error GNU property is not needed
+#endif
+EOF
+      if AC_TRY_COMMAND([${CC} $CFLAGS $CPPFLAGS
+			-S -o conftest.s conftest.c >/dev/null])
+      then
+	gmp_cv_asm_x86_gnu_property=yes
+      else
+	gmp_cv_asm_x86_gnu_property=no
+      fi
+      rm -f conftest*])
+    echo ["define(<X86_ENDBR>,<$endbr>)"] >> $gmp_tmpconfigm4
+    echo ["define(<X86_NOTRACK>,<notrack>)"] >> $gmp_tmpconfigm4
+  else
+    gmp_cv_asm_x86_gnu_property=no
+    echo ["define(<X86_ENDBR>,<>)"] >> $gmp_tmpconfigm4
+    echo ["define(<X86_NOTRACK>,<>)"] >> $gmp_tmpconfigm4
+  fi
+  if test "$gmp_cv_asm_x86_gnu_property" = yes; then
+    echo ["define(<X86_GNU_PROPERTY>, <
+	.section \".note.gnu.property\", \"a\"
+	.p2align $p2align
+	.long 1f - 0f
+	.long 4f - 1f
+	.long 5
+0:
+	.asciz \"GNU\"
+1:
+	.p2align $p2align
+	.long 0xc0000002
+	.long 3f - 2f
+2:
+	.long 3
+3:
+	.p2align $p2align
+4:>)"] >> $gmp_tmpconfigm4
+  else
+    echo ["define(<X86_GNU_PROPERTY>,<>)"] >> $gmp_tmpconfigm4
+  fi
+])
+
 
 dnl  GMP_C_ATTRIBUTE_CONST
 dnl  ---------------------

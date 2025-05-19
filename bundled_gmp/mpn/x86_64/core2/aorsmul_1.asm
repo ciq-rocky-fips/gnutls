@@ -186,3 +186,4 @@ L(n1):	mov	8(rp), %r10
 	FUNC_EXIT()
 	ret
 EPILOGUE()
+ASM_END()

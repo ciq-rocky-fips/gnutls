@@ -211,3 +211,4 @@ L(loaded):
 	ret
 
 EPILOGUE()
+ASM_END()

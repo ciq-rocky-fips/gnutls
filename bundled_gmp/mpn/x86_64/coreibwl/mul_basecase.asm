@@ -157,45 +157,53 @@ ifdef(`PIC',
 	jmp	*(%r10,%rax,8)
 ')
 
-L(mf0):	mulx(	(up), w2, w3)
+L(mf0):	X86_ENDBR
+	mulx(	(up), w2, w3)
 	lea	56(up), up
 	lea	-8(rp), rp
 	jmp	L(mb0)
 
-L(mf3):	mulx(	(up), w0, w1)
+L(mf3):	X86_ENDBR
+	mulx(	(up), w0, w1)
 	lea	16(up), up
 	lea	16(rp), rp
 	inc	n
 	jmp	L(mb3)
 
-L(mf4):	mulx(	(up), w2, w3)
+L(mf4):	X86_ENDBR
+	mulx(	(up), w2, w3)
 	lea	24(up), up
 	lea	24(rp), rp
 	inc	n
 	jmp	L(mb4)
 
-L(mf5):	mulx(	(up), w0, w1)
+L(mf5):	X86_ENDBR
+	mulx(	(up), w0, w1)
 	lea	32(up), up
 	lea	32(rp), rp
 	inc	n
 	jmp	L(mb5)
 
-L(mf6):	mulx(	(up), w2, w3)
+L(mf6):	X86_ENDBR
+	mulx(	(up), w2, w3)
 	lea	40(up), up
 	lea	40(rp), rp
 	inc	n
 	jmp	L(mb6)
 
-L(mf7):	mulx(	(up), w0, w1)
+L(mf7):	X86_ENDBR
+	mulx(	(up), w0, w1)
 	lea	48(up), up
 	lea	48(rp), rp
 	inc	n
 	jmp	L(mb7)
 
-L(mf1):	mulx(	(up), w0, w1)
+L(mf1):	X86_ENDBR
+	mulx(	(up), w0, w1)
 	jmp	L(mb1)
 
-L(mf2):	mulx(	(up), w2, w3)
+L(mf2):	X86_ENDBR
+	mulx(	(up), w2, w3)
 	lea	8(up), up
 	lea	8(rp), rp
 	mulx(	(up), w0, w1)
@@ -256,32 +264,39 @@ L(outer):
 	lea	8(vp), vp
 	jmp	*jaddr
 
-L(f0):	mulx(	8,(up), w2, w3)
+L(f0):	X86_ENDBR
+	mulx(	8,(up), w2, w3)
 	lea	8(rp,unneg,8), rp
 	lea	-1(n), n
 	jmp	L(b0)
 
-L(f3):	mulx(	-16,(up), w0, w1)
+L(f3):	X86_ENDBR
+	mulx(	-16,(up), w0, w1)
 	lea	-56(rp,unneg,8), rp
 	jmp	L(b3)
 
-L(f4):	mulx(	-24,(up), w2, w3)
+L(f4):	X86_ENDBR
+	mulx(	-24,(up), w2, w3)
 	lea	-56(rp,unneg,8), rp
 	jmp	L(b4)
 
-L(f5):	mulx(	-32,(up), w0, w1)
+L(f5):	X86_ENDBR
+	mulx(	-32,(up), w0, w1)
 	lea	-56(rp,unneg,8), rp
 	jmp	L(b5)
 
-L(f6):	mulx(	-40,(up), w2, w3)
+L(f6):	X86_ENDBR
+	mulx(	-40,(up), w2, w3)
 	lea	-56(rp,unneg,8), rp
 	jmp	L(b6)
 
-L(f7):	mulx(	16,(up), w0, w1)
+L(f7):	X86_ENDBR
+	mulx(	16,(up), w0, w1)
 	lea	8(rp,unneg,8), rp
 	jmp	L(b7)
 
-L(f1):	mulx(	(up), w0, w1)
+L(f1):	X86_ENDBR
+	mulx(	(up), w0, w1)
 	lea	8(rp,unneg,8), rp
 	jmp	L(b1)
 
@@ -303,6 +318,7 @@ L(done):
 	ret
 
 L(f2):
+	X86_ENDBR
 	mulx(	-8,(up), w2, w3)
 	lea	8(rp,unneg,8), rp
 	mulx(	(up), w0, w1)
@@ -367,3 +383,4 @@ L(atab):JMPENT(	L(f0), L(atab))
 	JMPENT(	L(f7), L(atab))
 	TEXT
 EPILOGUE()
+ASM_END()
