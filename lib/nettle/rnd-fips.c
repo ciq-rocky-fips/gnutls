@@ -89,7 +89,7 @@ static int get_entropy(struct fips_ctx *fctx, uint8_t *buffer, size_t length)
 	struct sha256_ctx ctx;
 	size_t total = 0;
 
-	/* For FIPS 140-2 4.9.2 continuous random number generator
+	/* For FIPS 140-3 4.9.2 continuous random number generator
 	 * test, iteratively fetch fixed sized block from the system
 	 * RNG and compare consecutive blocks.
 	 *
@@ -176,7 +176,7 @@ static int _rngfips_ctx_init(struct fips_ctx *fctx)
 	struct sha256_ctx ctx;
 	int ret;
 
-	/* For FIPS 140-2 4.9.2 continuous random number generator
+	/* For FIPS 140-3 4.9.2 continuous random number generator
 	 * test, get the initial entropy from the system RNG and keep
 	 * it for comparison.
 	 *
