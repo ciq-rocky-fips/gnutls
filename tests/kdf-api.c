@@ -177,6 +177,17 @@ void doit(void)
 		  "2d2d0a90cf1a5a4c5db02d56ecc4c5bf"
 		  "34007208d5b887185865");
 
+	/* Test vector from RFC 6070.  More thorough testing is done
+	 * in nettle. */
+	test_pbkdf2(GNUTLS_MAC_SHA1,
+		    "70617373776f7264", /* "password" */
+		    "73616c74", /* "salt" */
+		    4096,
+		    20,
+		    "4b007901b765489abead49d926f721d065a429c1",
+		    /* Key sizes and output sizes less than 112-bit are not approved.  */
+		    GNUTLS_FIPS140_OP_NOT_APPROVED);
+
 	/* Test vector extracted from:
 	 * https://dev.gnupg.org/source/libgcrypt/browse/master/cipher/kdf.c */
 	test_pbkdf2(GNUTLS_MAC_SHA256,
