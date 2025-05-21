@@ -1255,6 +1255,14 @@ static int _wrap_nettle_pk_sign(gnutls_pk_algorithm_t algo,
 		void *random_ctx;
 		nettle_random_func *random_func;
 
+#ifdef ENABLE_FIPS140
+		if ((_gnutls_get_lib_state() != LIB_STATE_SELFTEST) &&
+				(_gnutls_fips_mode_enabled() == GNUTLS_FIPS140_STRICT)) {
+			ret = gnutls_assert_val(GNUTLS_E_UNWANTED_ALGORITHM);
+			goto cleanup;
+		}
+#endif
+
 		/* DSA is currently being defined as sunset with the
 			 * current draft of FIPS 186-5 */
 		not_approved = true;
@@ -1666,6 +1674,14 @@ static int _wrap_nettle_pk_verify(gnutls_pk_algorithm_t algo,
 		struct dsa_params pub;
 		struct dsa_signature sig;
 		bigint_t y;
+
+#ifdef ENABLE_FIPS140
+		if ((_gnutls_get_lib_state() != LIB_STATE_SELFTEST) &&
+				(_gnutls_fips_mode_enabled() == GNUTLS_FIPS140_STRICT)) {
+			ret = gnutls_assert_val(GNUTLS_E_UNWANTED_ALGORITHM);
+			goto cleanup;
+		}
+#endif
 
 		/* DSA is currently being defined as sunset with the
 			 * current draft of FIPS 186-5 */
@@ -2685,6 +2701,14 @@ wrap_nettle_pk_generate_keys(gnutls_pk_algorithm_t algo,
 		if (_gnutls_fips_mode_enabled() != 0) {
 			struct dsa_params pub;
 			mpz_t x, y;
+
+#ifdef ENABLE_FIPS140
+			if ((_gnutls_get_lib_state() != LIB_STATE_SELFTEST) &&
+					(_gnutls_fips_mode_enabled() == GNUTLS_FIPS140_STRICT)) {
+				ret = gnutls_assert_val(GNUTLS_E_UNWANTED_ALGORITHM);
+				goto cleanup;
+			}
+#endif
 
 			/* DSA is currently being defined as sunset with the
 			 * current draft of FIPS 186-5 */
