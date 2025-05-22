@@ -495,6 +495,20 @@ const char *gnutls_check_version(const char *req_version)
 	return NULL;
 }
 
+/**
+ * gnutls_FIPS_show_version_service:
+ *
+ * Returns: The version string of the release
+  **/
+const char *gnutls_FIPS_show_version_service(void)
+{
+#ifdef FIPS_MODULE_VERSION
+	return FIPS_MODULE_VERSION;
+#else
+	return "No FIPS version specified";
+#endif
+}
+
 static void _CONSTRUCTOR lib_init(void)
 {
 	int ret;

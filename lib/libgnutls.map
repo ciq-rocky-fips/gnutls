@@ -1432,6 +1432,14 @@ GNUTLS_3_8_2
 	*;
 } GNUTLS_3_8_1;
 
+GNUTLS_3_8_3
+{
+ global:
+	gnutls_FIPS_show_version_service;
+ local:
+	*;
+} GNUTLS_3_8_2;
+
 GNUTLS_FIPS140_3_4 {
   global:
 	gnutls_cipher_self_test;

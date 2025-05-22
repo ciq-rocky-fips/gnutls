@@ -3287,6 +3287,8 @@ int gnutls_fips140_pop_context(void);
 
 int gnutls_fips140_run_self_tests(void);
 
+const char *gnutls_FIPS_show_version_service(void);
+
 /**
  * gnutls_transport_ktls_enable_flags_t:
  * @GNUTLS_KTLS_RECV: ktls enabled for recv function.
