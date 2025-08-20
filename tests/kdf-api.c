@@ -108,7 +108,6 @@ inline static bool
 is_mac_algo_hmac_approved_in_fips(gnutls_mac_algorithm_t algo)
 {
 	switch (algo) {
-	case GNUTLS_MAC_SHA1:
 	case GNUTLS_MAC_SHA256:
 	case GNUTLS_MAC_SHA384:
 	case GNUTLS_MAC_SHA512:

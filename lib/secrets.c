@@ -69,18 +69,25 @@ int _tls13_update_secret(gnutls_session_t session, const uint8_t *key,
 	gnutls_datum_t _key;
 	gnutls_datum_t salt;
 	int ret;
+	bool not_approved = false;
 
 	_key.data = (void *)key;
 	_key.size = key_size;
 	salt.data = (void *)session->key.proto.tls13.temp_secret;
 	salt.size = session->key.proto.tls13.temp_secret_size;
 
+	if (!is_mac_algo_approved_in_fips(session->security_parameters.prf->id)) {
+		not_approved = true;
+	}
 	ret = _gnutls_hkdf_extract(session->security_parameters.prf->id, &_key,
 				   &salt, session->key.proto.tls13.temp_secret);
 	if (ret < 0)
 		_gnutls_switch_fips_state(GNUTLS_FIPS140_OP_ERROR);
-	else
+	else if (not_approved) {
+		_gnutls_switch_fips_state(GNUTLS_FIPS140_OP_NOT_APPROVED);
+	} else {
 		_gnutls_switch_fips_state(GNUTLS_FIPS140_OP_APPROVED);
+	}
 
 	return ret;
 }
@@ -134,6 +141,7 @@ int _tls13_expand_secret2(const mac_entry_st *prf, const char *label,
 	gnutls_datum_t key;
 	gnutls_datum_t info;
 	int ret;
+	bool not_approved = false;
 
 	if (unlikely(label_size >= sizeof(tmp) - 6))
 		return gnutls_assert_val(GNUTLS_E_INVALID_REQUEST);
@@ -164,11 +172,16 @@ int _tls13_expand_secret2(const mac_entry_st *prf, const char *label,
 	info.data = str.data;
 	info.size = str.length;
 
+	if (!is_mac_algo_approved_in_fips(prf->id)) {
+		not_approved = true;
+	}
 	ret = _gnutls_hkdf_expand(prf->id, &key, &info, out, out_size);
 	if (ret < 0) {
 		_gnutls_switch_fips_state(GNUTLS_FIPS140_OP_ERROR);
 		gnutls_assert();
 		goto cleanup;
+	} else if (not_approved) {
+		_gnutls_switch_fips_state(GNUTLS_FIPS140_OP_NOT_APPROVED);
 	} else {
 		_gnutls_switch_fips_state(GNUTLS_FIPS140_OP_APPROVED);
 	}

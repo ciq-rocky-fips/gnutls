@@ -81,7 +81,6 @@ inline static bool
 is_mac_algo_hmac_approved_in_fips(gnutls_mac_algorithm_t algo)
 {
 	switch (algo) {
-	case GNUTLS_MAC_SHA1:
 	case GNUTLS_MAC_SHA256:
 	case GNUTLS_MAC_SHA384:
 	case GNUTLS_MAC_SHA512:
@@ -116,6 +115,10 @@ inline static bool is_mac_algo_approved_in_fips(gnutls_mac_algorithm_t algo)
 
 inline static bool is_mac_algo_allowed_in_fips(gnutls_mac_algorithm_t algo)
 {
+	if (algo == GNUTLS_MAC_SHA1) {
+		/* SHA1 is allowed but not approved in FIPS140-3 */
+		return true;
+	}
 	return is_mac_algo_approved_in_fips(algo);
 }
 
@@ -123,7 +126,6 @@ inline static bool
 is_mac_algo_approved_for_pbkdf2_in_fips(gnutls_mac_algorithm_t algo)
 {
 	switch (algo) {
-	case GNUTLS_MAC_SHA1:
 	case GNUTLS_MAC_SHA256:
 	case GNUTLS_MAC_SHA384:
 	case GNUTLS_MAC_SHA512:
@@ -199,6 +201,10 @@ is_digest_algo_approved_for_sign_in_fips(gnutls_digest_algorithm_t algo)
 inline static bool
 is_digest_algo_allowed_for_sign_in_fips(gnutls_digest_algorithm_t algo)
 {
+	if (algo == GNUTLS_DIG_SHA1) {
+		/* SHA1 is allowed but not approved in FIPS140-3 */
+		return true;
+	}
 	return is_digest_algo_approved_for_sign_in_fips(algo);
 }
 

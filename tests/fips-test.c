@@ -718,7 +718,7 @@ void doit(void)
 	if (ret < 0) {
 		fail("gnutls_privkey_sign_data2 failed\n");
 	}
-	FIPS_POP_CONTEXT(ERROR);
+	FIPS_POP_CONTEXT(NOT_APPROVED);
 
 	/* Verify a signature created with ECDSA and SHA-1; not approved */
 	FIPS_PUSH_CONTEXT();
@@ -735,10 +735,10 @@ void doit(void)
 	FIPS_PUSH_CONTEXT();
 	ret = gnutls_privkey_sign_data(privkey, GNUTLS_DIG_SHA1, 0, &data,
 				       &signature);
-	if (ret == 0) {
-		fail("gnutls_privkey_sign_data succeeded - should fail\n");
+	if (ret < 0) {
+		fail("gnutls_privkey_sign_data failed\n");
 	}
-	FIPS_POP_CONTEXT(ERROR);
+	FIPS_POP_CONTEXT(NOT_APPROVED);
 	gnutls_free(signature.data);
 
 	/* Create a SHA1 hashed data for 2-pass signature API; not a
@@ -750,7 +750,7 @@ void doit(void)
 	}
 	hashed_data.data = hash;
 	hashed_data.size = 20;
-	FIPS_POP_CONTEXT(APPROVED);
+	FIPS_POP_CONTEXT(NOT_APPROVED);
 
 	/* Create a signature with ECDSA and SHA1 (2-pass API); not-approved */
 	FIPS_PUSH_CONTEXT();
