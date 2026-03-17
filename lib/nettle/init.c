@@ -127,7 +127,7 @@ static void *gnutls_realloc_zero(void *data, size_t old_size, size_t new_size)
 	if (newptr == NULL)
 		abort();
 
-	memcpy(newptr, data, old_size);
+	memcpy(newptr, data, MIN(old_size, new_size));
  done:
 	explicit_bzero(data, old_size);
 	free(data);
