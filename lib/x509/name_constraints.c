@@ -741,9 +741,6 @@ static int name_constraints_node_list_intersect(
 	type_bitmask_t types_in_p1 = 0, types_in_p2 = 0;
 	static const unsigned char universal_ip[32] = { 0 };
 
-	if (permitted->size == 0 || permitted2->size == 0)
-		return GNUTLS_E_SUCCESS;
-
 	/* make sorted views of the arrays */
 	ret = ensure_sorted(permitted);
 	if (ret < 0) {
