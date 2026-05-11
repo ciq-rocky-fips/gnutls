@@ -234,7 +234,8 @@ ctests += mini-record-2 simple gnutls_hmac_fast set_pkcs12_cred cert certuniquei
 	 set_x509_ocsp_multi_cli kdf-api keylog-func handshake-write \
 	 x509cert-dntypes id-on-xmppAddr tls13-compat-mode ciphersuite-name \
 	 x509-upnconstraint cipher-padding xts-key-check pkcs7-verify-double-free \
-	 fips-rsa-sizes tls12-rehandshake-ticket tls-force-ems
+	 fips-rsa-sizes tls12-rehandshake-ticket tls-force-ems \
+	 mini-dtls-fragments
 
 ctests += tls-channel-binding
 
@@ -477,6 +478,10 @@ iov_CPPFLAGS = $(AM_CPPFLAGS) \
 	-I$(top_builddir)/gl
 
 buffer_CPPFLAGS = $(AM_CPPFLAGS) \
+	-I$(top_srcdir)/gl	\
+	-I$(top_builddir)/gl
+
+mini_dtls_fragments_CPPFLAGS = $(AM_CPPFLAGS) \
 	-I$(top_srcdir)/gl	\
 	-I$(top_builddir)/gl
 
