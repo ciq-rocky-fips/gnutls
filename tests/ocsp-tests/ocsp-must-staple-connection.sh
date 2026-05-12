@@ -29,6 +29,7 @@ SERVER_CERT_FILE="ms-cert.$$.pem.tmp"
 SERVER_CERT_NO_EXT_FILE="ms-cert-no-ext.$$.pem.tmp"
 OCSP_RESPONSE_FILE="ms-resp.$$.tmp"
 OCSP_REQ_FILE="ms-req.$$.tmp"
+SERVER_CERT_BAD_FILE="ms-cert-bad.pem.tmp"
 
 export TZ="UTC"
 
@@ -115,6 +116,19 @@ datefudge -s "${CERTDATE}" ${CERTTOOL} \
 	--load-ca-certificate "${srcdir}/ocsp-tests/certs/ca.pem" \
 	--load-privkey "${srcdir}/ocsp-tests/certs/server_good.key" \
 	--template "${TEMPLATE_FILE}" --outfile "${SERVER_CERT_FILE}" 2>/dev/null
+
+echo "=== Generating bad server certificate ==="
+
+rm -f "$TEMPLATE_FILE"
+cp "${srcdir}/ocsp-tests/certs/server_bad.template" "$TEMPLATE_FILE"
+chmod u+w "$TEMPLATE_FILE"
+echo "ocsp_uri=http://localhost:${OCSP_PORT}/ocsp/" >>"$TEMPLATE_FILE"
+
+datefudge -s "${CERTDATE}" ${CERTTOOL} \
+	--generate-certificate --load-ca-privkey "${srcdir}/ocsp-tests/certs/ca.key" \
+	--load-ca-certificate "${srcdir}/ocsp-tests/certs/ca.pem" \
+	--load-privkey "${srcdir}/ocsp-tests/certs/server_bad.key" \
+	--template "${TEMPLATE_FILE}" --outfile "${SERVER_CERT_BAD_FILE}" 2>/dev/null
 
 echo "=== Bringing OCSP server up ==="
 
@@ -505,6 +519,63 @@ kill "${TLS_SERVER_PID}"
 wait "${TLS_SERVER_PID}"
 unset TLS_SERVER_PID
 
+echo "=== Test 10: Server with revoked certificate - CVE-2026-3832 ==="
+
+# The revocation status was always mistakenly checked for the first cert.
+# Check a pair of responses: (irrelevant good unrevoked, relevant bad revoked).
+
+rm -f "${OCSP_RESPONSE_FILE}"
+
+datefudge "${TESTDATE}" \
+    ${OPENSSL} ocsp -index "${INDEXFILE}" \
+    -issuer "${srcdir}/ocsp-tests/certs/ca.pem" \
+    -CA "${srcdir}/ocsp-tests/certs/ca.pem" \
+    -rsigner "${srcdir}/ocsp-tests/certs/ocsp-server.pem" \
+    -rkey "${srcdir}/ocsp-tests/certs/ocsp-server.key" \
+    -cert "${SERVER_CERT_FILE}" \
+    -cert "${SERVER_CERT_BAD_FILE}" \
+    -respout "${OCSP_RESPONSE_FILE}"
+
+eval "${GETPORT}"
+# Port for gnutls-serv
+TLS_SERVER_PORT=$PORT
+PORT=${TLS_SERVER_PORT}
+launch_bare_server \
+    datefudge "${TESTDATE}" \
+    "${SERV}" --echo --disable-client-cert \
+    --x509keyfile="${srcdir}/ocsp-tests/certs/server_bad.key" \
+    --x509certfile="${SERVER_CERT_BAD_FILE}" \
+    --port="${TLS_SERVER_PORT}" \
+    --ocsp-response="${OCSP_RESPONSE_FILE}" --ignore-ocsp-response-errors
+TLS_SERVER_PID="${!}"
+wait_server $TLS_SERVER_PID
+
+wait_for_port "${TLS_SERVER_PORT}"
+
+out=$(
+    echo "test 123456" | \
+        datefudge -s "${TESTDATE}" \
+        "${CLI}" -d1 --ocsp \
+        --x509cafile "${srcdir}/ocsp-tests/certs/ca.pem" \
+        --port "${TLS_SERVER_PORT}" localhost \
+        2>&1
+    rc=$?
+)
+printf '%s\n' "$out"
+
+if test "${rc}" = "0"; then
+    echo 'ERROR: client accepted a revoked leaf (CVE-2026-3832)'
+    exit 1
+fi
+if ! echo "${out}" | grep "The certificate was revoked via OCSP" >/dev/null
+then
+    echo '"The certificate was revoked via OCSP" not found in output'
+    exit 1
+fi
+
+kill "${TLS_SERVER_PID}"
+wait "${TLS_SERVER_PID}"
+unset TLS_SERVER_PID
 
 kill ${OCSP_PID}
 wait ${OCSP_PID}
@@ -513,6 +584,7 @@ unset OCSP_PID
 rm -f "${OCSP_RESPONSE_FILE}"
 rm -f "${OCSP_REQ_FILE}"
 rm -f "${SERVER_CERT_FILE}"
+rm -f "${SERVER_CERT_BAD_FILE}"
 rm -f "${TEMPLATE_FILE}"
 rm -f "${INDEXFILE}" "${ATTRFILE}"
 
