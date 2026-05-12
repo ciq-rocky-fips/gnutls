@@ -1296,10 +1296,10 @@ gnutls_pkcs11_token_set_pin(const char *token_url,
 		ses_flags = SESSION_WRITE | SESSION_LOGIN;
 
 	ret = pkcs11_open_session(&sinfo, NULL, info, ses_flags);
-	p11_kit_uri_free(info);
 
 	if (ret < 0) {
 		gnutls_assert();
+		p11_kit_uri_free(info);
 		return ret;
 	}
 
@@ -1321,8 +1321,10 @@ gnutls_pkcs11_token_set_pin(const char *token_url,
 		oldpin_size = L(oldpin);
 
 		if (!(sinfo.tinfo.flags & CKF_PROTECTED_AUTHENTICATION_PATH)) {
-			if (newpin == NULL)
-				return gnutls_assert_val(GNUTLS_E_INVALID_REQUEST);
+			if (newpin == NULL) {
+				ret = gnutls_assert_val(GNUTLS_E_INVALID_REQUEST);
+				goto finish;
+			}
 
 			if (oldpin == NULL) {
 				struct pin_info_st pin_info;
@@ -1353,6 +1355,7 @@ gnutls_pkcs11_token_set_pin(const char *token_url,
 	ret = 0;
 
       finish:
+	p11_kit_uri_free(info);
 	pkcs11_close_session(&sinfo);
 	return ret;
 
