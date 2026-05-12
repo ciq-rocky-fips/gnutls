@@ -262,9 +262,6 @@ int _gnutls_name_constraints_intersect(name_constraints_node_st ** _nc,
 	unsigned char types_with_empty_intersection[GNUTLS_SAN_MAX];
 	memset(types_with_empty_intersection, 0, sizeof(types_with_empty_intersection));
 
-	if (*_nc == NULL || _nc2 == NULL)
-		return 0;
-
 	/* Phase 1
 	 * For each name in _NC, if a _NC2 does not contain a name
 	 * with the same type, preserve the original name.
