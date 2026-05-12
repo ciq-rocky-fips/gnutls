@@ -34,6 +34,7 @@
 #include <x509_b64.h>
 #include <x509_int.h>
 #include <libtasn1.h>
+#include "c-strcase.h"
 
 #include "ip.h"
 #include "ip-in-cidr.h"
@@ -730,7 +731,8 @@ unsigned ends_with(const gnutls_datum_t * str, const gnutls_datum_t * suffix)
 		treelen--;
 	}
 
-	if (memcmp(str->data + str->size - treelen, tree, treelen) == 0 &&
+	if (c_strncasecmp((const char *)str->data + str->size - treelen,
+			  (const char *)tree, treelen) == 0 &&
 		str->data[str->size - treelen -1] == '.')
 		return 1; /* match */
 
@@ -745,10 +747,12 @@ unsigned email_ends_with(const gnutls_datum_t * str, const gnutls_datum_t * suff
 
 	if (suffix->size > 1 && suffix->data[0] == '.') {
 		/* .domain.com */
-		if (memcmp(str->data + str->size - suffix->size, suffix->data, suffix->size) == 0)
+		if (c_strncasecmp((const char *)str->data + str->size - suffix->size,
+				  (const char *)suffix->data, suffix->size) == 0)
 			return 1; /* match */
 	} else {
-		if (memcmp(str->data + str->size - suffix->size, suffix->data, suffix->size) == 0 &&
+		if (c_strncasecmp((const char *)str->data + str->size - suffix->size,
+				  (const char *)suffix->data, suffix->size) == 0 &&
 			str->data[str->size - suffix->size -1] == '@')
 			return 1; /* match */
 	}
@@ -761,7 +765,8 @@ static unsigned dnsname_matches(const gnutls_datum_t *name, const gnutls_datum_t
 	_gnutls_hard_log("matching %.*s with DNS constraint %.*s\n", name->size, name->data,
 		suffix->size, suffix->data);
 
-	if (suffix->size == name->size && memcmp(suffix->data, name->data, suffix->size) == 0)
+	if (suffix->size == name->size &&
+	    c_strncasecmp((const char *)suffix->data, (const char *)name->data, suffix->size) == 0)
 		return 1; /* match */
 
 	return ends_with(name, suffix);
@@ -772,8 +777,23 @@ static unsigned email_matches(const gnutls_datum_t *name, const gnutls_datum_t *
 	_gnutls_hard_log("matching %.*s with e-mail constraint %.*s\n", name->size, name->data,
 		suffix->size, suffix->data);
 
-	if (suffix->size == name->size && memcmp(suffix->data, name->data, suffix->size) == 0)
-		return 1; /* match */
+	if (suffix->size == name->size) {
+		/* For exact email match: local part is case-sensitive,
+		 * domain part is case-insensitive (RFC 5280 7.5) */
+		const unsigned char *name_at = memchr(name->data, '@', name->size);
+		const unsigned char *suffix_at = memchr(suffix->data, '@', suffix->size);
+		if (name_at && suffix_at) {
+			size_t name_local_len = name_at - name->data;
+			size_t suffix_local_len = suffix_at - suffix->data;
+			if (name_local_len == suffix_local_len &&
+			    memcmp(name->data, suffix->data, name_local_len) == 0 &&
+			    c_strncasecmp((const char *)name_at, (const char *)suffix_at,
+					  name->size - name_local_len) == 0)
+				return 1; /* match */
+		} else if (memcmp(suffix->data, name->data, suffix->size) == 0) {
+			return 1; /* match (no @ found, fall back to exact) */
+		}
+	}
 
 	return email_ends_with(name, suffix);
 }
