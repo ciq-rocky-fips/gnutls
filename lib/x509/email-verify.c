@@ -43,7 +43,7 @@ gnutls_x509_crt_check_email(gnutls_x509_crt_t cert,
 {
 	char rfc822name[MAX_CN];
 	size_t rfc822namesize;
-	int found_rfc822name = 0;
+	bool dn_fallback_allowed = true;
 	int ret = 0;
 	int i = 0;
 	char *a_email;
@@ -78,8 +78,22 @@ gnutls_x509_crt_check_email(gnutls_x509_crt_t cert,
 							   &rfc822namesize,
 							   NULL);
 
+		if (ret < 0) {
+			if (ret == GNUTLS_E_SHORT_MEMORY_BUFFER) {
+				/* oversized SAN; proceed without DN fallback */
+				_gnutls_debug_log("oversized SAN ignored, "
+						  "disabling DN fallback\n");
+				dn_fallback_allowed = false;
+				ret = 0;
+				continue;
+			}
+			if (ret != GNUTLS_E_REQUESTED_DATA_NOT_AVAILABLE)
+				gnutls_assert();
+			break;
+		}
+
 		if (ret == GNUTLS_SAN_RFC822NAME) {
-			found_rfc822name = 1;
+			dn_fallback_allowed = false;
 
 			if (_gnutls_has_embedded_null(rfc822name, rfc822namesize)) {
 				_gnutls_debug_log("certificate has %s with embedded null in rfc822name\n", rfc822name);
@@ -99,7 +113,7 @@ gnutls_x509_crt_check_email(gnutls_x509_crt_t cert,
 		}
 	}
 
-	if (!found_rfc822name) {
+	if (!dn_fallback_allowed) {
 		/* did not get the necessary extension, use CN instead
 		 */
 
