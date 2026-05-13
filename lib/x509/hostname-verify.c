@@ -112,7 +112,8 @@ gnutls_x509_crt_check_ip(gnutls_x509_crt_t cert,
  * that we do not fallback to CN-ID if we encounter a supported name
  * type.
  */
-#define IS_SAN_SUPPORTED(san) (san==GNUTLS_SAN_DNSNAME||san==GNUTLS_SAN_IPADDRESS)
+#define IS_SAN_SUPPORTED(san) (san==GNUTLS_SAN_DNSNAME || san==GNUTLS_SAN_IPADDRESS || \
+				san == GNUTLS_SAN_URI)
 
 /**
  * gnutls_x509_crt_check_hostname2:
