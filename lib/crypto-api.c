@@ -520,6 +520,39 @@ void gnutls_hmac_output(gnutls_hmac_hd_t handle, void *digest)
 	_gnutls_mac_output((mac_hd_st *) handle, digest);
 }
 
+/* If succeeds, returns the number of padding bytes to be removed;
+ * zero otherwise.
+ */
+unsigned int _gnutls_pkcs7_unpad(const uint8_t *block, unsigned int block_size)
+{
+	uint8_t padding = block[block_size - 1];
+	volatile unsigned int mask = ~0;
+	volatile unsigned int count = 0;
+
+	/* Count consecutive PADDING bytes from the end, in a
+	 * constant-time manner.
+	 */
+	for (size_t i = block_size; i > 0; i--) {
+		volatile unsigned int mask2;
+
+		mask2 = -(unsigned int)(block[i - 1] == padding);
+		mask2 &= -(unsigned int)(count < padding);
+
+		/* MASK is initially ~0 and will be flipped to 0 upon first
+		 * non-padding bytes.
+		 */
+		mask &= mask2;
+		count += 1 & mask;
+	}
+
+	/* PADDING == 0 is effectively excluded here, given COUNT
+	 * will never be 0.
+	 */
+	mask = -(unsigned int)(count <= block_size);
+	mask &= -(unsigned int)(count == padding);
+	return count & mask;
+}
+
 /**
  * gnutls_hmac_deinit:
  * @handle: is a #gnutls_hmac_hd_t type
