@@ -1560,4 +1560,6 @@ GNUTLS_PRIVATE_3_4 {
 	_gnutls_pathbuf_append;
 	_gnutls_pathbuf_truncate;
 	_gnutls_pathbuf_deinit;
+	# needed by tests/pkcs7-pad
+	_gnutls_pkcs7_unpad;
 } GNUTLS_3_4;
