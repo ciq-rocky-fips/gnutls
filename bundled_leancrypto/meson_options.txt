@@ -1,0 +1,380 @@
+option('sha2-256', type: 'feature', value: 'enabled',
+       description: 'SHA2-256 support')
+option('sha2-512', type: 'feature', value: 'enabled',
+       description: 'SHA2-512 support')
+option('sha3', type: 'feature', value: 'enabled',
+       description: 'SHA3 support')
+
+option('ascon', type: 'feature', value: 'enabled',
+       description: '''Ascon message digest and AEAD support
+
+This option enables the Ascon-128, Ascon-128a, AEAD and message digest support
+as well as Ascon-XOF and Ascon-XOFa.
+''')
+
+option('ascon_keccak', type: 'feature', value: 'enabled',
+       description: '''Ascon-Keccak AEAD support
+
+This option enables the Ascon-Keccak 256, and Ascon-Keccak 512 AEAD. Note, this
+requires also SHA-3 being enabled.
+''')
+
+option('slh_dsa_ascon_128s', type: 'feature', value: 'disabled',
+       description: '''SLH-DSA-Ascon-128s support
+
+This option enables the SLH-DSA-Ascon-128s support with the same parameters
+as SLH-DSA-SHAKE-128s. Note, this requires Ascon being enabled.
+''')
+
+option('slh_dsa_ascon_128f', type: 'feature', value: 'disabled',
+       description: '''SLH-DSA-Ascon-128f support
+
+This option enables the SLH-DSA-Ascon-128f support with the same parameters
+as SLH-DSA-SHAKE-128f. Note, this requires Ascon being enabled.
+''')
+
+option('chacha20', type: 'feature', value: 'enabled',
+       description: 'ChaCha20 support')
+option('chacha20_drng', type: 'feature', value: 'enabled',
+       description: 'ChaCha20 DRNG support')
+
+option('drbg_hash', type: 'feature', value: 'enabled',
+       description: 'Hash DRBG')
+option('drbg_hmac', type: 'feature', value: 'enabled',
+       description: 'HMAC DRBG')
+
+option('hash_crypt', type: 'feature', value: 'enabled',
+       description: 'Hash-Crypt support')
+
+option('hmac', type: 'feature', value: 'enabled',
+       description: 'HMAC support')
+
+option('hkdf', type: 'feature', value: 'enabled',
+       description: 'HKDF')
+option('kdf_ctr', type: 'feature', value: 'enabled',
+       description: 'KDF Counter Mode')
+option('kdf_fb', type: 'feature', value: 'enabled',
+       description: 'KDF Feedback Mode')
+option('kdf_dpi', type: 'feature', value: 'enabled',
+       description: 'KDF Double Pipeline Mode')
+option('pbkdf2', type: 'feature', value: 'enabled',
+       description: 'Password-Based Key Derivation version 2')
+
+option('kmac', type: 'feature', value: 'enabled',
+       description: 'KMAC support')
+option('kmac_drng', type: 'feature', value: 'enabled',
+       description: 'KMAC DRNG support')
+option('cshake_drng', type: 'feature', value: 'enabled',
+       description: 'cSHAKE DRNG support')
+option('xdrbg', type: 'feature', value: 'enabled',
+       description: 'XDRBG support')
+
+option('hotp', type: 'feature', value: 'enabled',
+       description: 'HOTP support')
+option('totp', type: 'feature', value: 'enabled',
+       description: 'HOTP support')
+
+option('dilithium_87', type: 'feature', value: 'enabled',
+       description: '''Dilithium-87 Support
+
+Per default, Dilithium-87 is enabled and accessible with the regular API.
+''')
+option('dilithium_65', type: 'feature', value: 'enabled',
+       description: '''Dilithium-65 Support
+
+Per default, Dilithium-87 is enabled and accessible with the regular API. When
+enabling this option, Dilithium-65 is also made available which has the same API,
+but instead of the prefix lc_dilithium, all APIs use lc_dilithium_65. This
+algorithm has 192 bits of security strength.
+''')
+option('dilithium_44', type: 'feature', value: 'enabled',
+       description: '''Dilithium-44 Support
+
+Per default, Dilithium-87 is enabled and accessible with the regular API. When
+enabling this option, Dilithium-44 is also made available which has the same API,
+but instead of the prefix lc_dilithium, all APIs use lc_dilithium_44. This
+algorithm has 128 bits of security strength.
+''')
+
+option('dilithium_ed25519', type: 'feature', value: 'enabled',
+       description: 'Dilithium-ED25519 Hybrid Signature')
+option('dilithium_ed448', type: 'feature', value: 'enabled',
+       description: 'Dilithium-ED448 Hybrid Signature')
+
+option('kyber_1024', type: 'feature', value: 'enabled',
+       description: '''Kyber-1024 Support
+
+Per default, Kyber-1024 is enabled and accessible with the regular API.
+''')
+option('kyber_768', type: 'feature', value: 'enabled',
+       description: '''Kyber-768 Support
+
+Per default, Kyber-1024 is enabled and accessible with the regular API. When
+enabling this option, Kyber-768 is also made available which has the same API,
+but instead of the prefix lc_kyber_1024, all APIs use lc_kyber_768. This
+algorithm has 192 bits of security strength.
+''')
+option('kyber_512', type: 'feature', value: 'enabled',
+       description: '''Kyber-512 Support
+
+Per default, Kyber-1024 is enabled and accessible with the regular API. When
+enabling this option, Kyber-512 is also made available which has the same API,
+but instead of the prefix lc_kyber_1024, all APIs use lc_kyber_512. This
+algorithm has 128 bits of security strength.
+''')
+option('kyber_x25519', type: 'feature', value: 'enabled',
+       description: 'Kyber-X25519 KEM')
+option('kyber_x448', type: 'feature', value: 'enabled',
+       description: 'Kyber-X448 KEM')
+
+option('bike_5', type: 'feature', value: 'enabled',
+       description: '''BIKE Category 5 Support
+
+Per default, BIKE with NIST category 5 is enabled and accessible with the
+regular API.
+''')
+option('bike_3', type: 'feature', value: 'enabled',
+       description: '''BIKE Category 3 Support
+
+Per default, BIKE category 5 is enabled and accessible with the regular API.
+When enabling this option, BIKE category 3 is also made available which has the
+same API, but instead of the prefix lc_bike_5, all APIs use lc_bike_3. This
+algorithm has 192 bits of security strength.
+''')
+option('bike_1', type: 'feature', value: 'enabled',
+       description: '''BIKE Category 1 Support
+
+Per default, BIKE category 5 is enabled and accessible with the regular API.
+When enabling this option, BIKE category 1 is also made available which has the
+same API, but instead of the prefix lc_bike_5, all APIs use lc_bike_1. This
+algorithm has 128 bits of security strength.
+''')
+
+option('hqc_256', type: 'feature', value: 'enabled',
+       description: '''HQC-256 Category 5 Support
+
+Per default, HQC with NIST category 5 is enabled and accessible with the
+regular API.
+''')
+option('hqc_192', type: 'feature', value: 'enabled',
+       description: '''HQC-192 Category 3 Support
+
+Per default, HQC category 5 is enabled and accessible with the regular API.
+When enabling this option, HQC category 3 is also made available which has the
+same API, but instead of the prefix lc_hqc_5, all APIs use lc_hqc_3. This
+algorithm has 192 bits of security strength.
+''')
+option('hqc_128', type: 'feature', value: 'enabled',
+       description: '''HQC-128 Category 1 Support
+
+Per default, HQC category 5 is enabled and accessible with the regular API.
+When enabling this option, HQC category 1 is also made available which has the
+same API, but instead of the prefix lc_hqc_5, all APIs use lc_hqc_1. This
+algorithm has 128 bits of security strength.
+''')
+
+option('sphincs_shake_256s', type: 'feature', value: 'enabled',
+       description: '''Sphincs Plus 256 small signature (SLH-DSA-SHAKE-256s)
+
+Per default, Sphincs Plus 256s is enabled and accessible with the regular API.
+''')
+
+option('sphincs_shake_256f', type: 'feature', value: 'enabled',
+       description: '''Sphincs Plus 256 fast signature (SLH-DSA-SHAKE-256f)
+''')
+
+option('sphincs_shake_192s', type: 'feature', value: 'enabled',
+       description: '''Sphincs Plus 192 small signature (SLH-DSA-SHAKE-192s)
+''')
+
+option('sphincs_shake_192f', type: 'feature', value: 'enabled',
+       description: '''Sphincs Plus 192 fast signature (SLH-DSA-SHAKE-192f)
+''')
+
+option('sphincs_shake_128s', type: 'feature', value: 'enabled',
+       description: '''Sphincs Plus 128 small signature (SLH-DSA-SHAKE-128s)
+''')
+
+option('sphincs_shake_128f', type: 'feature', value: 'enabled',
+       description: '''Sphincs Plus 128 fast signature (SLH-DSA-SHAKE-128f)
+''')
+
+option('aes_block', type: 'feature', value: 'enabled',
+       description: 'AES block cipher support (encryption of one block)')
+option('aes_ecb', type: 'feature', value: 'disabled',
+       description: 'AES ECB cipher support - this is a weak algorithm, do not use!')
+option('aes_cbc', type: 'feature', value: 'enabled',
+       description: 'AES CBC cipher support')
+option('aes_ctr', type: 'feature', value: 'enabled',
+       description: 'AES CTR cipher support')
+option('aes_kw', type: 'feature', value: 'enabled',
+       description: 'AES KW cipher support')
+
+option('small_stack', type: 'feature', value: 'disabled',
+       description: 'Compile leancrypto with stack use <= 2048 bytes')
+
+option('enable_selftests', type: 'feature', value: 'enabled',
+       description: 'Compile and enable the self tests for all algorithms invoked before first use')
+
+option('seedsource', type: 'combo', value: 'builtin',
+	choices: ['builtin',
+		  'cpu',
+		  'esdm',
+		  'jent',
+		 ],
+	description: '''Select the seed source for leancrypto
+
+The seed source for the lc_seeded_rng is determined at compile time. The builtin
+source uses the standard operating system seed source like getrandom or
+getentropy system calls. But other seed sources are allowed to be specified.
+''')
+
+option('apps', type: 'feature', value: 'enabled',
+       description: '''Build helper apps
+
+The leancrypto library offers a set of applications that work as
+drop-in-replacement for the corresponding apps offered by other environments.
+These include the known sha*sum applications.
+''')
+
+################################################################################
+# Architecture-specific options
+################################################################################
+option('riscv_rvv_vlen128', type: 'feature', value: 'enabled',
+       description: '''RISCV: Support RVV with length 128 bits
+
+This option allows the disabling of any RISCV RVV support with bit length of
+128 bits
+''')
+
+option('riscv_rvv_vlen256', type: 'feature', value: 'enabled',
+       description: '''RISCV: Support RVV with length 256 bits
+
+This option allows the disabling of any RISCV RVV support with bit length of
+256 bits
+''')
+
+################################################################################
+# Auxiliary options
+################################################################################
+option('x509_parser', type: 'feature', value: 'enabled',
+       description: '''Enable X.509 Parser Support
+
+The X.509 parser offers a completely different interface to utilize the
+cryptographic services of leancrypto than the regular API. It processes X.509
+signature payloads and automatically performs the signature verification along
+with the associated certificate chain validation.
+
+The X.509 support is not meant to be a full-fledged X.509 parser, but only
+supports embedded environments that require signature verifications, e.g.
+for secure boot as part of UEFI and others.
+
+The X.509 support operates completely on caller-provided memory and does not
+perform any memory allocation on its own.
+''')
+
+option('x509_generator', type: 'feature', value: 'enabled',
+       description: '''Enable X.509 Generator Support
+
+The X.509 generator allows the generation of X.509 certificates using the
+enabled asymmetric algorithms.
+
+Note: The X.509 generator requires the availability of the X.509 parser.
+''')
+
+option('pkcs7_parser', type: 'feature', value: 'enabled',
+       description: '''Enable PKCS#7 / CMS Parser Support
+
+The PKCS#7 / CMS parser offers a completely different interface to utilize the
+cryptographic services of leancrypto than the regular API. It processes PKCS#7
+signature payloads and automatically performs the signature verification along
+with the associated certificate chain validation.
+
+The PKCS#7 support is not meant to be a full-fledged PKCS#7 parser, but only
+supports embedded environments that require signature verifications, e.g.
+for secure boot as part of UEFI and others.
+
+The PKCS#7 support operates on caller-provided memory, but performs a memory
+allocation for each X.509 certificate and for each signer.
+''')
+
+option('pkcs7_generator', type: 'feature', value: 'enabled',
+       description: '''Enable PKCS#7 / CMS Generator Support
+
+The PKCS#7 / CMS generator allows the generation of PKCS#7 / CMS messages using
+the enabled asymmetric algorithms.
+
+Note: The PKCS#7 / CMS generator requires the availability of the
+PKCS#7 / CMS parser.
+''')
+
+option('disable-asm', type: 'boolean', value: false,
+       description: '''Disable all acceleration code
+
+When this option is enabled, only C implementation and no assembler code is
+compiled.
+''')
+
+option('efi', type: 'feature', value: 'disabled',
+       description: '''Enable EFI Support
+
+This option enables the EFI support in leancrypto. I.e. leancrypto is compiled
+completely without any POSIX environmental support, but linked with GNU-EFI. A
+test application is provided which statically binds to leancrypto.a that is an
+EFI application.
+
+This option currently only works without PKCS#7 generator and X.509 generator
+support.
+''')
+
+option('secure_execution', type: 'feature', value: 'disabled',
+       description: '''Enable Secure Execution Support
+
+This option enables options in the host operating system that adds additional
+security features. However, most of those features will come with a performance
+penalty. The following options are supported:
+
+Linux user space: as documented in Documentation/userspace-api/spec_ctrl.rst,
+enable Speculative Store Bypass, Indirect Branch Speculation,
+Flush L1D Cache on context switch out of the task.
+''')
+
+################################################################################
+# DEBUGGING OPTIONS - NONE OF THEM ARE TO BE ENABLED IN PRODUCTION CODE!!
+################################################################################
+option('tests', type: 'feature', value: 'enabled',
+       description: 'Disable compilation of tests')
+
+option('kyber_debug', type: 'feature', value: 'disabled',
+       description: 'DEBUGGING: Kyber debug printout - DO NOT ENABLE IN PRODUCTION SYSTEMS!')
+
+option('dilithium_debug', type: 'feature', value: 'disabled',
+       description: 'DEBUGGING: Dilithium debug printout - DO NOT ENABLE IN PRODUCTION SYSTEMS!')
+
+option('timecop', type: 'feature', value: 'disabled',
+       description: '''DEBUGGING: enable TIMECOP - DO NOT ENABLE IN PRODUCTION SYSTEMS!
+
+From https://www.post-apocalyptic-crypto.org/timecop/ - Most timing
+side-channels are rooted in one of the following three causes:
+
+Conditional jumps based on secret data, e.g. if(key[i] == 0)
+Table lookups at secret indices, e.g. s[i] = substitution_table[key[i]]
+Variable-time CPU instructions operating on secret data, e.g. key[i] / c
+
+Adam Langley described in 2010 how the first two types can be detected automatically using Valgrind
+(https://www.imperialviolet.org/2010/04/01/ctgrind.html). When enabling this
+option, Valgrind is used to check for such issues. Once compiled with this
+option enabled, the test applications need to be executed with
+`valgrind --track-origins=yes <application>`. An issue is found if valgrind
+reports a "Conditional jump or move depends on uninitialised value(s)".
+
+This code requires the presence of Valgrind header files.
+''')
+
+option('pkcs7_debug', type: 'feature', value: 'disabled',
+       description: '''DEBUGGING: PKCS7 no signature check - DO NOT ENABLE IN PRODUCTION SYSTEMS!
+
+When enabled, the asymmetric signature operation is not enforced and returns
+success in ANY CASE. THIS IS ONLY INTENDED FOR TESTING / DEBUGGING OF
+CERTIFICATES / PKCS7 BLOBS WITH UNSUPPORTED SIGNATURES!
+''')

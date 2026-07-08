@@ -1,0 +1,1 @@
+../../../ml-kem/src/armv7/kyber_poly_armv7.h

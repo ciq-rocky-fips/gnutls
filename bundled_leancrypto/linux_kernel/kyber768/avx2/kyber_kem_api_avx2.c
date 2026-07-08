@@ -1,0 +1,1 @@
+../../../ml-kem/src/avx2/kyber_kem_api_avx2.c

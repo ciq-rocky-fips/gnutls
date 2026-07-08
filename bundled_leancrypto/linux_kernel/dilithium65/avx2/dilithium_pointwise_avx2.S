@@ -1,0 +1,1 @@
+../../../ml-dsa/src/avx2/dilithium_pointwise_avx2.S
