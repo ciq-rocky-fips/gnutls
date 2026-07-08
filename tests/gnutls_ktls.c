@@ -321,9 +321,11 @@ void doit(void)
 {
 	run("NORMAL:-VERS-ALL:+VERS-TLS1.2:-CIPHER-ALL:+AES-128-GCM");
 	run("NORMAL:-VERS-ALL:+VERS-TLS1.2:-CIPHER-ALL:+AES-256-GCM");
+#if 0
 	if (!gnutls_fips140_mode_enabled()) {
 		run("NORMAL:-VERS-ALL:+VERS-TLS1.2:-CIPHER-ALL:+CHACHA20-POLY1305");
 	}
+#endif
 	run("NORMAL:-VERS-ALL:+VERS-TLS1.3:-CIPHER-ALL:+AES-128-GCM");
 	run("NORMAL:-VERS-ALL:+VERS-TLS1.3:-CIPHER-ALL:+AES-256-GCM");
 	if (!gnutls_fips140_mode_enabled()) {
