@@ -967,9 +967,12 @@ static int merge_handshake_packet(gnutls_session_t session,
 	int exists = 0, i, pos = 0;
 	int ret;
 
+	handshake_buffer_st *recv_buf =
+		session->internals.handshake_recv_buffer;
+
 	for (i = 0; i < session->internals.handshake_recv_buffer_size; i++) {
-		if (session->internals.handshake_recv_buffer[i].htype ==
-		    hsk->htype) {
+		if (recv_buf[i].htype == hsk->htype &&
+		    recv_buf[i].sequence == hsk->sequence) {
 			exists = 1;
 			pos = i;
 			break;
@@ -1005,44 +1008,44 @@ static int merge_handshake_packet(gnutls_session_t session,
 		_gnutls_write_uint24(0, &hsk->header[6]);
 		_gnutls_write_uint24(hsk->length, &hsk->header[9]);
 
-		_gnutls_handshake_buffer_move(
-			&session->internals.handshake_recv_buffer[pos], hsk);
+		_gnutls_handshake_buffer_move(&recv_buf[pos], hsk);
 
 	} else {
-		if (hsk->start_offset <
-			    session->internals.handshake_recv_buffer[pos]
-				    .start_offset &&
-		    hsk->end_offset + 1 >=
-			    session->internals.handshake_recv_buffer[pos]
-				    .start_offset) {
-			memcpy(&session->internals.handshake_recv_buffer[pos]
-					.data.data[hsk->start_offset],
+		if (hsk->length != recv_buf[pos].length) {
+			/* inconsistent across fragments */
+			_gnutls_handshake_buffer_clear(hsk);
+			return gnutls_assert_val(
+				GNUTLS_E_UNEXPECTED_PACKET_LENGTH);
+		}
+		/* start_offset + data.length <= hsk->length <= max_length */
+		if (hsk->length < hsk->start_offset + hsk->data.length) {
+			/* impossible claims, overflow requested */
+			_gnutls_handshake_buffer_clear(hsk);
+			return gnutls_assert_val(
+				GNUTLS_E_UNEXPECTED_PACKET_LENGTH);
+		}
+		if (hsk->length > recv_buf[pos].data.max_length) {
+			/* we don't have this much allocated, overflow guard */
+			_gnutls_handshake_buffer_clear(hsk);
+			return gnutls_assert_val(
+				GNUTLS_E_UNEXPECTED_PACKET_LENGTH);
+		}
+
+		if (hsk->start_offset < recv_buf[pos].start_offset &&
+		    hsk->end_offset + 1 >= recv_buf[pos].start_offset) {
+			memcpy(&recv_buf[pos].data.data[hsk->start_offset],
 			       hsk->data.data, hsk->data.length);
-			session->internals.handshake_recv_buffer[pos]
-				.start_offset = hsk->start_offset;
-			session->internals.handshake_recv_buffer[pos]
-				.end_offset = MIN(
-				hsk->end_offset,
-				session->internals.handshake_recv_buffer[pos]
-					.end_offset);
-		} else if (hsk->end_offset >
-				   session->internals.handshake_recv_buffer[pos]
-					   .end_offset &&
-			   hsk->start_offset <=
-				   session->internals.handshake_recv_buffer[pos]
-						   .end_offset +
-					   1) {
-			memcpy(&session->internals.handshake_recv_buffer[pos]
-					.data.data[hsk->start_offset],
+			recv_buf[pos].start_offset = hsk->start_offset;
+			recv_buf[pos].end_offset =
+				MIN(hsk->end_offset, recv_buf[pos].end_offset);
+		} else if (hsk->end_offset > recv_buf[pos].end_offset &&
+			   hsk->start_offset <= recv_buf[pos].end_offset + 1) {
+			memcpy(&recv_buf[pos].data.data[hsk->start_offset],
 			       hsk->data.data, hsk->data.length);
 
-			session->internals.handshake_recv_buffer[pos]
-				.end_offset = hsk->end_offset;
-			session->internals.handshake_recv_buffer[pos]
-				.start_offset = MIN(
-				hsk->start_offset,
-				session->internals.handshake_recv_buffer[pos]
-					.start_offset);
+			recv_buf[pos].end_offset = hsk->end_offset;
+			recv_buf[pos].start_offset = MIN(
+				hsk->start_offset, recv_buf[pos].start_offset);
 		}
 		_gnutls_handshake_buffer_clear(hsk);
 	}
