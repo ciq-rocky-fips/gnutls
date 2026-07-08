@@ -124,7 +124,8 @@ host_triplet = @host@
 @CROSS_COMPILING_FALSE@am__append_9 = tls-pthread fips-mode-pthread dtls-pthread rng-pthread
 @ENABLE_PKCS11_TRUE@@WINDOWS_FALSE@am__append_10 = libpkcs11mock1.la \
 @ENABLE_PKCS11_TRUE@@WINDOWS_FALSE@	libpkcs11mock2.la \
-@ENABLE_PKCS11_TRUE@@WINDOWS_FALSE@	libpkcs11mock3.la
+@ENABLE_PKCS11_TRUE@@WINDOWS_FALSE@	libpkcs11mock3.la \
+@ENABLE_PKCS11_TRUE@@WINDOWS_FALSE@	libpkcs11mock4.la
 @ENABLE_PKCS11_FALSE@pkcs11_cert_import_url_exts_DEPENDENCIES =  \
 @ENABLE_PKCS11_FALSE@	$(COMMON_GNUTLS_LDADD) libutils.la \
 @ENABLE_PKCS11_FALSE@	$(am__DEPENDENCIES_2)
@@ -171,7 +172,7 @@ host_triplet = @host@
 @HAVE_FORK_TRUE@	resume-with-record-size-limit
 
 @ENABLE_PKCS11_TRUE@@WINDOWS_FALSE@am__append_17 = tls13/post-handshake-with-cert-pkcs11 pkcs11/tls-neg-pkcs11-no-key \
-@ENABLE_PKCS11_TRUE@@WINDOWS_FALSE@	global-init-override pkcs11/distrust-after
+@ENABLE_PKCS11_TRUE@@WINDOWS_FALSE@	global-init-override pkcs11/distrust-after pkcs11/long-label
 
 @ENABLE_TPM2_TRUE@am__append_18 = tpm2.sh
 
@@ -519,7 +520,8 @@ am__EXEEXT_2 = $(am__EXEEXT_1)
 @ENABLE_PKCS11_TRUE@@WINDOWS_FALSE@am__EXEEXT_14 = tls13/post-handshake-with-cert-pkcs11$(EXEEXT) \
 @ENABLE_PKCS11_TRUE@@WINDOWS_FALSE@	pkcs11/tls-neg-pkcs11-no-key$(EXEEXT) \
 @ENABLE_PKCS11_TRUE@@WINDOWS_FALSE@	global-init-override$(EXEEXT) \
-@ENABLE_PKCS11_TRUE@@WINDOWS_FALSE@	pkcs11/distrust-after$(EXEEXT)
+@ENABLE_PKCS11_TRUE@@WINDOWS_FALSE@	pkcs11/distrust-after$(EXEEXT) \
+@ENABLE_PKCS11_TRUE@@WINDOWS_FALSE@	pkcs11/long-label$(EXEEXT)
 @WINDOWS_TRUE@am__EXEEXT_15 = win32-certopenstore$(EXEEXT)
 am__EXEEXT_16 = tls13/supported_versions$(EXEEXT) \
 	tls13/tls12-no-tls13-exts$(EXEEXT) \
@@ -789,6 +791,17 @@ libpkcs11mock3_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_CFLAGS) $(CFLAGS) $(libpkcs11mock3_la_LDFLAGS) $(LDFLAGS) \
 	-o $@
 @ENABLE_PKCS11_TRUE@@WINDOWS_FALSE@am_libpkcs11mock3_la_rpath =
+@ENABLE_PKCS11_TRUE@@WINDOWS_FALSE@libpkcs11mock4_la_DEPENDENCIES =  \
+@ENABLE_PKCS11_TRUE@@WINDOWS_FALSE@	../gl/libgnu.la
+am__libpkcs11mock4_la_SOURCES_DIST = pkcs11/pkcs11-mock4.c
+@ENABLE_PKCS11_TRUE@@WINDOWS_FALSE@am_libpkcs11mock4_la_OBJECTS =  \
+@ENABLE_PKCS11_TRUE@@WINDOWS_FALSE@	pkcs11/pkcs11-mock4.lo
+libpkcs11mock4_la_OBJECTS = $(am_libpkcs11mock4_la_OBJECTS)
+libpkcs11mock4_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(AM_CFLAGS) $(CFLAGS) $(libpkcs11mock4_la_LDFLAGS) $(LDFLAGS) \
+	-o $@
+@ENABLE_PKCS11_TRUE@@WINDOWS_FALSE@am_libpkcs11mock4_la_rpath =
 libutils_la_DEPENDENCIES = ../lib/libgnutls.la
 am_libutils_la_OBJECTS = utils.lo seccomp.lo utils-adv.lo
 libutils_la_OBJECTS = $(am_libutils_la_OBJECTS)
@@ -1793,6 +1806,8 @@ pkcs11_list_tokens_OBJECTS = pkcs11/list-tokens.$(OBJEXT)
 pkcs11_list_tokens_LDADD = $(LDADD)
 pkcs11_list_tokens_DEPENDENCIES = $(COMMON_GNUTLS_LDADD) libutils.la \
 	$(am__DEPENDENCIES_2)
+pkcs11_long_label_SOURCES = pkcs11/long-label.c
+pkcs11_long_label_OBJECTS = pkcs11/long-label.$(OBJEXT)
 pkcs11_pkcs11_chainverify_SOURCES = pkcs11/pkcs11-chainverify.c
 pkcs11_pkcs11_chainverify_OBJECTS =  \
 	pkcs11/pkcs11-chainverify.$(OBJEXT)
@@ -3602,7 +3617,7 @@ am__depfiles_remade = ./$(DEPDIR)/aead-cipher-vec.Po \
 	pkcs11/$(DEPDIR)/gnutls_x509_crt_list_import_url.Po \
 	pkcs11/$(DEPDIR)/import_url_privkey_caps-pkcs11-import-url-privkey.Po \
 	pkcs11/$(DEPDIR)/list-objects.Po \
-	pkcs11/$(DEPDIR)/list-tokens.Po \
+	pkcs11/$(DEPDIR)/list-tokens.Po pkcs11/$(DEPDIR)/long-label.Po \
 	pkcs11/$(DEPDIR)/pkcs11-cert-import-url-exts.Po \
 	pkcs11/$(DEPDIR)/pkcs11-cert-import-url4-exts.Po \
 	pkcs11/$(DEPDIR)/pkcs11-chainverify.Po \
@@ -3619,6 +3634,7 @@ am__depfiles_remade = ./$(DEPDIR)/aead-cipher-vec.Po \
 	pkcs11/$(DEPDIR)/pkcs11-mock.Plo \
 	pkcs11/$(DEPDIR)/pkcs11-mock2.Plo \
 	pkcs11/$(DEPDIR)/pkcs11-mock3.Plo \
+	pkcs11/$(DEPDIR)/pkcs11-mock4.Plo \
 	pkcs11/$(DEPDIR)/pkcs11-obj-import.Po \
 	pkcs11/$(DEPDIR)/pkcs11-obj-raw.Po \
 	pkcs11/$(DEPDIR)/pkcs11-pin-func.Po \
@@ -3712,16 +3728,17 @@ am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
 SOURCES = $(libpkcs11mock1_la_SOURCES) $(libpkcs11mock2_la_SOURCES) \
-	$(libpkcs11mock3_la_SOURCES) $(libutils_la_SOURCES) \
-	aead-cipher-vec.c alerts.c alpn-server-prec.c anonself.c \
-	atfork.c auto-verify.c base64.c base64-raw.c buffer.c cert.c \
-	cert-status.c cert_verify_inv_utf8.c \
-	certificate_set_x509_crl.c certuniqueid.c chainverify.c \
-	chainverify-unsorted.c cipher-alignment.c cipher-padding.c \
-	ciphersuite-name.c client-fastopen.c client-sign-md5-rep.c \
-	client_dsa_key.c $(compress_cert_conf_SOURCES) conv-utf8.c \
-	crl-basic.c crl_apis.c crlverify.c crq-basic.c crq_apis.c \
-	crq_key_id.c crt_apis.c crt_inv_write.c custom-urls.c \
+	$(libpkcs11mock3_la_SOURCES) $(libpkcs11mock4_la_SOURCES) \
+	$(libutils_la_SOURCES) aead-cipher-vec.c alerts.c \
+	alpn-server-prec.c anonself.c atfork.c auto-verify.c base64.c \
+	base64-raw.c buffer.c cert.c cert-status.c \
+	cert_verify_inv_utf8.c certificate_set_x509_crl.c \
+	certuniqueid.c chainverify.c chainverify-unsorted.c \
+	cipher-alignment.c cipher-padding.c ciphersuite-name.c \
+	client-fastopen.c client-sign-md5-rep.c client_dsa_key.c \
+	$(compress_cert_conf_SOURCES) conv-utf8.c crl-basic.c \
+	crl_apis.c crlverify.c crq-basic.c crq_apis.c crq_key_id.c \
+	crt_apis.c crt_inv_write.c custom-urls.c \
 	custom-urls-override.c cve-2008-4989.c cve-2009-1415.c \
 	cve-2009-1416.c dane.c dane-strcodes.c dh-compute.c \
 	dh-compute2.c dh-params.c dhepskself.c dhex509self.c dn.c \
@@ -3791,8 +3808,9 @@ SOURCES = $(libpkcs11mock1_la_SOURCES) $(libpkcs11mock2_la_SOURCES) \
 	$(pkcs11_token_raw_SOURCES) pkcs11/distrust-after.c \
 	pkcs11/gnutls_pcert_list_import_x509_file.c \
 	pkcs11/gnutls_x509_crt_list_import_url.c pkcs11/list-objects.c \
-	pkcs11/list-tokens.c pkcs11/pkcs11-chainverify.c \
-	pkcs11/pkcs11-combo.c pkcs11/pkcs11-ec-privkey-test.c \
+	pkcs11/list-tokens.c pkcs11/long-label.c \
+	pkcs11/pkcs11-chainverify.c pkcs11/pkcs11-combo.c \
+	pkcs11/pkcs11-ec-privkey-test.c \
 	pkcs11/pkcs11-eddsa-privkey-test.c pkcs11/pkcs11-get-issuer.c \
 	pkcs11/pkcs11-import-with-pin.c pkcs11/pkcs11-is-known.c \
 	pkcs11/pkcs11-obj-import.c pkcs11/pkcs11-pin-func.c \
@@ -3911,7 +3929,8 @@ SOURCES = $(libpkcs11mock1_la_SOURCES) $(libpkcs11mock2_la_SOURCES) \
 	x509sign-verify-rsa.c xts-key-check.c
 DIST_SOURCES = $(am__libpkcs11mock1_la_SOURCES_DIST) \
 	$(am__libpkcs11mock2_la_SOURCES_DIST) \
-	$(am__libpkcs11mock3_la_SOURCES_DIST) $(libutils_la_SOURCES) \
+	$(am__libpkcs11mock3_la_SOURCES_DIST) \
+	$(am__libpkcs11mock4_la_SOURCES_DIST) $(libutils_la_SOURCES) \
 	aead-cipher-vec.c alerts.c alpn-server-prec.c anonself.c \
 	atfork.c auto-verify.c base64.c base64-raw.c buffer.c cert.c \
 	cert-status.c cert_verify_inv_utf8.c \
@@ -3992,8 +4011,9 @@ DIST_SOURCES = $(am__libpkcs11mock1_la_SOURCES_DIST) \
 	$(am__pkcs11_token_raw_SOURCES_DIST) pkcs11/distrust-after.c \
 	pkcs11/gnutls_pcert_list_import_x509_file.c \
 	pkcs11/gnutls_x509_crt_list_import_url.c pkcs11/list-objects.c \
-	pkcs11/list-tokens.c pkcs11/pkcs11-chainverify.c \
-	pkcs11/pkcs11-combo.c pkcs11/pkcs11-ec-privkey-test.c \
+	pkcs11/list-tokens.c pkcs11/long-label.c \
+	pkcs11/pkcs11-chainverify.c pkcs11/pkcs11-combo.c \
+	pkcs11/pkcs11-ec-privkey-test.c \
 	pkcs11/pkcs11-eddsa-privkey-test.c pkcs11/pkcs11-get-issuer.c \
 	pkcs11/pkcs11-import-with-pin.c pkcs11/pkcs11-is-known.c \
 	pkcs11/pkcs11-obj-import.c pkcs11/pkcs11-pin-func.c \
@@ -6747,6 +6767,7 @@ TESTS_ENVIRONMENT = HOST_OS=$$(uname) $(am__append_31) CC="$(CC)" \
 	P11MOCKLIB1=$(abs_builddir)/.libs/libpkcs11mock1.so \
 	P11MOCKLIB2=$(abs_builddir)/.libs/libpkcs11mock2.so \
 	P11MOCKLIB3=$(abs_builddir)/.libs/libpkcs11mock3.so \
+	P11MOCKLIB4=$(abs_builddir)/.libs/libpkcs11mock4.so \
 	PKCS12_MANY_CERTS_FILE=$(srcdir)/cert-tests/data/pkcs12_5certs.p12 \
 	PKCS12FILE=$(srcdir)/cert-tests/data/client.p12 \
 	PKCS12PASSWORD=foobar \
@@ -7083,6 +7104,9 @@ ssl30_cert_key_exchange_SOURCES = common-cert-key-exchange.c ssl30-cert-key-exch
 @ENABLE_PKCS11_TRUE@@WINDOWS_FALSE@libpkcs11mock3_la_SOURCES = pkcs11/pkcs11-mock3.c
 @ENABLE_PKCS11_TRUE@@WINDOWS_FALSE@libpkcs11mock3_la_LDFLAGS = -shared -rpath $(pkglibdir) -module -no-undefined -avoid-version
 @ENABLE_PKCS11_TRUE@@WINDOWS_FALSE@libpkcs11mock3_la_LIBADD = ../gl/libgnu.la
+@ENABLE_PKCS11_TRUE@@WINDOWS_FALSE@libpkcs11mock4_la_SOURCES = pkcs11/pkcs11-mock4.c
+@ENABLE_PKCS11_TRUE@@WINDOWS_FALSE@libpkcs11mock4_la_LDFLAGS = -shared -rpath $(pkglibdir) -module -no-undefined -avoid-version
+@ENABLE_PKCS11_TRUE@@WINDOWS_FALSE@libpkcs11mock4_la_LIBADD = ../gl/libgnu.la
 @ENABLE_PKCS11_TRUE@@WINDOWS_FALSE@pkcs11_cert_import_url_exts_SOURCES = pkcs11/pkcs11-cert-import-url-exts.c
 @ENABLE_PKCS11_TRUE@@WINDOWS_FALSE@pkcs11_cert_import_url_exts_DEPENDENCIES = libpkcs11mock1.la libutils.la
 @ENABLE_PKCS11_TRUE@@WINDOWS_FALSE@pkcs11_cert_import_url4_exts_SOURCES = pkcs11/pkcs11-cert-import-url4-exts.c
@@ -7173,6 +7197,8 @@ pathbuf_CPPFLAGS = $(AM_CPPFLAGS) \
 @ENABLE_PKCS11_TRUE@@WINDOWS_FALSE@pkcs11_tls_neg_pkcs11_no_key_LDADD = $(LDADD) $(LIBDL)
 @ENABLE_PKCS11_TRUE@@WINDOWS_FALSE@pkcs11_distrust_after_DEPENDENCIES = libpkcs11mock3.la libutils.la
 @ENABLE_PKCS11_TRUE@@WINDOWS_FALSE@pkcs11_distrust_after_LDADD = $(LDADD) $(LIBDL)
+@ENABLE_PKCS11_TRUE@@WINDOWS_FALSE@pkcs11_long_label_DEPENDENCIES = libpkcs11mock4.la libutils.la
+@ENABLE_PKCS11_TRUE@@WINDOWS_FALSE@pkcs11_long_label_LDADD = $(LDADD) $(LIBDL)
 dist_check_SCRIPTS = rfc2253-escape-test.sh \
 	rsa-md5-collision/rsa-md5-collision.sh systemkey.sh \
 	$(am__append_18) $(am__append_20) $(am__append_21) \
@@ -7280,6 +7306,11 @@ pkcs11/pkcs11-mock3.lo: pkcs11/$(am__dirstamp) \
 
 libpkcs11mock3.la: $(libpkcs11mock3_la_OBJECTS) $(libpkcs11mock3_la_DEPENDENCIES) $(EXTRA_libpkcs11mock3_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(libpkcs11mock3_la_LINK) $(am_libpkcs11mock3_la_rpath) $(libpkcs11mock3_la_OBJECTS) $(libpkcs11mock3_la_LIBADD) $(LIBS)
+pkcs11/pkcs11-mock4.lo: pkcs11/$(am__dirstamp) \
+	pkcs11/$(DEPDIR)/$(am__dirstamp)
+
+libpkcs11mock4.la: $(libpkcs11mock4_la_OBJECTS) $(libpkcs11mock4_la_DEPENDENCIES) $(EXTRA_libpkcs11mock4_la_DEPENDENCIES) 
+	$(AM_V_CCLD)$(libpkcs11mock4_la_LINK) $(am_libpkcs11mock4_la_rpath) $(libpkcs11mock4_la_OBJECTS) $(libpkcs11mock4_la_LIBADD) $(LIBS)
 
 libutils.la: $(libutils_la_OBJECTS) $(libutils_la_DEPENDENCIES) $(EXTRA_libutils_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(LINK)  $(libutils_la_OBJECTS) $(libutils_la_LIBADD) $(LIBS)
@@ -8145,6 +8176,12 @@ pkcs11/list-tokens.$(OBJEXT): pkcs11/$(am__dirstamp) \
 pkcs11/list-tokens$(EXEEXT): $(pkcs11_list_tokens_OBJECTS) $(pkcs11_list_tokens_DEPENDENCIES) $(EXTRA_pkcs11_list_tokens_DEPENDENCIES) pkcs11/$(am__dirstamp)
 	@rm -f pkcs11/list-tokens$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(pkcs11_list_tokens_OBJECTS) $(pkcs11_list_tokens_LDADD) $(LIBS)
+pkcs11/long-label.$(OBJEXT): pkcs11/$(am__dirstamp) \
+	pkcs11/$(DEPDIR)/$(am__dirstamp)
+
+pkcs11/long-label$(EXEEXT): $(pkcs11_long_label_OBJECTS) $(pkcs11_long_label_DEPENDENCIES) $(EXTRA_pkcs11_long_label_DEPENDENCIES) pkcs11/$(am__dirstamp)
+	@rm -f pkcs11/long-label$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(pkcs11_long_label_OBJECTS) $(pkcs11_long_label_LDADD) $(LIBS)
 pkcs11/pkcs11-chainverify.$(OBJEXT): pkcs11/$(am__dirstamp) \
 	pkcs11/$(DEPDIR)/$(am__dirstamp)
 
@@ -9778,6 +9815,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@pkcs11/$(DEPDIR)/import_url_privkey_caps-pkcs11-import-url-privkey.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@pkcs11/$(DEPDIR)/list-objects.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@pkcs11/$(DEPDIR)/list-tokens.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@pkcs11/$(DEPDIR)/long-label.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@pkcs11/$(DEPDIR)/pkcs11-cert-import-url-exts.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@pkcs11/$(DEPDIR)/pkcs11-cert-import-url4-exts.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@pkcs11/$(DEPDIR)/pkcs11-chainverify.Po@am__quote@ # am--include-marker
@@ -9794,6 +9832,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@pkcs11/$(DEPDIR)/pkcs11-mock.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@pkcs11/$(DEPDIR)/pkcs11-mock2.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@pkcs11/$(DEPDIR)/pkcs11-mock3.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@pkcs11/$(DEPDIR)/pkcs11-mock4.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@pkcs11/$(DEPDIR)/pkcs11-obj-import.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@pkcs11/$(DEPDIR)/pkcs11-obj-raw.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@pkcs11/$(DEPDIR)/pkcs11-pin-func.Po@am__quote@ # am--include-marker
@@ -13673,6 +13712,13 @@ pkcs11/distrust-after.log: pkcs11/distrust-after$(EXEEXT)
 	--log-file $$b.log --trs-file $$b.trs \
 	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
 	"$$tst" $(AM_TESTS_FD_REDIRECT)
+pkcs11/long-label.log: pkcs11/long-label$(EXEEXT)
+	@p='pkcs11/long-label$(EXEEXT)'; \
+	b='pkcs11/long-label'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
 win32-certopenstore.log: win32-certopenstore$(EXEEXT)
 	@p='win32-certopenstore$(EXEEXT)'; \
 	b='win32-certopenstore'; \
@@ -14211,6 +14257,7 @@ distclean: distclean-recursive
 	-rm -f pkcs11/$(DEPDIR)/import_url_privkey_caps-pkcs11-import-url-privkey.Po
 	-rm -f pkcs11/$(DEPDIR)/list-objects.Po
 	-rm -f pkcs11/$(DEPDIR)/list-tokens.Po
+	-rm -f pkcs11/$(DEPDIR)/long-label.Po
 	-rm -f pkcs11/$(DEPDIR)/pkcs11-cert-import-url-exts.Po
 	-rm -f pkcs11/$(DEPDIR)/pkcs11-cert-import-url4-exts.Po
 	-rm -f pkcs11/$(DEPDIR)/pkcs11-chainverify.Po
@@ -14227,6 +14274,7 @@ distclean: distclean-recursive
 	-rm -f pkcs11/$(DEPDIR)/pkcs11-mock.Plo
 	-rm -f pkcs11/$(DEPDIR)/pkcs11-mock2.Plo
 	-rm -f pkcs11/$(DEPDIR)/pkcs11-mock3.Plo
+	-rm -f pkcs11/$(DEPDIR)/pkcs11-mock4.Plo
 	-rm -f pkcs11/$(DEPDIR)/pkcs11-obj-import.Po
 	-rm -f pkcs11/$(DEPDIR)/pkcs11-obj-raw.Po
 	-rm -f pkcs11/$(DEPDIR)/pkcs11-pin-func.Po
@@ -14734,6 +14782,7 @@ maintainer-clean: maintainer-clean-recursive
 	-rm -f pkcs11/$(DEPDIR)/import_url_privkey_caps-pkcs11-import-url-privkey.Po
 	-rm -f pkcs11/$(DEPDIR)/list-objects.Po
 	-rm -f pkcs11/$(DEPDIR)/list-tokens.Po
+	-rm -f pkcs11/$(DEPDIR)/long-label.Po
 	-rm -f pkcs11/$(DEPDIR)/pkcs11-cert-import-url-exts.Po
 	-rm -f pkcs11/$(DEPDIR)/pkcs11-cert-import-url4-exts.Po
 	-rm -f pkcs11/$(DEPDIR)/pkcs11-chainverify.Po
@@ -14750,6 +14799,7 @@ maintainer-clean: maintainer-clean-recursive
 	-rm -f pkcs11/$(DEPDIR)/pkcs11-mock.Plo
 	-rm -f pkcs11/$(DEPDIR)/pkcs11-mock2.Plo
 	-rm -f pkcs11/$(DEPDIR)/pkcs11-mock3.Plo
+	-rm -f pkcs11/$(DEPDIR)/pkcs11-mock4.Plo
 	-rm -f pkcs11/$(DEPDIR)/pkcs11-obj-import.Po
 	-rm -f pkcs11/$(DEPDIR)/pkcs11-obj-raw.Po
 	-rm -f pkcs11/$(DEPDIR)/pkcs11-pin-func.Po
