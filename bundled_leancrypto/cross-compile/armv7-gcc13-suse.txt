@@ -1,0 +1,11 @@
+[binaries]
+c = 'arm-none-eabi-gcc'
+cpp = 'arm-none-eabi-g++'
+ar = 'arm-none-eabi-ar'
+strip = 'arm-none-eabi-strip'
+
+[host_machine]
+system = 'linux'
+cpu_family = 'armv7l'
+cpu = 'armv7l'
+endian = 'little'

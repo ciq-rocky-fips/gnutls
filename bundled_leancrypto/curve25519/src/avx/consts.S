@@ -1,0 +1,48 @@
+/*
+ * Copyright (C) 2023 - 2025, Stephan Mueller <smueller@chronox.de>
+ *
+ * License: see LICENSE file in root directory
+ *
+ * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, ALL OF
+ * WHICH ARE HEREBY DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT
+ * OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+ * BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF NOT ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ */
+/*
+ * This code is derived in parts from the code distribution provided with
+ * https://github.com/jedisct1/libsodium.git
+ *
+ * That code is released under ISC License
+ *
+ * Copyright (c) 2013-2023 - 2025
+ * Frank Denis <j at pureftpd dot org>
+ */
+
+/*
+   REDMASK51 is from amd64-51/consts.s.
+*/
+
+.section .rodata
+.p2align 4
+v0_0: .quad 0, 0
+v1_0: .quad 1, 0
+v2_1: .quad 2, 1
+v9_0: .quad 9, 0
+v9_9: .quad 9, 9
+v19_19: .quad 19, 19
+v38_1: .quad 38, 1
+v38_38: .quad 38, 38
+v121666_121666: .quad 121666, 121666
+m25: .quad 33554431, 33554431
+m26: .quad 67108863, 67108863
+subc0: .quad 0x07FFFFDA, 0x03FFFFFE
+subc2: .quad 0x07FFFFFE, 0x03FFFFFE
+REDMASK51:   .quad 0x0007FFFFFFFFFFFF

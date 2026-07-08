@@ -1,0 +1,21 @@
+[package]
+name = "leancrypto-sys"
+version = "0.2.0"
+edition = "2021"
+authors = ["Stephan Mueller <smueller@chronox.de>"]
+description = "Rust language binding for leancrypto, a cryptographic library with stack-only support and PQC-safe algorithms"
+license = "BSD-3-Clause"
+repository = "https://github.com/smuellerDD/leancrypto"
+homepage = "https://leancrypto.org"
+readme = "README.md"
+keywords = ["PQC", "ML-KEM", "ML-DSA", "SLH-DSA", "HQC"]
+categories = ["cryptography", "external-ffi-bindings"]
+
+[features]
+pkg-config = ["dep:pkg-config"]
+
+[dependencies]
+
+[build-dependencies]
+bindgen = { version = "0.69.1", features = ["experimental"] }
+pkg-config = { version = "0.3.30", optional = true }

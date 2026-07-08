@@ -1,0 +1,120 @@
+obj-m		 		:= leancrypto.o
+
+# Kernel module framework
+ccflags-y			+= -DLINUX_KERNEL
+ccflags-y			+= -DLC_MEM_ON_HEAP -Wframe-larger-than=2048
+asflags-y			+= -DLINUX_KERNEL
+
+# Shut up some annoying warnings
+ccflags-y	  		+= -Wno-declaration-after-statement -Wno-main
+
+# General includes
+ccflags-y			+= -I$(src)				       \
+				   -I$(src)/../internal/api		       \
+				   -I$(src)/../curve25519/src		       \
+				   -I$(src)/../curve448/src		       \
+				   -I$(src)/../aead/api			       \
+				   -I$(src)/../apps/api			       \
+				   -I$(src)/../asn1/src			       \
+				   -I$(src)/../bike/api			       \
+				   -I$(src)/../curve25519/api		       \
+				   -I$(src)/../curve448/api		       \
+				   -I$(src)/../drng/api			       \
+				   -I$(src)/../drng/src			       \
+				   -I$(src)/../hash/api			       \
+				   -I$(src)/../hmac/api			       \
+				   -I$(src)/../hqc/api			       \
+				   -I$(src)/../ml-kem/api		       \
+				   -I$(src)/../kdf/api			       \
+				   -I$(src)/../kmac/api			       \
+				   -I$(src)/../otp/api			       \
+				   -I$(src)/../ml-dsa/api		       \
+				   -I$(src)/../slh-dsa/api		       \
+				   -I$(src)/../sym/api			       \
+				   -I$(src)/../asn1/api
+asflags-y			+= -I$(src)				       \
+				   -I$(src)/../internal/api		       \
+				   -I$(src)/../ml-kem/api		       \
+				   -I$(src)/../ml-dsa/api		       \
+				   -I$(src)/../curve25519/src		       \
+				   -I$(src)/../curve448/src		       \
+				   -I$(src)/../aead/api			       \
+				   -I$(src)/../apps/api			       \
+				   -I$(src)/../asn1/src			       \
+				   -I$(src)/../bike/api			       \
+				   -I$(src)/../curve25519/api		       \
+				   -I$(src)/../curve448/api		       \
+				   -I$(src)/../drng/api			       \
+				   -I$(src)/../drng/src			       \
+				   -I$(src)/../hash/api			       \
+				   -I$(src)/../hmac/api			       \
+				   -I$(src)/../hqc/api			       \
+				   -I$(src)/../ml-kem/api		       \
+				   -I$(src)/../kdf/api			       \
+				   -I$(src)/../kmac/api			       \
+				   -I$(src)/../otp/api			       \
+				   -I$(src)/../ml-dsa/api		       \
+				   -I$(src)/../slh-dsa/api		       \
+				   -I$(src)/../sym/api			       \
+				   -I$(src)/../asn1/api
+
+ifdef CONFIG_X86_64
+ccflags-y			+= -DLC_HOST_X86_64
+else ifdef CONFIG_ARM64
+ccflags-y			+= -DLC_HOST_AARCH64
+else ifneq ($(and $(CONFIG_RISCV),$(CONFIG_64BIT)),)
+ccflags-y			+= -DLC_HOST_RISCV64
+endif
+
+ifdef CONFIG_LEANCRYPTO_HEALTH_TEST
+ccflags-y			+= -DLC_SELFTEST_ENABLED
+endif
+
+ifdef CONFIG_ARM64
+ccflags-y			+= -mno-outline-atomics
+endif
+
+################################################################################
+# Basic support code
+
+# Basic leancrypto KO construct
+leancrypto-y			+= posix_support.o			       \
+				   leancrypto_kernel.o
+
+# Internal helper code
+leancrypto-y			+= ../internal/src/left_encode.o	       \
+				   ../internal/src/leancrypto_init.o	       \
+				   ../internal/src/compare.o		       \
+				   ../internal/src/fips_integrity_check.o      \
+				   ../internal/src/null_buffer.o	       \
+				   ../internal/src/fips_integrity_checker_none.o\
+				   ../internal/src/status.o
+
+leancrypto-$(CONFIG_LEANCRYPTO_SIG_SUPPORT)				       \
+				+= ../internal/src/signature_domain_separation.o
+
+# CPU Features Support
+ifdef CONFIG_X86
+leancrypto-y	  		+= ../internal/src/cpufeatures_x86.o
+else ifdef CONFIG_ARM
+leancrypto-y	  		+= cpufeatures_arm32_linux_kernel.o
+else ifdef CONFIG_ARM64
+leancrypto-y	  		+= ../internal/src/cpufeatures_arm64_native.o
+else ifneq ($(and $(CONFIG_RISCV),$(CONFIG_64BIT)),)
+leancrypto-y	  		+= ../internal/src/cpufeatures_riscv_native.o
+else
+leancrypto-y	 		+= ../internal/src/cpufeatures_none.o
+endif
+
+# Special Memcmp Support
+ifdef CONFIG_X86_64
+leancrypto-y	  		+= ../internal/src/memcmp_secure_avx2.o
+else
+leancrypto-y	 		+= ../internal/src/memcmp_secure_c.o
+endif
+
+obj-m				+= status_tester.o
+obj-m				+= rerun_selftests_tester.o
+
+status_tester-y			+= ../internal/tests/status_tester.o
+rerun_selftests_tester-y	+= ../internal/tests/rerun_selftests_tester.o
