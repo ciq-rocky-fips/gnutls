@@ -1042,6 +1042,14 @@ static int _wrap_nettle_pk_encrypt(gnutls_pk_algorithm_t algo,
 			goto cleanup;
 		}
 
+#ifdef ENABLE_FIPS140
+		if ((_gnutls_get_lib_state() != LIB_STATE_SELFTEST) &&
+				(_gnutls_fips_mode_enabled() == GNUTLS_FIPS140_STRICT)) {
+			ret = gnutls_assert_val(GNUTLS_E_UNWANTED_ALGORITHM);
+			goto cleanup;
+		}
+#endif
+
 		/* RSA encryption with PKCS#1 v1.5 padding is not approved */
 		not_approved = true;
 
@@ -1219,6 +1227,14 @@ static int _wrap_nettle_pk_decrypt(gnutls_pk_algorithm_t algo,
 			goto cleanup;
 		}
 
+#ifdef ENABLE_FIPS140
+		if ((_gnutls_get_lib_state() != LIB_STATE_SELFTEST) &&
+				(_gnutls_fips_mode_enabled() == GNUTLS_FIPS140_STRICT)) {
+			ret = gnutls_assert_val(GNUTLS_E_UNWANTED_ALGORITHM);
+			goto cleanup;
+		}
+#endif
+
 		/* RSA decryption with PKCS#1 v1.5 padding is not approved */
 		not_approved = true;
 
@@ -1377,6 +1393,14 @@ static int _wrap_nettle_pk_decrypt2(gnutls_pk_algorithm_t algo,
 	if (encrypt_params->pk == GNUTLS_PK_RSA_OAEP) {
 		algo = GNUTLS_PK_RSA_OAEP;
 	}
+
+#ifdef ENABLE_FIPS140
+	if ((_gnutls_get_lib_state() != LIB_STATE_SELFTEST) &&
+			(_gnutls_fips_mode_enabled() == GNUTLS_FIPS140_STRICT)) {
+		ret = gnutls_assert_val(GNUTLS_E_UNWANTED_ALGORITHM);
+		goto fail;
+	}
+#endif
 
 	_rsa_params_to_privkey(pk_params, &priv);
 	ret = _rsa_params_to_pubkey(pk_params, &pub);
