@@ -2208,8 +2208,8 @@ int gnutls_pbkdf2(gnutls_mac_algorithm_t mac, const gnutls_datum_t *key,
 		not_approved = true;
 	}
 
-	/* Key lengths and output sizes of less than 112 bits are not approved */
-	if (key->size < 14 || length < 14) {
+	/* Output sizes of less than 112 bits are not approved */
+	if (length < 14) {
 		not_approved = true;
 	}
 
@@ -2220,6 +2220,11 @@ int gnutls_pbkdf2(gnutls_mac_algorithm_t mac, const gnutls_datum_t *key,
 
 	/* Minimum iterations bound (SP 800-132 5.2) */
 	if (iter_count < 1000) {
+		not_approved = true;
+	}
+
+	/* FIPS recommends minimum passlen of 20 characters (SP SP800-132 sec 5) */
+	if (key->size < 20) {
 		not_approved = true;
 	}
 
