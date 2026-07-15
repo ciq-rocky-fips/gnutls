@@ -292,7 +292,7 @@ static void _wrap_gmac_digest(void *_ctx, size_t length, uint8_t *digest)
 static int _mac_ctx_init(gnutls_mac_algorithm_t algo,
 			 struct nettle_mac_ctx *ctx)
 {
-	/* Any FIPS140-2 related enforcement is performed on
+	/* Any FIPS140-3 related enforcement is performed on
 	 * gnutls_hash_init() and gnutls_hmac_init() */
 
 	ctx->set_nonce = NULL;
@@ -688,7 +688,7 @@ static void _md5_sha1_init(void *_ctx)
 static int _ctx_init(gnutls_digest_algorithm_t algo,
 		     struct nettle_hash_ctx *ctx)
 {
-	/* Any FIPS140-2 related enforcement is performed on
+	/* Any FIPS140-3 related enforcement is performed on
 	 * gnutls_hash_init() and gnutls_hmac_init() */
 
 	ctx->finished = NULL;
