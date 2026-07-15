@@ -120,7 +120,7 @@ unsigned _gnutls_fips_mode_enabled(void)
 	}
 
 	if (f1p != 0) {
-		_gnutls_debug_log("FIPS140-2 mode enabled\n");
+		_gnutls_debug_log("FIPS140-3 mode enabled\n");
 		ret = GNUTLS_FIPS140_STRICT;
 		goto exit;
 	}
@@ -719,7 +719,7 @@ unsigned gnutls_fips140_mode_enabled(void)
 
 /**
  * gnutls_fips140_set_mode:
- * @mode: the FIPS140-2 mode to switch to
+ * @mode: the FIPS140-3 mode to switch to
  * @flags: should be zero or %GNUTLS_FIPS140_SET_MODE_THREAD
  *
  * That function is not thread-safe when changing the mode with no flags
@@ -727,13 +727,13 @@ unsigned gnutls_fips140_mode_enabled(void)
  * behavior with no flags after threads are created is undefined.
  *
  * When the flag %GNUTLS_FIPS140_SET_MODE_THREAD is specified
- * then this call will change the FIPS140-2 mode for this particular
+ * then this call will change the FIPS140-3 mode for this particular
  * thread and not for the whole process. That way an application
  * can utilize this function to set and reset mode for specific
  * operations.
  *
  * This function never fails but will be a no-op if used when
- * the library is not in FIPS140-2 mode. When asked to switch to unknown
+ * the library is not in FIPS140-3 mode. When asked to switch to unknown
  * values for @mode or to %GNUTLS_FIPS140_SELFTESTS mode, the library
  * switches to %GNUTLS_FIPS140_STRICT mode.
  *
@@ -745,10 +745,10 @@ void gnutls_fips140_set_mode(gnutls_fips_mode_t mode, unsigned flags)
 	gnutls_fips_mode_t prev = _gnutls_fips_mode_enabled();
 	if (prev == GNUTLS_FIPS140_DISABLED ||
 	    prev == GNUTLS_FIPS140_SELFTESTS) {
-		/* we need to run self-tests first to be in FIPS140-2 mode */
+		/* we need to run self-tests first to be in FIPS140-3 mode */
 		_gnutls_audit_log(
 			NULL,
-			"The library should be initialized in FIPS140-2 mode to do that operation\n");
+			"The library should be initialized in FIPS140-3 mode to do that operation\n");
 		return;
 	}
 
@@ -761,7 +761,7 @@ void gnutls_fips140_set_mode(gnutls_fips_mode_t mode, unsigned flags)
 	case GNUTLS_FIPS140_SELFTESTS:
 		_gnutls_audit_log(
 			NULL,
-			"Cannot switch library to FIPS140-2 self-tests mode; defaulting to strict\n");
+			"Cannot switch library to FIPS140-3 self-tests mode; defaulting to strict\n");
 		mode = GNUTLS_FIPS140_STRICT;
 		break;
 	default:
@@ -937,7 +937,7 @@ void _gnutls_switch_fips_state(gnutls_fips140_operation_state_t state)
 	}
 
 	if (!_tfips_context) {
-		_gnutls_debug_log("FIPS140-2 context is not set\n");
+		_gnutls_debug_log("FIPS140-3 context is not set\n");
 		return;
 	}
 
@@ -951,7 +951,7 @@ void _gnutls_switch_fips_state(gnutls_fips140_operation_state_t state)
 		if (mode != GNUTLS_FIPS140_LAX) {
 			_gnutls_audit_log(
 				NULL,
-				"FIPS140-2 operation mode switched from initial to %s\n",
+				"FIPS140-3 operation mode switched from initial to %s\n",
 				operation_state_to_string(state));
 		}
 		_tfips_context->state = state;
@@ -962,7 +962,7 @@ void _gnutls_switch_fips_state(gnutls_fips140_operation_state_t state)
 			if (mode != GNUTLS_FIPS140_LAX) {
 				_gnutls_audit_log(
 					NULL,
-					"FIPS140-2 operation mode switched from approved to %s\n",
+					"FIPS140-3 operation mode switched from approved to %s\n",
 					operation_state_to_string(state));
 			}
 			_tfips_context->state = state;
@@ -974,7 +974,7 @@ void _gnutls_switch_fips_state(gnutls_fips140_operation_state_t state)
 		if (mode != GNUTLS_FIPS140_LAX) {
 			_gnutls_audit_log(
 				NULL,
-				"FIPS140-2 operation mode cannot be switched from %s to %s\n",
+				"FIPS140-3 operation mode cannot be switched from %s to %s\n",
 				operation_state_to_string(
 					_tfips_context->state),
 				operation_state_to_string(state));
@@ -1036,7 +1036,7 @@ int gnutls_fips140_run_self_tests(void)
 	    ret < 0) {
 		_gnutls_switch_lib_state(LIB_STATE_ERROR);
 		_gnutls_audit_log(NULL,
-				  "FIPS140-2 self testing part 2 failed\n");
+				  "FIPS140-3 self testing part 2 failed\n");
 	} else {
 		/* Restore the previous library state */
 		_gnutls_switch_lib_state(prev_lib_state);
@@ -1048,7 +1048,7 @@ int gnutls_fips140_run_self_tests(void)
 		if (gnutls_fips140_pop_context() < 0) {
 			_gnutls_switch_lib_state(LIB_STATE_ERROR);
 			_gnutls_audit_log(
-				NULL, "FIPS140-2 context restoration failed\n");
+				NULL, "FIPS140-3 context restoration failed\n");
 		}
 		gnutls_fips140_context_deinit(fips_context);
 	}

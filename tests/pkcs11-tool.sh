@@ -30,7 +30,7 @@ set -x
 : ${DIFF=diff}
 
 if test "${GNUTLS_FORCE_FIPS_MODE}" = 1;then
-	echo "Cannot run in FIPS140-2 mode"
+	echo "Cannot run in FIPS140-3 mode"
 	exit 77
 fi
 

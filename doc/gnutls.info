@@ -624,7 +624,7 @@ Ref: fig-crypto-layers746569
 Ref: Cryptographic Backend-Footnote-1749876
 Ref: Cryptographic Backend-Footnote-2749961
 Node: Random Number Generators-internals750073
-Node: FIPS140-2 mode757529
+Node: FIPS140-3 mode757529
 Ref: gnutls_fips_mode_t760193
 Node: Upgrading from previous versions763861
 Node: Support778099
