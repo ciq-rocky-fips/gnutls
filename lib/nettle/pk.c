@@ -930,13 +930,25 @@ static int _wrap_nettle_pk_encaps(gnutls_pk_algorithm_t algo,
 				  gnutls_datum_t *shared_secret,
 				  const gnutls_datum_t *pub)
 {
+	int ret;
+
 	switch (algo) {
 	case GNUTLS_PK_MLKEM768:
 	case GNUTLS_PK_MLKEM1024:
-		return ml_kem_encaps(algo, ciphertext, shared_secret, pub);
+		ret = ml_kem_encaps(algo, ciphertext, shared_secret, pub);
+		break;
 	default:
-		return gnutls_assert_val(GNUTLS_E_UNKNOWN_ALGORITHM);
+		ret = gnutls_assert_val(GNUTLS_E_UNKNOWN_ALGORITHM);
+		break;
 	}
+
+	if (ret < 0) {
+		_gnutls_switch_fips_state(GNUTLS_FIPS140_OP_ERROR);
+	} else {
+		_gnutls_switch_fips_state(GNUTLS_FIPS140_OP_APPROVED);
+	}
+
+	return ret;
 }
 
 static int _wrap_nettle_pk_decaps(gnutls_pk_algorithm_t algo,
@@ -944,13 +956,25 @@ static int _wrap_nettle_pk_decaps(gnutls_pk_algorithm_t algo,
 				  const gnutls_datum_t *ciphertext,
 				  const gnutls_datum_t *priv)
 {
+	int ret;
+
 	switch (algo) {
 	case GNUTLS_PK_MLKEM768:
 	case GNUTLS_PK_MLKEM1024:
-		return ml_kem_decaps(algo, shared_secret, ciphertext, priv);
+		ret = ml_kem_decaps(algo, shared_secret, ciphertext, priv);
+		break;
 	default:
-		return gnutls_assert_val(GNUTLS_E_UNKNOWN_ALGORITHM);
+		ret = gnutls_assert_val(GNUTLS_E_UNKNOWN_ALGORITHM);
+		break;
 	}
+
+	if (ret < 0) {
+		_gnutls_switch_fips_state(GNUTLS_FIPS140_OP_ERROR);
+	} else {
+		_gnutls_switch_fips_state(GNUTLS_FIPS140_OP_APPROVED);
+	}
+
+	return ret;
 }
 
 /* This wraps nettle_rsa_encrypt so it returns ciphertext as a byte
@@ -2218,7 +2242,6 @@ static int _wrap_nettle_pk_sign(gnutls_pk_algorithm_t algo,
 	case GNUTLS_PK_MLDSA44:
 	case GNUTLS_PK_MLDSA65:
 	case GNUTLS_PK_MLDSA87:
-		not_approved = true;
 		ret = ml_dsa_sign(algo, signature, vdata, &pk_params->raw_priv);
 		if (ret < 0)
 			goto cleanup;
@@ -2600,7 +2623,6 @@ static int _wrap_nettle_pk_verify(gnutls_pk_algorithm_t algo,
 	case GNUTLS_PK_MLDSA44:
 	case GNUTLS_PK_MLDSA65:
 	case GNUTLS_PK_MLDSA87:
-		not_approved = true;
 		ret = ml_dsa_verify(algo, signature, vdata,
 				    &pk_params->raw_pub);
 		if (ret < 0)
@@ -2845,6 +2867,12 @@ static int _wrap_nettle_pk_sign_exists(gnutls_sign_algorithm_t sign)
 #endif
 	case GNUTLS_SIGN_EDDSA_ED448:
 		return 1;
+#ifdef HAVE_LEANCRYPTO
+	case GNUTLS_SIGN_MLDSA44:
+	case GNUTLS_SIGN_MLDSA65:
+	case GNUTLS_SIGN_MLDSA87:
+		return ml_dsa_exists(gnutls_sign_get_pk_algorithm(sign));
+#endif
 	default:
 		return 0;
 	}
@@ -2996,6 +3024,7 @@ static int wrap_nettle_pk_generate_params(gnutls_pk_algorithm_t algo,
 	case GNUTLS_PK_GOST_12_512:
 #endif
 	case GNUTLS_PK_MLKEM768:
+	case GNUTLS_PK_MLKEM1024:
 	case GNUTLS_PK_MLDSA44:
 	case GNUTLS_PK_MLDSA65:
 	case GNUTLS_PK_MLDSA87:
@@ -4167,7 +4196,6 @@ wrap_nettle_pk_generate_keys(gnutls_pk_algorithm_t algo,
 	}
 	case GNUTLS_PK_MLKEM768:
 	case GNUTLS_PK_MLKEM1024:
-		not_approved = true;
 		ret = ml_kem_generate_keypair(algo, &params->raw_priv,
 					      &params->raw_pub);
 		if (ret < 0)
@@ -4178,8 +4206,6 @@ wrap_nettle_pk_generate_keys(gnutls_pk_algorithm_t algo,
 	case GNUTLS_PK_MLDSA87:
 		if (params->pkflags & GNUTLS_PK_FLAG_PROVABLE)
 			return gnutls_assert_val(GNUTLS_E_INVALID_REQUEST);
-
-		not_approved = true;
 
 		if (!(params->pkflags & GNUTLS_PK_FLAG_EXPAND_KEYS_FROM_SEED)) {
 			_gnutls_free_key_datum(&params->raw_seed);

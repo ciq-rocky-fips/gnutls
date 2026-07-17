@@ -1012,6 +1012,118 @@ cleanup:
 	return ret;
 }
 
+#ifdef HAVE_LEANCRYPTO
+/* ML-DSA self test: keygen + sign + verify round-trip.
+ * This triggers leancrypto's internal KATs with hardcoded NIST vectors
+ * on first use of each operation.
+ */
+static int test_ml_dsa(gnutls_pk_algorithm_t algo)
+{
+	int ret;
+	gnutls_pk_params_st params;
+	gnutls_datum_t sig = { NULL, 0 };
+	gnutls_datum_t vdata = { .data = (void *)DATASTR,
+				 .size = sizeof(DATASTR) - 1 };
+	gnutls_x509_spki_st spki;
+
+	memset(&spki, 0, sizeof(spki));
+	gnutls_pk_params_init(&params);
+
+	ret = _gnutls_pk_generate_keys(algo, 0, &params, 0);
+	if (ret < 0) {
+		gnutls_assert();
+		goto cleanup;
+	}
+
+	ret = _gnutls_pk_sign(algo, &sig, &vdata, &params, &spki);
+	if (ret < 0) {
+		gnutls_assert();
+		goto cleanup;
+	}
+
+	ret = _gnutls_pk_verify(algo, &vdata, &sig, &params, &spki);
+	if (ret < 0) {
+		gnutls_assert();
+		goto cleanup;
+	}
+
+	ret = 0;
+cleanup:
+	/* Zeroize private key material before freeing */
+	gnutls_pk_params_clear(&params);
+	gnutls_pk_params_release(&params);
+	_gnutls_free_key_datum(&sig);
+
+	if (ret < 0) {
+		_gnutls_debug_log("ML-DSA self test failed\n");
+	} else {
+		_gnutls_debug_log("ML-DSA self test succeeded\n");
+	}
+
+	return ret;
+}
+
+/* ML-KEM self test: keygen + encaps + decaps round-trip.
+ * This triggers leancrypto's internal KATs with hardcoded NIST vectors
+ * on first use of each operation.
+ */
+static int test_ml_kem(gnutls_pk_algorithm_t algo)
+{
+	int ret;
+	gnutls_pk_params_st params;
+	gnutls_datum_t ciphertext = { NULL, 0 };
+	gnutls_datum_t shared_secret_enc = { NULL, 0 };
+	gnutls_datum_t shared_secret_dec = { NULL, 0 };
+
+	gnutls_pk_params_init(&params);
+
+	ret = _gnutls_pk_generate_keys(algo, 0, &params, 0);
+	if (ret < 0) {
+		gnutls_assert();
+		goto cleanup;
+	}
+
+	ret = _gnutls_pk_encaps(algo, &ciphertext, &shared_secret_enc,
+				&params.raw_pub);
+	if (ret < 0) {
+		gnutls_assert();
+		goto cleanup;
+	}
+
+	ret = _gnutls_pk_decaps(algo, &shared_secret_dec, &ciphertext,
+				&params.raw_priv);
+	if (ret < 0) {
+		gnutls_assert();
+		goto cleanup;
+	}
+
+	if (shared_secret_enc.size != shared_secret_dec.size ||
+	    memcmp(shared_secret_enc.data, shared_secret_dec.data,
+		   shared_secret_enc.size) != 0) {
+		ret = GNUTLS_E_SELF_TEST_ERROR;
+		gnutls_assert();
+		goto cleanup;
+	}
+
+	ret = 0;
+cleanup:
+	/* Zeroize private key and shared secrets before freeing */
+	gnutls_pk_params_clear(&params);
+	gnutls_pk_params_release(&params);
+	gnutls_free(ciphertext.data);
+	_gnutls_free_key_datum(&shared_secret_enc);
+	_gnutls_free_key_datum(&shared_secret_dec);
+
+	if (ret < 0) {
+		_gnutls_debug_log("ML-KEM self test failed\n");
+	} else {
+		_gnutls_debug_log("ML-KEM self test succeeded\n");
+	}
+
+	return ret;
+}
+#endif /* HAVE_LEANCRYPTO */
+
 /*-
  * gnutls_pk_self_test:
  * @flags: GNUTLS_SELF_TEST_FLAG flags
@@ -1240,6 +1352,63 @@ int gnutls_pk_self_test(unsigned flags, gnutls_pk_algorithm_t pk)
 		if (!(flags & GNUTLS_SELF_TEST_FLAG_ALL))
 			return 0;
 
+		FALLTHROUGH;
+#ifdef HAVE_LEANCRYPTO
+	case GNUTLS_PK_MLDSA44:
+		ret = test_ml_dsa(GNUTLS_PK_MLDSA44);
+		if (ret < 0) {
+			gnutls_assert();
+			goto cleanup;
+		}
+
+		if (!(flags & GNUTLS_SELF_TEST_FLAG_ALL))
+			return 0;
+
+		FALLTHROUGH;
+	case GNUTLS_PK_MLDSA65:
+		ret = test_ml_dsa(GNUTLS_PK_MLDSA65);
+		if (ret < 0) {
+			gnutls_assert();
+			goto cleanup;
+		}
+
+		if (!(flags & GNUTLS_SELF_TEST_FLAG_ALL))
+			return 0;
+
+		FALLTHROUGH;
+	case GNUTLS_PK_MLDSA87:
+		ret = test_ml_dsa(GNUTLS_PK_MLDSA87);
+		if (ret < 0) {
+			gnutls_assert();
+			goto cleanup;
+		}
+
+		if (!(flags & GNUTLS_SELF_TEST_FLAG_ALL))
+			return 0;
+
+		FALLTHROUGH;
+	case GNUTLS_PK_MLKEM768:
+		ret = test_ml_kem(GNUTLS_PK_MLKEM768);
+		if (ret < 0) {
+			gnutls_assert();
+			goto cleanup;
+		}
+
+		if (!(flags & GNUTLS_SELF_TEST_FLAG_ALL))
+			return 0;
+
+		FALLTHROUGH;
+	case GNUTLS_PK_MLKEM1024:
+		ret = test_ml_kem(GNUTLS_PK_MLKEM1024);
+		if (ret < 0) {
+			gnutls_assert();
+			goto cleanup;
+		}
+
+		if (!(flags & GNUTLS_SELF_TEST_FLAG_ALL))
+			return 0;
+
+#endif /* HAVE_LEANCRYPTO */
 		break;
 	default:
 		return gnutls_assert_val(GNUTLS_E_NO_SELF_TEST);
