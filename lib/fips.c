@@ -637,6 +637,33 @@ int _gnutls_fips_perform_self_checks2(void)
 		return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
 	}
 
+#ifdef HAVE_LEANCRYPTO
+	ret = gnutls_pk_self_test(0, GNUTLS_PK_MLDSA44);
+	if (ret < 0) {
+		return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+	}
+
+	ret = gnutls_pk_self_test(0, GNUTLS_PK_MLDSA65);
+	if (ret < 0) {
+		return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+	}
+
+	ret = gnutls_pk_self_test(0, GNUTLS_PK_MLDSA87);
+	if (ret < 0) {
+		return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+	}
+
+	ret = gnutls_pk_self_test(0, GNUTLS_PK_MLKEM768);
+	if (ret < 0) {
+		return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+	}
+
+	ret = gnutls_pk_self_test(0, GNUTLS_PK_MLKEM1024);
+	if (ret < 0) {
+		return gnutls_assert_val(GNUTLS_E_SELF_TEST_ERROR);
+	}
+#endif
+
 	/* HKDF */
 	ret = gnutls_hkdf_self_test(0, GNUTLS_MAC_SHA256);
 	if (ret < 0) {
