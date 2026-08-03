@@ -43,6 +43,11 @@
 #include "global.h"
 #ifdef HAVE_LEANCRYPTO
 #include <leancrypto.h>
+/* Prototype for leancrypto internal FIPS mode enable function.
+ * The symbol is present in the statically-linked libleancrypto.a;
+ * calling it activates leancrypto's Pairwise Consistency Tests
+ * (PCT) for ML-KEM and ML-DSA key generation. */
+extern void fips140_mode_enable(void);
 #endif
 
 #ifdef ENABLE_PKCS11
@@ -378,6 +383,16 @@ static int _gnutls_global_init(unsigned constructor)
 	_gnutls_afalg_init();
 #ifdef HAVE_LEANCRYPTO
 	lc_init(0);
+#if defined(ENABLE_FIPS140)
+	/* Enable leancrypto's internal FIPS mode when GnuTLS is
+	 * operating in FIPS mode.  This activates Pairwise Consistency
+	 * Tests (PCT) for PQC key generation (ML-KEM, ML-DSA, etc.)
+	 * inside leancrypto.  The integrity test is already covered by
+	 * the GnuTLS FIPS HMAC over libgnutls.so which includes the
+	 * statically-linked leancrypto code. */
+	if (res != 0)
+		fips140_mode_enable();
+#endif
 #endif
 
 #ifdef ENABLE_FIPS140
