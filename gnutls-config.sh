@@ -6,6 +6,8 @@ fi
 local_install_prefix="${1}"
 export LEANCRYPTO_CFLAGS="-I$PWD/bundled_leancrypto/install/include"
 export LEANCRYPTO_LIBS="$PWD/bundled_leancrypto/install/lib/libleancrypto.a"
+export JITTERENTROPY_CFLAGS="-I$PWD/bundled_libjitterentropy/install/include"
+export JITTERENTROPY_LIBS="$PWD/bundled_libjitterentropy/install/lib/libjitterentropy.a -lpthread -lrt"
 export LDFLAGS="-Wl,-z,relro -Wl,--as-needed -Wl,-z,now"
 export CFLAGS="-O2 -flto=auto -ffat-lto-objects -fexceptions -g -grecord-gcc-switches -pipe -Wall -Werror=format-security"
 export CXXFLAGS="$CFLAGS"
@@ -46,6 +48,7 @@ export FIPS_MODULE_NAME="test"
       --enable-libdane \
       --with-zlib --with-brotli --with-zstd \
       --with-leancrypto \
+      --with-jitterentropy \
       --disable-rpath \
       --with-default-priority-string="@SYSTEM"
 make
