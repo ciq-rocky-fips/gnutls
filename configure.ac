@@ -1345,6 +1345,14 @@ AM_COND_IF([ENABLE_LEANCRYPTO], [
     fi
 ])
 
+AC_ARG_WITH(jitterentropy,
+   [AS_HELP_STRING([--with-jitterentropy],
+                  [enable bundled jitterentropy support])],
+            ac_jitterentropy=$withval, ac_jitterentropy=no)
+AM_CONDITIONAL(ENABLE_JITTERENTROPY, test "$ac_jitterentropy" != "no")
+AC_SUBST(JITTERENTROPY_CFLAGS)
+AC_SUBST(JITTERENTROPY_LIBS)
+
 AM_CONDITIONAL(NEED_LTLIBDL, test "$need_ltlibdl" = yes)
 
 # export for use in scripts

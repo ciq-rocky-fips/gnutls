@@ -113,6 +113,11 @@ else
 AM_CPPFLAGS += $(LIBTASN1_CFLAGS)
 endif
 
+if ENABLE_JITTERENTROPY
+AM_CPPFLAGS += $(JITTERENTROPY_CFLAGS)
+rng_sigint_LDADD = $(LDADD) $(JITTERENTROPY_LIBS)
+endif
+
 noinst_LTLIBRARIES = libutils.la
 libutils_la_SOURCES = utils.h utils.c seccomp.c utils-adv.c
 libutils_la_LIBADD = ../lib/libgnutls.la

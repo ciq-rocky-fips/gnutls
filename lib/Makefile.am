@@ -132,6 +132,11 @@ AM_CPPFLAGS += $(LEANCRYPTO_CFLAGS)
 thirdparty_libadd += $(LEANCRYPTO_LIBS)
 endif
 
+if ENABLE_JITTERENTROPY
+AM_CPPFLAGS += $(JITTERENTROPY_CFLAGS)
+thirdparty_libadd += $(JITTERENTROPY_LIBS)
+endif
+
 if ENABLE_GOST
 COBJECTS += vko.c
 endif
