@@ -34,6 +34,10 @@
 #include "fips.h"
 #else
 #define _gnutls_fips_mode_enabled() 0
+#define _gnutls_switch_fips_state(x) do {} while (0)
+#define _gnutls_switch_lib_state(x) do {} while (0)
+#define LIB_STATE_ERROR 0
+#define GNUTLS_FIPS140_OP_ERROR 0
 #endif
 
 #include <sys/types.h>
@@ -50,6 +54,17 @@
 #include <fcntl.h>
 
 get_entropy_func _rnd_get_system_entropy = NULL;
+
+
+# if defined(ENABLE_FIPS140)
+#  define HAVE_JENT
+#  include <jitterentropy.h>
+/* Per thread context of random generator, and a flag to indicate initialization */
+static _Thread_local struct rand_data* ec = NULL;
+static _Thread_local int jent_initialized = 0;
+/* Declare function to fix a missing-prototypes compilation warning */
+void gnutls_jent_entropy_deinit(void);
+# endif
 
 #if defined(__linux__)
 #ifdef HAVE_GETRANDOM
@@ -70,6 +85,106 @@ static ssize_t _getrandom0(void *buf, size_t buflen, unsigned int flags)
 #define getrandom(dst, s, flags) _getrandom0(dst, s, flags)
 #endif
 #endif
+
+# if defined(ENABLE_FIPS140)
+#  if defined(HAVE_JENT)
+/* check whether the CPU Jitter entropy collector is available. */
+/* osr: Oversampling rate */
+/* flags:
+ * JENT_FORCE_FIPS
+ * JENT_DISABLE_MEMORY_ACCESS
+ * JENT_DISABLE_INTERNAL_TIMER
+ * JENT_FORCE_INTERNAL_TIMER
+ * JENT_MAX_MEMSIZE_{32,64,128,256,512}kB
+ * JENT_MAX_MEMSIZE_{1,2,4,8,16,32,64,128,256,512}MB
+ */
+static unsigned gnutls_jent_entropy_init(void)
+{
+	unsigned int rv = 1;
+	unsigned int osr = 0;
+	unsigned int flags = 0;
+
+	if (_gnutls_fips_mode_enabled()) {
+		/* Set the FIPS flag. */
+		flags |= JENT_FORCE_FIPS;
+		/* Oversampling of 3 is required for FIPS mode. */
+		osr = 3;
+	}
+
+	/* Do not re-initialize jent. */
+	if (jent_initialized == 0) {
+		if (jent_entropy_init_ex(osr, flags))
+			return 0;
+		jent_initialized = 1;
+	}
+
+	/* Allocate the entropy collector. */
+	if (ec == NULL) {
+		ec = jent_entropy_collector_alloc(osr, flags);
+		if (ec == NULL) {
+			rv = 0;
+		}
+	}
+
+	return rv;
+}
+
+void gnutls_jent_entropy_deinit(void)
+{
+	/* Free the entropy collector. */
+	if (ec != NULL) {
+		jent_entropy_collector_free(ec);
+		ec = NULL;
+	}
+
+	jent_initialized = 0;
+
+	return;
+}
+
+/* returns exactly the amount of bytes requested */
+static int force_jent(void *buf, size_t buflen)
+{
+	static int jent_bytes = -1;
+
+	if (buf == NULL || buflen == 0) {
+		return -1;
+	}
+
+	/* Ensure the entropy source has been fully initiated. */
+	if (jent_initialized == 0 || ec == NULL) {
+		if (!gnutls_jent_entropy_init()) {
+			return -1;
+		}
+	}
+
+	/* Get entropy bytes. */
+	jent_bytes = jent_read_entropy_safe(&ec, (char *)buf, buflen);
+
+	return jent_bytes;
+}
+
+static int _rnd_get_system_entropy_jent(void* _rnd, size_t size)
+{
+	int ret;
+
+	ret = force_jent(_rnd, size);
+	if (ret < 0) {
+		int e = errno;
+		gnutls_assert();
+		_gnutls_debug_log("Failed to use jent: %s\n", strerror(e));
+		gnutls_jent_entropy_deinit();
+		if (_gnutls_fips_mode_enabled()) {
+			_gnutls_switch_fips_state(GNUTLS_FIPS140_OP_ERROR);
+			_gnutls_switch_lib_state(LIB_STATE_ERROR);
+		}
+		return GNUTLS_E_RANDOM_DEVICE_ERROR;
+	}
+
+	return 0;
+}
+#  endif
+# endif
 
 static unsigned have_getrandom(void)
 {
@@ -171,6 +286,25 @@ int _rnd_system_entropy_init(void)
 	int urandom_fd;
 
 #if defined(__linux__)
+
+# if defined(ENABLE_FIPS140)
+#  if defined(HAVE_JENT)
+	/* Enable jitterentropy usage only in FIPS mode */
+	if (_gnutls_fips_mode_enabled()) {
+		if (gnutls_jent_entropy_init()) {
+			_rnd_get_system_entropy = _rnd_get_system_entropy_jent;
+			_gnutls_debug_log("jitterentropy random generator was selected\n");
+			return 0;
+		} else {
+			_gnutls_debug_log("jitterentropy is not available\n");
+			_gnutls_switch_fips_state(GNUTLS_FIPS140_OP_ERROR);
+			_gnutls_switch_lib_state(LIB_STATE_ERROR);
+			return gnutls_assert_val(GNUTLS_E_RANDOM_DEVICE_ERROR);
+		}
+	}
+#  endif
+# endif
+
 	/* Enable getrandom() usage if available */
 	if (have_getrandom()) {
 		_rnd_get_system_entropy = _rnd_get_system_entropy_getrandom;
@@ -200,6 +334,15 @@ int _rnd_system_entropy_init(void)
 
 void _rnd_system_entropy_deinit(void)
 {
+#if defined(__linux__)
+# if defined(ENABLE_FIPS140)
+#  if defined(HAVE_JENT)
+	if (_gnutls_fips_mode_enabled()) {
+		gnutls_jent_entropy_deinit();
+	}
+#  endif
+# endif
+#endif
 	/* A no-op now when we open and close /dev/urandom every time */
 	return;
 }
