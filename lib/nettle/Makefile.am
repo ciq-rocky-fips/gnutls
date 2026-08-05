@@ -40,6 +40,10 @@ if ENABLE_LEANCRYPTO
 AM_CPPFLAGS += $(LEANCRYPTO_CFLAGS)
 endif
 
+if ENABLE_JITTERENTROPY
+AM_CPPFLAGS += $(JITTERENTROPY_CFLAGS)
+endif
+
 noinst_LTLIBRARIES = libcrypto.la
 
 libcrypto_la_SOURCES = pk.c mpi.c mac.c cipher.c init.c \
