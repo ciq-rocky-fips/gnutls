@@ -422,13 +422,14 @@ static int _gnutls_global_init(unsigned constructor)
 	p11_provider_pin = _gnutls_config_get_p11_provider_pin();
 
 	if (res == 1 && p11_provider_path != NULL) {
-		ret = _p11_provider_init(p11_provider_path,
-					 (const uint8_t *)p11_provider_pin,
-					 strlen(p11_provider_pin));
-		if (ret < 0) {
-			gnutls_assert();
-			goto out;
-		}
+		(void)p11_provider_pin;
+		_gnutls_switch_lib_state(LIB_STATE_ERROR);
+		_gnutls_audit_log(
+			NULL,
+			"FIPS140-3 mode: refusing to load PKCS#11 provider '%s'\n",
+			p11_provider_path);
+		ret = gnutls_assert_val(GNUTLS_E_LIB_IN_ERROR_STATE);
+		goto out;
 	}
 #endif
 
