@@ -76,7 +76,11 @@ int main(void)
 	const gnutls_datum_t *hash_data;
 	const gnutls_datum_t *invalid_hash_data;
 
-	gnutls_global_init();
+	ret = gnutls_global_init();
+	/* In FIPS140-3 mode a configured PKCS#11 provider is refused, leaving
+	 * the library in the error state; that is the expected result. */
+	if (ret == GNUTLS_E_LIB_IN_ERROR_STATE)
+		return 0;
 
 	for (i = 0; i < sizeof(tests) / sizeof(tests[0]); i++) {
 		if (tests[i].pk != GNUTLS_PK_RSA &&
