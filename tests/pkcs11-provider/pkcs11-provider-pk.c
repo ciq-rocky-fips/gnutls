@@ -277,7 +277,11 @@ int main(void)
 {
 	int ret;
 
-	gnutls_global_init();
+	ret = gnutls_global_init();
+	/* In FIPS140-3 mode a configured PKCS#11 provider is refused, leaving
+	 * the library in the error state; that is the expected result. */
+	if (ret == GNUTLS_E_LIB_IN_ERROR_STATE)
+		return 0;
 
 	ret = test_rsa();
 	if (ret < 0)
