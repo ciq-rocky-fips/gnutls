@@ -528,11 +528,17 @@ void gnutls_pk_params_release(gnutls_pk_params_st *p)
 {
 	unsigned int i;
 	for (i = 0; i < p->params_nr; i++) {
+		/* MPI params may hold private key material; zeroize before
+		 * releasing (_gnutls_mpi_release does not wipe). */
+		if (p->params[i] != NULL)
+			_gnutls_mpi_clear(p->params[i]);
 		_gnutls_mpi_release(&p->params[i]);
 	}
-	gnutls_free(p->raw_priv.data);
+	/* raw_priv and raw_seed are sensitive (private key / key-generation
+	 * seed); zeroize them before freeing. raw_pub is public. */
+	_gnutls_free_key_datum(&p->raw_priv);
 	gnutls_free(p->raw_pub.data);
-	gnutls_free(p->raw_seed.data);
+	_gnutls_free_key_datum(&p->raw_seed);
 	_gnutls_x509_spki_clear(&p->spki);
 
 	p->params_nr = 0;
