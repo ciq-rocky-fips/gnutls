@@ -773,6 +773,7 @@ static int ml_kem_encaps(gnutls_pk_algorithm_t algo, gnutls_datum_t *ciphertext,
 cleanup:
 	_gnutls_free_datum(&tmp_ciphertext);
 	_gnutls_free_key_datum(&tmp_shared_secret);
+	zeroize_key(&ss, sizeof(ss));
 	zeroize_key(&pk, sizeof(pk));
 	return ret;
 }
