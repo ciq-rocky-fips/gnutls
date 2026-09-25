@@ -4248,7 +4248,7 @@ cleanup:
 			_gnutls_mpi_release(&params->params[i]);
 		}
 		params->params_nr = 0;
-		gnutls_free(params->raw_priv.data);
+		_gnutls_free_key_datum(&params->raw_priv);
 		gnutls_free(params->raw_pub.data);
 	} else if (not_approved) {
 		_gnutls_switch_fips_state(GNUTLS_FIPS140_OP_NOT_APPROVED);
