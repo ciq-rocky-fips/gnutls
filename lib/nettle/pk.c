@@ -4174,20 +4174,20 @@ wrap_nettle_pk_generate_keys(gnutls_pk_algorithm_t algo,
 			ret = gnutls_assert_val(GNUTLS_E_MEMORY_ERROR);
 			goto cleanup;
 		}
+		params->raw_priv.size = size;
 
 		params->raw_pub.data = gnutls_malloc(size);
 		if (params->raw_pub.data == NULL) {
 			ret = gnutls_assert_val(GNUTLS_E_MEMORY_ERROR);
 			goto cleanup;
 		}
+		params->raw_pub.size = size;
 
 		ret = gnutls_rnd(rnd_level, params->raw_priv.data, size);
 		if (ret < 0) {
 			ret = gnutls_assert_val(GNUTLS_E_MEMORY_ERROR);
 			goto cleanup;
 		}
-		params->raw_pub.size = size;
-		params->raw_priv.size = size;
 
 		ret = edwards_curve_mul_g(algo, params->raw_pub.data,
 					  params->raw_priv.data);
