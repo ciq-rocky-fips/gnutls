@@ -45,6 +45,7 @@ int _tls13_init_secret2(const mac_entry_st *prf, const uint8_t *psk,
 			size_t psk_size, void *out)
 {
 	char buf[128];
+	char salt[MAX_HASH_SIZE];
 
 	if (unlikely(prf == NULL))
 		return gnutls_assert_val(GNUTLS_E_INTERNAL_ERROR);
@@ -59,7 +60,10 @@ int _tls13_init_secret2(const mac_entry_st *prf, const uint8_t *psk,
 		psk = (uint8_t *)buf;
 	}
 
-	return gnutls_hmac_fast(prf->id, "", 0, psk, psk_size, out);
+	/* passing an empty salt trips FIPS indicator, so pass real zeroes */
+	memset(salt, 0, prf->output_size);
+	return gnutls_hmac_fast(prf->id, salt, prf->output_size, psk, psk_size,
+				out);
 }
 
 /* HKDF-Extract(Prev-Secret, key) */
