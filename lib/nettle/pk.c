@@ -930,13 +930,30 @@ static int _wrap_nettle_pk_encaps(gnutls_pk_algorithm_t algo,
 				  gnutls_datum_t *shared_secret,
 				  const gnutls_datum_t *pub)
 {
+	int ret;
+	bool not_approved = false;
+
 	switch (algo) {
 	case GNUTLS_PK_MLKEM768:
 	case GNUTLS_PK_MLKEM1024:
-		return ml_kem_encaps(algo, ciphertext, shared_secret, pub);
+		/* unapproved until we implement a CAST per IG 10.3.A(14). */
+		not_approved = true;
+		break;
 	default:
 		return gnutls_assert_val(GNUTLS_E_UNKNOWN_ALGORITHM);
 	}
+
+	ret = ml_kem_encaps(algo, ciphertext, shared_secret, pub);
+
+	if (ret < 0) {
+		_gnutls_switch_fips_state(GNUTLS_FIPS140_OP_ERROR);
+	} else if (not_approved) {
+		_gnutls_switch_fips_state(GNUTLS_FIPS140_OP_NOT_APPROVED);
+	} else {
+		_gnutls_switch_fips_state(GNUTLS_FIPS140_OP_APPROVED);
+	}
+
+	return ret;
 }
 
 static int _wrap_nettle_pk_decaps(gnutls_pk_algorithm_t algo,
@@ -944,13 +961,30 @@ static int _wrap_nettle_pk_decaps(gnutls_pk_algorithm_t algo,
 				  const gnutls_datum_t *ciphertext,
 				  const gnutls_datum_t *priv)
 {
+	int ret;
+	bool not_approved = false;
+
 	switch (algo) {
 	case GNUTLS_PK_MLKEM768:
 	case GNUTLS_PK_MLKEM1024:
-		return ml_kem_decaps(algo, shared_secret, ciphertext, priv);
+		/* unapproved until we implement a CAST per IG 10.3.A(14). */
+		not_approved = true;
+		break;
 	default:
 		return gnutls_assert_val(GNUTLS_E_UNKNOWN_ALGORITHM);
 	}
+
+	ret = ml_kem_decaps(algo, shared_secret, ciphertext, priv);
+
+	if (ret < 0) {
+		_gnutls_switch_fips_state(GNUTLS_FIPS140_OP_ERROR);
+	} else if (not_approved) {
+		_gnutls_switch_fips_state(GNUTLS_FIPS140_OP_NOT_APPROVED);
+	} else {
+		_gnutls_switch_fips_state(GNUTLS_FIPS140_OP_APPROVED);
+	}
+
+	return ret;
 }
 
 /* This wraps nettle_rsa_encrypt so it returns ciphertext as a byte
@@ -4110,6 +4144,7 @@ wrap_nettle_pk_generate_keys(gnutls_pk_algorithm_t algo,
 	}
 	case GNUTLS_PK_MLKEM768:
 	case GNUTLS_PK_MLKEM1024:
+		/* unapproved until we implement CAST/PCT per IG 10.3.A(14). */
 		not_approved = true;
 		ret = ml_kem_generate_keypair(algo, &params->raw_priv,
 					      &params->raw_pub);
