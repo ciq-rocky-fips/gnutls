@@ -321,7 +321,7 @@ void gnutls_jent_entropy_deinit(void)
 /* returns exactly the amount of bytes requested */
 static int force_jent(void *buf, size_t buflen)
 {
-	static int jent_bytes = -1;
+	int jent_bytes = -1;
 
 	if (buf == NULL || buflen == 0) {
 		return -1;
